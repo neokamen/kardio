@@ -197,18 +197,49 @@ QtObject {
         }
     }
 
+    // Disabled icons list (comma-separated metric or group keys)
+    readonly property string disabledIcons: (target && target[propertyPrefix + "disabledIcons"] !== undefined)
+        ? String(target[propertyPrefix + "disabledIcons"])
+        : ""
+
+    function isIconEnabled(id, group) {
+        if (!disabledIcons) return true;
+        var list = disabledIcons.split(",").map(function(s){ return s.trim(); });
+        if (id && list.indexOf(id) !== -1) return false;
+        if (group && list.indexOf(group) !== -1) return false;
+        return true;
+    }
+
+    function toggleIcon(id) {
+        if (!id || !target) return;
+        var list = disabledIcons ? disabledIcons.split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; }) : [];
+        var idx = list.indexOf(id);
+        if (idx !== -1) {
+            list.splice(idx, 1);
+        } else {
+            list.push(id);
+        }
+        var next = list.join(",");
+        var prop = propertyPrefix + "disabledIcons";
+        if (target[prop] !== undefined) {
+            target[prop] = next;
+        }
+    }
+
     // Icons
-    readonly property string cpuIcon:     resolveIcon((target && target[propertyPrefix + "cpuIcon"])     || "cpu-symbolic")
-    readonly property string ramIcon:     resolveIcon((target && target[propertyPrefix + "ramIcon"])     || "memory-symbolic")
-    readonly property string swapIcon:    resolveIcon((target && target[propertyPrefix + "swapIcon"])    || "swap-symbolic")
-    readonly property string tempIcon:    resolveIcon((target && target[propertyPrefix + "tempIcon"])    || "temperature-symbolic")
-    readonly property string gpuIcon:     resolveIcon((target && target[propertyPrefix + "gpuIcon"])     || "gpu-symbolic")
-    readonly property string batteryIcon: resolveIcon((target && target[propertyPrefix + "batteryIcon"]) || "battery-symbolic")
-    readonly property string powerIcon:   resolveIcon((target && target[propertyPrefix + "powerIcon"])   || "voltage-symbolic")
-    readonly property string networkIcon: resolveIcon((target && target[propertyPrefix + "networkIcon"]) || "network-symbolic")
-    readonly property string diskIcon:    resolveIcon((target && target[propertyPrefix + "diskIcon"])    || "storage-symbolic")
-    readonly property string fanIcon:     resolveIcon((target && target[propertyPrefix + "fanIcon"])     || "fan-symbolic")
-    readonly property string uptimeIcon:  resolveIcon((target && target[propertyPrefix + "uptimeIcon"])  || "system-symbolic")
+    readonly property string cpuIcon:     isIconEnabled("cpu", "cpu")         ? resolveIcon((target && target[propertyPrefix + "cpuIcon"])     || "cpu-symbolic") : ""
+    readonly property string ramIcon:     isIconEnabled("ram", "ram")         ? resolveIcon((target && target[propertyPrefix + "ramIcon"])     || "memory-symbolic") : ""
+    readonly property string swapIcon:    isIconEnabled("swap", "swap")       ? resolveIcon((target && target[propertyPrefix + "swapIcon"])    || "swap-symbolic") : ""
+    readonly property string tempIcon:    isIconEnabled("temp", "temp")       ? resolveIcon((target && target[propertyPrefix + "tempIcon"])    || "temperature-symbolic") : ""
+    readonly property string gpuIcon:     isIconEnabled("gpu", "gpu")         ? resolveIcon((target && target[propertyPrefix + "gpuIcon"])     || "gpu-symbolic") : ""
+    readonly property string batteryIcon: isIconEnabled("bat", "bat")         ? resolveIcon((target && target[propertyPrefix + "batteryIcon"]) || "battery-symbolic") : ""
+    readonly property string powerIcon:   isIconEnabled("power", "bat")       ? resolveIcon((target && target[propertyPrefix + "powerIcon"])   || "voltage-symbolic") : ""
+    readonly property string networkIcon: isIconEnabled("net", "net")         ? resolveIcon((target && target[propertyPrefix + "networkIcon"]) || "network-symbolic") : ""
+    readonly property string netDownIcon: isIconEnabled("net/down", "net")    ? resolveIcon((target && target[propertyPrefix + "netDownIcon"]) || "network-download-symbolic") : ""
+    readonly property string netUpIcon:   isIconEnabled("net/up", "net")      ? resolveIcon((target && target[propertyPrefix + "netUpIcon"])   || "network-upload-symbolic") : ""
+    readonly property string diskIcon:    isIconEnabled("disk", "disk")       ? resolveIcon((target && target[propertyPrefix + "diskIcon"])    || "storage-symbolic") : ""
+    readonly property string fanIcon:     isIconEnabled("fan", "fan")         ? resolveIcon((target && target[propertyPrefix + "fanIcon"])     || "fan-symbolic") : ""
+    readonly property string uptimeIcon:  isIconEnabled("uptime", "uptime")   ? resolveIcon((target && target[propertyPrefix + "uptimeIcon"])  || "system-symbolic") : ""
 
     readonly property var _iconMap: ({
         cpu: cpuIcon, ram: ramIcon, swap: swapIcon, temp: tempIcon, gpu: gpuIcon,

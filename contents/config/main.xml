@@ -192,6 +192,15 @@
         <entry name="uptimeIcon" type="String">
             <default>system-symbolic</default>
         </entry>
+        <entry name="netDownIcon" type="String">
+            <default>network-download-symbolic</default>
+        </entry>
+        <entry name="netUpIcon" type="String">
+            <default>network-upload-symbolic</default>
+        </entry>
+        <entry name="disabledIcons" type="String">
+            <default></default>
+        </entry>
 
         <!-- Font -->
         <entry name="fontFamily" type="String">

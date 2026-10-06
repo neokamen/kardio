@@ -287,7 +287,7 @@ PlasmoidItem {
     }
 
     function _updateCompactItems() {
-        var rawItems = ViewHelpers.buildCompactItems(metricStore.metrics, metricConfig.pinnedList, root.mergeFamilyMetrics);
+        var rawItems = ViewHelpers.buildCompactItems(metricStore.metrics, metricConfig.pinnedList, root.mergeFamilyMetrics, metricConfig.disabledIcons);
         if (ViewHelpers.syncCompactValues(root._compactItems, rawItems)) {
             return;
         }
@@ -448,6 +448,12 @@ PlasmoidItem {
     Connections {
         target: metricConfig
         function onPinnedListChanged() {
+            root._updateCompactItems();
+            if (root.expanded) {
+                root._updatePopupGroups();
+            }
+        }
+        function onDisabledIconsChanged() {
             root._updateCompactItems();
             if (root.expanded) {
                 root._updatePopupGroups();

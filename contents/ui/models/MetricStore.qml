@@ -105,7 +105,10 @@ Item {
         var threshType = def.thresholdType || "none";
         var threshKey = def.thresholdKey || group;
         var clr = overrides.color !== undefined ? overrides.color : _resolveMetricColor(rawVal, threshType, threshKey);
+        var isIconAllowed = cfg ? cfg.isIconEnabled(instanceId, group) : true;
         var defIcon = def.icon ? cfg.resolveIcon(def.icon) : (def.iconOverrideKey ? cfg[def.iconOverrideKey] : cfg.getGroupIcon(group));
+        var rawIcon = overrides.icon !== undefined ? overrides.icon : defIcon;
+        var finalIcon = isIconAllowed ? rawIcon : "";
 
         var displayVal = _normalizeString(overrides.displayValue, "");
         var popupDisplay = _normalizeString(overrides.popupDisplay, displayVal);
@@ -123,8 +126,8 @@ Item {
             groupLabel: _normalizeString(overrides.groupLabel, cfg ? cfg.getGroupLabel(group) : (def.label || group.toUpperCase())),
             subLabel: _normalizeString(overrides.subLabel !== undefined ? overrides.subLabel : (def.label || ""), ""),
             prefix: _normalizeString(overrides.prefix !== undefined ? overrides.prefix : (def.prefix || ""), ""),
-            groupIcon: overrides.groupIcon || (cfg ? cfg.getGroupIcon(group) : ""),
-            icon: overrides.icon || defIcon,
+            groupIcon: isIconAllowed ? (overrides.groupIcon || (cfg ? cfg.getGroupIcon(group) : "")) : "",
+            icon: finalIcon,
             secondaryIcon: overrides.secondaryIcon !== undefined ? overrides.secondaryIcon : (def.secondaryIcon ? cfg.tempIcon : ""),
             value: rawVal,
             displayValue: displayVal,
@@ -465,7 +468,7 @@ Item {
                 displayValue: s.network.netDownValue,
                 label: cfg.netLabel,
                 subLabel: "Download",
-                icon: cfg.resolveIcon("network-download-symbolic"),
+                icon: cfg.netDownIcon || cfg.resolveIcon("network-download-symbolic"),
                 status: !isNaN(s.network.netDownRaw) ? "ready" : "loading"
             }));
             list.push(_createMetric("net.up", {
@@ -473,7 +476,7 @@ Item {
                 displayValue: s.network.netUpValue,
                 label: cfg.netLabel,
                 subLabel: "Upload",
-                icon: cfg.resolveIcon("network-upload-symbolic"),
+                icon: cfg.netUpIcon || cfg.resolveIcon("network-upload-symbolic"),
                 status: !isNaN(s.network.netUpRaw) ? "ready" : "loading"
             }));
             if (s.network.netTotalDownValue && s.network.netTotalDownValue !== "..." && !isNaN(s.network.netTotalDownRaw)) {

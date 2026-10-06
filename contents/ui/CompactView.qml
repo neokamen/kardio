@@ -239,7 +239,7 @@ Item {
             }
 
             Row {
-                visible: compactRow.useIcons
+                visible: compactRow.useIcons && !!modelData.icon && (typeof modelData.icon === "string" ? modelData.icon.length > 0 : modelData.icon.length > 0)
                 spacing: 1
                 Layout.alignment: Qt.AlignVCenter
                 Repeater {
@@ -342,7 +342,7 @@ Item {
                     Layout.alignment: Qt.AlignHCenter
 
                     Row {
-                        visible: compactRow.useIcons
+                        visible: compactRow.useIcons && !!modelData.icon && (typeof modelData.icon === "string" ? modelData.icon.length > 0 : modelData.icon.length > 0)
                         spacing: 1
                         Layout.alignment: Qt.AlignVCenter
                         Repeater {

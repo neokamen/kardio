@@ -83,6 +83,9 @@ QtObject {
         batteryIcon:              "battery-symbolic",
         powerIcon:                "voltage-symbolic",
         networkIcon:              "network-symbolic",
+        netDownIcon:              "network-download-symbolic",
+        netUpIcon:                "network-upload-symbolic",
+        disabledIcons:            "",
         diskIcon:                 "storage-symbolic",
         fanIcon:                  "fan-symbolic",
         uptimeIcon:               "system-symbolic",
@@ -195,6 +198,9 @@ QtObject {
         property string batteryIcon:              "battery-symbolic"
         property string powerIcon:                "voltage-symbolic"
         property string networkIcon:              "network-symbolic"
+        property string netDownIcon:              "network-download-symbolic"
+        property string netUpIcon:                "network-upload-symbolic"
+        property string disabledIcons:            ""
         property string diskIcon:                 "storage-symbolic"
         property string fanIcon:                  "fan-symbolic"
         property string uptimeIcon:               "system-symbolic"
@@ -455,8 +461,12 @@ QtObject {
         var defs = _defaults;
         for (var key in defs) {
             var val = (data[key] !== undefined) ? data[key] : defs[key];
-            Plasmoid.configuration[key] = val;
-            _activeConfig[key] = val;
+            if (Plasmoid.configuration[key] !== undefined) {
+                Plasmoid.configuration[key] = val;
+            }
+            if (_activeConfig[key] !== undefined) {
+                _activeConfig[key] = val;
+            }
         }
         Plasmoid.configuration.activeProfileId = id;
         _activeProfileId = id;

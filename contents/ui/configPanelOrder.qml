@@ -20,6 +20,7 @@ KCM.SimpleKCM {
     property string cfg_diskLabels: "{}"
     property string cfg_fanLabel: "FAN"
     property string cfg_batLabel: "BAT"
+    property string cfg_disabledIcons: ""
 
     HardwareDiscovery {
         id: discovery
@@ -92,14 +93,44 @@ KCM.SimpleKCM {
     }
 
     function reloadFromConfiguration() {
-        if (typeof Plasmoid !== "undefined" && Plasmoid.configuration && Plasmoid.configuration.pinnedMetrics !== undefined) {
-            cfg_pinnedMetrics = Plasmoid.configuration.pinnedMetrics;
+        if (typeof Plasmoid !== "undefined" && Plasmoid.configuration) {
+            if (Plasmoid.configuration.pinnedMetrics !== undefined) {
+                cfg_pinnedMetrics = Plasmoid.configuration.pinnedMetrics;
+            }
+            if (Plasmoid.configuration.disabledIcons !== undefined) {
+                cfg_disabledIcons = Plasmoid.configuration.disabledIcons;
+            }
         }
+    }
+
+    function isMetricIconActive(id) {
+        if (!id) return true;
+        if (!cfg_disabledIcons) return true;
+        var list = cfg_disabledIcons.split(",").map(function(s){ return s.trim(); });
+        var colonIdx = id.indexOf(":");
+        var slashIdx = id.indexOf("/");
+        var grp = colonIdx !== -1 ? id.substring(0, colonIdx) : (slashIdx !== -1 ? id.substring(0, slashIdx) : id);
+        return list.indexOf(id) === -1 && list.indexOf(grp) === -1;
+    }
+
+    function toggleMetricIcon(id) {
+        if (!id) return;
+        var list = cfg_disabledIcons ? cfg_disabledIcons.split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; }) : [];
+        var idx = list.indexOf(id);
+        if (idx !== -1) {
+            list.splice(idx, 1);
+        } else {
+            list.push(id);
+        }
+        cfg_disabledIcons = list.join(",");
     }
 
     Connections {
         target: (typeof Plasmoid !== "undefined" && Plasmoid.configuration) ? Plasmoid.configuration : null
         function onPinnedMetricsChanged() {
+            panelOrderPage.reloadFromConfiguration();
+        }
+        function onDisabledIconsChanged() {
             panelOrderPage.reloadFromConfiguration();
         }
     }
@@ -501,6 +532,7 @@ KCM.SimpleKCM {
                                     property var info: panelOrderPage.describeMetric(simItemH.modelData)
 
                                     Kirigami.Icon {
+                                        visible: panelOrderPage.isMetricIconActive(simItemH.modelData)
                                         source: panelOrderPage.resolveIcon(simItemH.info.icon)
                                         implicitWidth: 15; implicitHeight: 15
                                         color: simItemH.info.color
@@ -558,6 +590,7 @@ KCM.SimpleKCM {
                                     property var info: panelOrderPage.describeMetric(simItemV.modelData)
 
                                     Kirigami.Icon {
+                                        visible: panelOrderPage.isMetricIconActive(simItemV.modelData)
                                         source: panelOrderPage.resolveIcon(simItemV.info.icon)
                                         implicitWidth: 16; implicitHeight: 16
                                         color: simItemV.info.color
@@ -745,6 +778,7 @@ KCM.SimpleKCM {
                                         source: panelOrderPage.resolveIcon(chipWrapper.info.icon)
                                         implicitWidth: 16; implicitHeight: 16
                                         color: chipWrapper.info.color
+                                        opacity: panelOrderPage.isMetricIconActive(chipWrapper.modelData) ? 1.0 : 0.25
                                     }
 
                                     // Label & Preview
@@ -784,6 +818,18 @@ KCM.SimpleKCM {
                                             QQC2.ToolTip.text: i18n("Mover a la derecha (ajuste fino)")
                                             QQC2.ToolTip.visible: hovered
                                         }
+                                    }
+
+                                    // Individual Icon Toggle Action
+                                    QQC2.ToolButton {
+                                        icon.name: panelOrderPage.isMetricIconActive(chipWrapper.modelData) ? "visibility" : "hint"
+                                        implicitWidth: 22; implicitHeight: 22
+                                        opacity: panelOrderPage.isMetricIconActive(chipWrapper.modelData) ? 0.9 : 0.4
+                                        QQC2.ToolTip.text: panelOrderPage.isMetricIconActive(chipWrapper.modelData)
+                                            ? i18n("Icono visible. Clic para ocultar icono en el panel")
+                                            : i18n("Icono oculto. Clic para activar icono en el panel")
+                                        QQC2.ToolTip.visible: hovered
+                                        onClicked: panelOrderPage.toggleMetricIcon(chipWrapper.modelData)
                                     }
 
                                     // Remove action

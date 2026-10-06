@@ -260,7 +260,12 @@ function _resolveSegmentLabel(metric) {
     return "";
 }
 
-function _resolveSegmentIcon(metric) {
+function _resolveSegmentIcon(metric, disabledList) {
+    if (disabledList && disabledList.length > 0) {
+        if (metric.id && disabledList.indexOf(metric.id) !== -1) return "";
+        if (metric.group && disabledList.indexOf(metric.group) !== -1) return "";
+        if (metric.subKey && disabledList.indexOf(metric.group + "/" + metric.subKey) !== -1) return "";
+    }
     if (metric.group === "swap") {
         return metric.icon || "swap-symbolic";
     }
@@ -274,9 +279,14 @@ function _resolveSegmentIcon(metric) {
     return "";
 }
 
-function buildCompactItems(metricsList, pinnedList, mergeSameFamily) {
+function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIcons) {
     if (!metricsList || metricsList.length === 0 || !pinnedList || pinnedList.length === 0) return [];
     if (mergeSameFamily === undefined) mergeSameFamily = true;
+
+    var disabledList = [];
+    if (disabledIcons) {
+        disabledList = String(disabledIcons).split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+    }
 
     var metricMap = {};
     for (var mIdx = 0; mIdx < metricsList.length; mIdx++) {
@@ -329,8 +339,13 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily) {
                 ];
                 existingItem.value = null;
                 existingItem.label = existingItem._groupBaseLabel + ":";
+                // If segment 0 already has its own specific icon (e.g. download arrow in net/down),
+                // clear the parent existingItem.icon to avoid rendering duplicate/repeated icons!
+                if (firstSegIcon) {
+                    existingItem.icon = "";
+                }
             }
-            var segIcon = _resolveSegmentIcon(metric);
+            var segIcon = _resolveSegmentIcon(metric, disabledList);
             existingItem.segments.push({
                 id: metric.id,
                 value: metric.displayValue,
@@ -354,7 +369,7 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily) {
                     if (idxB === -1) idxB = 999;
                     return idxA - idxB;
                 });
-                if (hasRamPinned) {
+                if (hasRamPinned && disabledList.indexOf("ram") === -1 && disabledList.indexOf("memory") === -1) {
                     existingItem.icon = "memory-symbolic";
                 }
             }
@@ -362,7 +377,10 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily) {
             var baseLabel = metric.groupLabel || metric.deviceName || metric.group.toUpperCase();
             var singleLabel = metric.label;
             var itemIcon = metric.groupIcon || metric.icon;
-            var initialSegIcon = _resolveSegmentIcon(metric);
+            if (disabledList.indexOf(metric.id) !== -1 || disabledList.indexOf(metric.group) !== -1) {
+                itemIcon = "";
+            }
+            var initialSegIcon = _resolveSegmentIcon(metric, disabledList);
 
             var newItem = {
                 id: metric.id,
