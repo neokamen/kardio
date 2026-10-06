@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1e2e"/>
+      <stop offset="100%" stop-color="#11111b"/>
+    </linearGradient>
+    <linearGradient id="heartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f38ba8"/>
+      <stop offset="100%" stop-color="#e06c75"/>
+    </linearGradient>
+    <linearGradient id="pulseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#89dceb"/>
+      <stop offset="50%" stop-color="#a6e3a1"/>
+      <stop offset="100%" stop-color="#f9e2af"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background rounded plate -->
+  <rect x="2" y="2" width="44" height="44" rx="10" ry="10" fill="url(#bgGrad)" stroke="#313244" stroke-width="1.5"/>
+
+  <!-- Subtle grid lines (monitor look) -->
+  <line x1="8" y1="24" x2="40" y2="24" stroke="#45475a" stroke-width="0.75" stroke-dasharray="2,2"/>
+  <line x1="24" y1="8" x2="24" y2="40" stroke="#45475a" stroke-width="0.75" stroke-dasharray="2,2"/>
+
+  <!-- Heart shape background watermark -->
+  <path d="M24 13.5 C20.5 8 13 8.5 10 13 C6 19 11 27 24 36 C37 27 42 19 38 13 C35 8.5 27.5 8 24 13.5 Z"
+        fill="url(#heartGrad)" opacity="0.22"/>
+
+  <!-- Kardio ECG waveform with glow -->
+  <path d="M 5 24 L 12 24 L 16 17 L 20 33 L 25 9 L 29 30 L 33 21 L 36 24 L 43 24"
+        fill="none" stroke="url(#pulseGrad)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"
+        filter="url(#glow)"/>
+
+  <!-- Pulse peak indicator dot -->
+  <circle cx="25" cy="9" r="2" fill="#f9e2af" filter="url(#glow)"/>
+</svg>

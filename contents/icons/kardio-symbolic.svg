@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <defs>
+    <style id="current-color-scheme" type="text/css">
+      .ColorScheme-Text { color: #f2f2f2; }
+    </style>
+  </defs>
+  <!-- Kardio symbolic icon: Heart monitor ECG pulse waveform -->
+  <path class="ColorScheme-Text" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+        d="M 1 8.5 L 3.5 8.5 L 4.8 5.8 L 6.5 12.2 L 8.2 2.8 L 10 10.8 L 11.2 7.2 L 12.5 8.5 L 15 8.5" />
+  <circle class="ColorScheme-Text" fill="currentColor" cx="8.2" cy="2.8" r="0.8" />
+</svg>

@@ -1,0 +1,17 @@
+*.plasmoid
+*.bak
+*.swp
+*~
+.DS_Store
+.vscode/
+.idea/
+bin/
+env/
+
+*.d2
+site/
+.wrangler/
+
+
+.agents/
+*.zip

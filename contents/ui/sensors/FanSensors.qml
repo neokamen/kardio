@@ -1,0 +1,147 @@
+import QtQuick
+import org.kde.ksysguard.sensors as Sensors
+import "../models/MetricDefinitions.js" as MetricDefinitions
+
+Item {
+    id: root
+
+    property var discovery: null
+    property int updateInterval: 2000
+    property string fanUnit: "rpm" // "rpm" or "percent"
+    property string fanLabels: ""
+    property int fanMaxRpm: 2000
+
+    readonly property var discoveredFans: _discovered
+    property var _discovered: []
+
+    readonly property string fanValue: _fanStr
+    readonly property bool hasFanData: _fanStr.length > 0
+    property string _fanStr: ""
+
+    readonly property var fanDataList: _dataList
+    property var _dataList: []
+
+    readonly property bool multiFan: _discovered.length > 1
+
+    // -------------------------------------------------------------------------
+    // Step 1: Discover available Fans via HardwareDiscovery
+    // -------------------------------------------------------------------------
+
+    function refreshDiscovered() {
+        if (!discovery) return;
+        var fans = discovery.discoveredFans || [];
+        var found = fans.map(function(f, i) {
+            return { id: f.id, name: f.name, number: i + 1 };
+        });
+
+        if (JSON.stringify(found) !== JSON.stringify(_discovered)) {
+            _discovered = found;
+        }
+    }
+
+    Connections {
+        target: discovery
+        function onRevisionChanged() { root.refreshDiscovered(); }
+    }
+
+    onDiscoveryChanged: refreshDiscovered()
+
+    Component.onCompleted: refreshDiscovered()
+
+    // -------------------------------------------------------------------------
+    // Step 2: Poll discovered fans
+    // -------------------------------------------------------------------------
+
+    readonly property var _activeSensorIds: _discovered.map(function(f){ return f.id; })
+
+    Sensors.SensorDataModel {
+        id: fanData
+        sensors: root._activeSensorIds
+        updateRateLimit: root.updateInterval
+        enabled: root._activeSensorIds.length > 0
+
+        onDataChanged: root.aggregate()
+        onReadyChanged: { if (ready) root.aggregate(); }
+        onRowsInserted: root.aggregate()
+        onColumnsInserted: root.aggregate()
+        onModelReset: root.aggregate()
+        onLayoutChanged: root.aggregate()
+    }
+
+    function _modelValue(sensorId) {
+        var col = fanData.column(sensorId);
+        if (col < 0) return NaN;
+        var idx = fanData.index(0, col);
+        if (!idx.valid) return NaN;
+        var val = fanData.data(idx, Sensors.SensorDataModel.Value);
+        return (val === undefined || val === null) ? NaN : val;
+    }
+
+    function _modelMax(sensorId) {
+        var col = fanData.column(sensorId);
+        if (col < 0) return NaN;
+        var idx = fanData.index(0, col);
+        if (!idx.valid) return NaN;
+        var val = fanData.data(idx, Sensors.SensorDataModel.Maximum);
+        return (val === undefined || val === null) ? NaN : val;
+    }
+
+    function parseFanLabels(str) {
+        if (!str) return {};
+        if (typeof str === "object") return str;
+        var trimmed = String(str).trim();
+        if (trimmed.startsWith("{")) {
+            try {
+                return JSON.parse(trimmed);
+            } catch (e) {}
+        }
+        var result = {};
+        trimmed.split("|").forEach(function(pair) {
+            var sep = pair.indexOf(":");
+            if (sep > 0) result[pair.substring(0, sep).trim()] = pair.substring(sep + 1).trim();
+        });
+        return result;
+    }
+
+    // Returns { str, estimated }. "estimated" is true when the hardware
+    // doesn't report its own max RPM and we fell back to the user-configured
+    // fanMaxRpm guess instead of a real measurement.
+    function _fanValueStr(f) {
+        var v = _modelValue(f.id);
+        if (isNaN(v) || v <= 0) return { str: "", estimated: false };
+        if (fanUnit === "percent") {
+            var max = _modelMax(f.id);
+            var estimated = isNaN(max) || max <= 0;
+            if (estimated) max = (fanMaxRpm > 0 ? fanMaxRpm : 2000);
+            if (max <= 0) max = 2000;
+            return { str: Math.min(100, Math.round((v / max) * 100)) + "%", estimated: estimated };
+        }
+        return { str: Math.round(v) + " RPM", estimated: false };
+    }
+
+    function aggregate() {
+        var custom = parseFanLabels(fanLabels);
+        var newList = [];
+        var parts = [];
+        for (var i = 0; i < _discovered.length; i++) {
+            var f = _discovered[i];
+            var r = _fanValueStr(f);
+            if (!r.str) continue;
+            var name = custom[f.id] || f.name;
+            var v = _modelValue(f.id);
+            // rpmValue is always the raw RPM reading, independent of fanUnit —
+            // used by the popup, which shows RPM regardless of the compact
+            // panel's unit (percent only saves space, it isn't more accurate).
+            newList.push({ id: f.id, name: name, value: r.str, rpmValue: Math.round(v) + " RPM",
+                           number: f.number, valueNumber: (!isNaN(v) && v > 0) ? v : NaN,
+                           isEstimated: r.estimated });
+            parts.push(r.str);
+        }
+        _fanStr = parts.join(" ");
+        _dataList = newList;
+    }
+
+    onFanUnitChanged: aggregate()
+    onFanLabelsChanged: aggregate()
+    onFanMaxRpmChanged: aggregate()
+}

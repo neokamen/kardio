@@ -1,0 +1,18 @@
+{
+  "KPlugin": {
+    "Id": "org.kde.plasma.kardio",
+    "Name": "Kardio",
+    "Description": "Kardio - the plasma monitor",
+    "Icon": "org.kde.plasma.kardio",
+    "Category": "System Information",
+    "Authors": [
+      {
+        "Name": "Kardio Team"
+      }
+    ],
+    "Version": "1.0.0",
+    "License": "GPL-3.0"
+  },
+  "KPackageStructure": "Plasma/Applet",
+  "X-Plasma-API-Minimum-Version": "6.0"
+}
