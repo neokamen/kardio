@@ -1018,6 +1018,7 @@ KCM.SimpleKCM {
                         fillMode: Image.PreserveAspectFit
                         smooth: true
                         mipmap: true
+                        cache: false
                     }
                 }
 
@@ -1045,7 +1046,7 @@ KCM.SimpleKCM {
                                 Label {
                                     id: aboutVersionLabel
                                     anchors.centerIn: parent
-                                    text: "v0.3.4"
+                                    text: "v0.3.5"
                                     font.pointSize: Kirigami.Theme.smallFont.pointSize - 1
                                     font.weight: Font.Bold
                                     color: Kirigami.Theme.highlightColor
