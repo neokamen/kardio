@@ -129,7 +129,8 @@ QtObject {
         fanUnit:                  "rpm",
         fanMaxRpm:                2000,
         labelOpacity:             0.65,
-        separatorOpacity:         0.4
+        separatorOpacity:         0.4,
+        separatorStyle:           "line"
     })
 
     // Live config object that MetricConfig.target binds to
@@ -239,6 +240,7 @@ QtObject {
         property int    fanMaxRpm:                2000
         property real   labelOpacity:             0.65
         property real   separatorOpacity:         0.4
+        property string separatorStyle:           "line"
 
         onPinnedMetricsChanged: root._saveActiveConfigKey("pinnedMetrics", pinnedMetrics)
         onGpuLabelsChanged:     root._saveActiveConfigKey("gpuLabels", gpuLabels)

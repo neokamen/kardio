@@ -35,6 +35,7 @@ PlasmoidItem {
     property bool fontBold:           profileManager.activeConfig.fontBold
     property real labelOpacity:       profileManager.activeConfig.labelOpacity
     property real separatorOpacity:   profileManager.activeConfig.separatorOpacity
+    property string separatorStyle:   profileManager.activeConfig.separatorStyle || "line"
     property int effectiveFontSize:   fontSize > 0 ? fontSize : -1
     property bool mergeFamilyMetrics: profileManager.activeConfig.mergeFamilyMetrics
     property bool showSeparators:     profileManager.activeConfig.showSeparators
@@ -469,6 +470,7 @@ PlasmoidItem {
         iconColor: root.resolvedIconColor
         labelOpacity: root.labelOpacity
         separatorOpacity: root.separatorOpacity
+        separatorStyle: root.separatorStyle
         showSeparators: root.showSeparators
         onToggleExpanded: root.expanded = !root.expanded
 

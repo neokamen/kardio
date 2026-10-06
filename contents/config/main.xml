@@ -342,6 +342,9 @@
         <entry name="separatorOpacity" type="Double">
             <default>0.4</default>
         </entry>
+        <entry name="separatorStyle" type="String">
+            <default>line</default>
+        </entry>
 
         <!-- Profile system -->
         <entry name="profileList" type="String">

@@ -20,6 +20,7 @@ Item {
     required property string layoutType
     required property real labelOpacity
     required property real separatorOpacity
+    property string separatorStyle: "line"
     required property bool showSeparators
     required property string backgroundType
     required property bool isPlanar
@@ -74,6 +75,7 @@ Item {
         readonly property string layoutType: compactRoot.layoutType
         readonly property real labelOpacity: compactRoot.labelOpacity
         readonly property real separatorOpacity: compactRoot.separatorOpacity
+        readonly property string separatorStyle: compactRoot.separatorStyle
         readonly property bool showSeparators: compactRoot.showSeparators
         readonly property bool isVertical: compactRoot.isVertical
         readonly property bool customFont: compactRoot.customFont
@@ -223,12 +225,13 @@ Item {
             spacing: Kirigami.Units.smallSpacing
             Layout.fillHeight: true
 
-            Rectangle {
+            SeparatorItem {
                 visible: index > 0 && compactRow.showSeparators && !modelData.hideSeparator
-                width: 1
-                Layout.fillHeight: true
+                style: compactRow.separatorStyle
                 color: compactRow.baseTextColor
-                opacity: compactRow.separatorOpacity
+                separatorOpacity: compactRow.separatorOpacity
+                referenceSize: compactRow.iconSize
+                Layout.fillHeight: true
             }
 
             Row {
@@ -293,12 +296,13 @@ Item {
             spacing: Kirigami.Units.smallSpacing
             Layout.fillHeight: true
 
-            Rectangle {
+            SeparatorItem {
                 visible: index > 0 && compactRow.showSeparators && !modelData.hideSeparator
-                width: 1
-                Layout.fillHeight: true
+                style: compactRow.separatorStyle
                 color: compactRow.baseTextColor
-                opacity: compactRow.separatorOpacity
+                separatorOpacity: compactRow.separatorOpacity
+                referenceSize: compactRow.iconSize
+                Layout.fillHeight: true
             }
 
             ColumnLayout {
