@@ -251,6 +251,7 @@ function buildPopupGroups(metricsList, orderedKeys) {
 
 function _resolveSegmentLabel(metric) {
     if (metric.prefix) return metric.prefix;
+    if (metric.group === "swap") return "SWAP";
     if (metric.subKey === "hotspot") return "HS";
     if (metric.subKey === "vramTemp") return "VRAM";
     if (metric.subKey === "memFreq") return "MEM";
@@ -259,6 +260,9 @@ function _resolveSegmentLabel(metric) {
 }
 
 function _resolveSegmentIcon(metric) {
+    if (metric.group === "swap") {
+        return metric.icon || "swap-symbolic";
+    }
     if (metric.subKey === "hotspot" || metric.subKey === "vramTemp") {
         return "temperature-symbolic";
     }
@@ -281,6 +285,16 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily) {
         }
     }
 
+    // Check if any RAM metric is pinned
+    var hasRamPinned = false;
+    for (var pIdx = 0; pIdx < pinnedList.length; pIdx++) {
+        var pMetric = metricMap[pinnedList[pIdx]];
+        if (pMetric && pMetric.group === "ram") {
+            hasRamPinned = true;
+            break;
+        }
+    }
+
     var items = [];
     var groupIndexMap = {};
 
@@ -289,7 +303,14 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily) {
         var metric = metricMap[id];
         if (!metric) continue;
 
-        var groupKey = metric.deviceId ? (metric.group + ":" + metric.deviceId) : metric.group;
+        // When mergeSameFamily is enabled and RAM is pinned, group SWAP into the RAM block
+        var isRamOrSwap = (metric.group === "ram" || metric.group === "swap");
+        var groupKey;
+        if (mergeSameFamily && hasRamPinned && isRamOrSwap) {
+            groupKey = "ram";
+        } else {
+            groupKey = metric.deviceId ? (metric.group + ":" + metric.deviceId) : metric.group;
+        }
 
         if (mergeSameFamily && groupIndexMap[groupKey] !== undefined) {
             var existingItem = items[groupIndexMap[groupKey]];
@@ -315,6 +336,20 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily) {
                 icon: segIcon,
                 key: metric.subKey || metric.id
             });
+
+            // Ensure SWAP metrics always stay at the end of the RAM block
+            if (groupKey === "ram") {
+                existingItem.segments.sort(function(a, b) {
+                    var aIsSwap = (a.key && String(a.key).indexOf("swap") !== -1) || a.icon === "swap-symbolic" || a.label === "SWAP";
+                    var bIsSwap = (b.key && String(b.key).indexOf("swap") !== -1) || b.icon === "swap-symbolic" || b.label === "SWAP";
+                    if (aIsSwap && !bIsSwap) return 1;
+                    if (!aIsSwap && bIsSwap) return -1;
+                    return 0;
+                });
+                if (hasRamPinned) {
+                    existingItem.icon = "memory-symbolic";
+                }
+            }
         } else {
             var baseLabel = metric.groupLabel || metric.deviceName || metric.group.toUpperCase();
             var singleLabel = metric.label;

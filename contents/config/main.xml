@@ -166,7 +166,7 @@
             <default>memory-symbolic</default>
         </entry>
         <entry name="swapIcon" type="String">
-            <default>memory-symbolic</default>
+            <default>swap-symbolic</default>
         </entry>
         <entry name="tempIcon" type="String">
             <default>temperature-symbolic</default>

@@ -742,6 +742,28 @@ KCM.SimpleKCM {
                                         }
                                     }
 
+                                    // Fine-tuned movement arrows (mover al detalle)
+                                    RowLayout {
+                                        spacing: 2
+                                        QQC2.ToolButton {
+                                            icon.name: "go-previous"
+                                            implicitWidth: 22; implicitHeight: 22
+                                            enabled: chipWrapper.index > 0
+                                            onClicked: panelOrderPage.moveItem(chipWrapper.index, chipWrapper.index - 1)
+                                            QQC2.ToolTip.text: i18n("Mover a la izquierda (ajuste fino)")
+                                            QQC2.ToolTip.visible: hovered
+                                        }
+
+                                        QQC2.ToolButton {
+                                            icon.name: "go-next"
+                                            implicitWidth: 22; implicitHeight: 22
+                                            enabled: chipWrapper.index < panelOrderPage.currentList.length - 1
+                                            onClicked: panelOrderPage.moveItem(chipWrapper.index, chipWrapper.index + 1)
+                                            QQC2.ToolTip.text: i18n("Mover a la derecha (ajuste fino)")
+                                            QQC2.ToolTip.visible: hovered
+                                        }
+                                    }
+
                                     // Remove action
                                     QQC2.ToolButton {
                                         icon.name: "dialog-close"

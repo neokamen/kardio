@@ -77,7 +77,7 @@ QtObject {
         backgroundType:           "default",
         cpuIcon:                  "cpu-symbolic",
         ramIcon:                  "memory-symbolic",
-        swapIcon:                 "memory-symbolic",
+        swapIcon:                 "swap-symbolic",
         tempIcon:                 "temperature-symbolic",
         gpuIcon:                  "gpu-symbolic",
         batteryIcon:              "battery-symbolic",
@@ -187,7 +187,7 @@ QtObject {
         property string backgroundType:           "default"
         property string cpuIcon:                  "cpu-symbolic"
         property string ramIcon:                  "memory-symbolic"
-        property string swapIcon:                 "memory-symbolic"
+        property string swapIcon:                 "swap-symbolic"
         property string tempIcon:                 "temperature-symbolic"
         property string gpuIcon:                  "gpu-symbolic"
         property string batteryIcon:              "battery-symbolic"

@@ -200,7 +200,7 @@ QtObject {
     // Icons
     readonly property string cpuIcon:     resolveIcon((target && target[propertyPrefix + "cpuIcon"])     || "cpu-symbolic")
     readonly property string ramIcon:     resolveIcon((target && target[propertyPrefix + "ramIcon"])     || "memory-symbolic")
-    readonly property string swapIcon:    resolveIcon((target && target[propertyPrefix + "swapIcon"])    || "memory-symbolic")
+    readonly property string swapIcon:    resolveIcon((target && target[propertyPrefix + "swapIcon"])    || "swap-symbolic")
     readonly property string tempIcon:    resolveIcon((target && target[propertyPrefix + "tempIcon"])    || "temperature-symbolic")
     readonly property string gpuIcon:     resolveIcon((target && target[propertyPrefix + "gpuIcon"])     || "gpu-symbolic")
     readonly property string batteryIcon: resolveIcon((target && target[propertyPrefix + "batteryIcon"]) || "battery-symbolic")

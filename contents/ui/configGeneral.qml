@@ -22,6 +22,7 @@ KCM.SimpleKCM {
     property string cfg_fanUnit: "rpm"
     property bool cfg_mergeFamilyMetrics: true
     property bool cfg_showSeparators: true
+    property string cfg_separatorStyle: "line"
 
     readonly property bool iconsEnabled: cfg_displayMode === "icons" || cfg_displayMode === "icons+text"
     readonly property bool textEnabled: cfg_displayMode === "text" || cfg_displayMode === "icons+text"
@@ -88,7 +89,7 @@ KCM.SimpleKCM {
                                 Label {
                                     id: versionLabel
                                     anchors.centerIn: parent
-                                    text: "v0.3.1"
+                                    text: "v0.3.2"
                                     font.pointSize: Kirigami.Theme.smallFont.pointSize - 1
                                     font.weight: Font.Bold
                                     color: Kirigami.Theme.highlightColor
@@ -160,12 +161,12 @@ KCM.SimpleKCM {
                                 }
                             }
 
-                            Rectangle {
+                            SeparatorItem {
                                 visible: cfg_showSeparators
-                                width: 1
-                                height: 16
+                                style: cfg_separatorStyle
                                 color: Kirigami.Theme.textColor
-                                opacity: cfg_separatorOpacity
+                                separatorOpacity: cfg_separatorOpacity
+                                referenceSize: cfg_iconSize
                             }
 
                             // Simulated Temp Metric Tile
@@ -188,12 +189,12 @@ KCM.SimpleKCM {
                                 }
                             }
 
-                            Rectangle {
+                            SeparatorItem {
                                 visible: cfg_showSeparators
-                                width: 1
-                                height: 16
+                                style: cfg_separatorStyle
                                 color: Kirigami.Theme.textColor
-                                opacity: cfg_separatorOpacity
+                                separatorOpacity: cfg_separatorOpacity
+                                referenceSize: cfg_iconSize
                             }
 
                             // Simulated GPU Tile
@@ -224,12 +225,12 @@ KCM.SimpleKCM {
                                 }
                             }
 
-                            Rectangle {
+                            SeparatorItem {
                                 visible: cfg_showSeparators
-                                width: 1
-                                height: 16
+                                style: cfg_separatorStyle
                                 color: Kirigami.Theme.textColor
-                                opacity: cfg_separatorOpacity
+                                separatorOpacity: cfg_separatorOpacity
+                                referenceSize: cfg_iconSize
                             }
 
                             // Simulated Net Tile
@@ -784,6 +785,74 @@ KCM.SimpleKCM {
                         text: i18n("Agrupar métricas del mismo hardware en un solo bloque")
                         checked: cfg_mergeFamilyMetrics
                         onToggled: cfg_mergeFamilyMetrics = checked
+                    }
+                }
+
+                // Separator Style Selector Gallery
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: Kirigami.Units.smallSpacing
+                    visible: cfg_showSeparators
+
+                    Label {
+                        text: i18n("Estilo Visual del Separador:")
+                        font.weight: Font.DemiBold
+                    }
+
+                    Flow {
+                        Layout.fillWidth: true
+                        spacing: Kirigami.Units.smallSpacing
+
+                        Repeater {
+                            model: [
+                                { key: "line",       name: i18n("Línea") },
+                                { key: "doubleLine", name: i18n("Doble") },
+                                { key: "dot",        name: i18n("Punto") },
+                                { key: "colon",      name: i18n("Dos Puntos") },
+                                { key: "pill",       name: i18n("Píldora") },
+                                { key: "slash",      name: i18n("Diagonal") },
+                                { key: "chevron",    name: i18n("Chevrón") },
+                                { key: "diamond",    name: i18n("Rombo") },
+                                { key: "dash",       name: i18n("Guión") }
+                            ]
+
+                            delegate: Rectangle {
+                                id: styleChip
+                                required property var modelData
+                                implicitWidth: styleChipRow.implicitWidth + 24
+                                implicitHeight: 34
+                                radius: 6
+                                color: cfg_separatorStyle === modelData.key
+                                       ? Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.18)
+                                       : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.05)
+                                border.color: cfg_separatorStyle === modelData.key ? Kirigami.Theme.highlightColor : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.15)
+                                border.width: cfg_separatorStyle === modelData.key ? 2 : 1
+
+                                TapHandler {
+                                    onTapped: cfg_separatorStyle = styleChip.modelData.key
+                                }
+
+                                RowLayout {
+                                    id: styleChipRow
+                                    anchors.centerIn: parent
+                                    spacing: 8
+
+                                    SeparatorItem {
+                                        style: styleChip.modelData.key
+                                        color: cfg_separatorStyle === styleChip.modelData.key ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor
+                                        separatorOpacity: 1.0
+                                        referenceSize: 16
+                                    }
+
+                                    Label {
+                                        text: styleChip.modelData.name
+                                        font.bold: cfg_separatorStyle === styleChip.modelData.key
+                                        font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                                        color: cfg_separatorStyle === styleChip.modelData.key ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -14,8 +14,10 @@ Item {
     implicitWidth: {
         switch (sepRoot.style) {
             case "dot": return 6;
+            case "colon": return 6;
             case "pill": return 6;
             case "slash": return 8;
+            case "chevron": return 8;
             case "doubleLine": return 6;
             case "diamond": return 8;
             case "dash": return 8;
@@ -29,7 +31,7 @@ Item {
     // 1. Classic Single Line
     Rectangle {
         id: lineRect
-        visible: sepRoot.style === "line" || (sepRoot.style !== "doubleLine" && sepRoot.style !== "dot" && sepRoot.style !== "pill" && sepRoot.style !== "slash" && sepRoot.style !== "diamond" && sepRoot.style !== "dash")
+        visible: sepRoot.style === "line" || (sepRoot.style !== "doubleLine" && sepRoot.style !== "dot" && sepRoot.style !== "pill" && sepRoot.style !== "slash" && sepRoot.style !== "diamond" && sepRoot.style !== "dash" && sepRoot.style !== "colon" && sepRoot.style !== "chevron")
         anchors.centerIn: parent
         width: 1
         height: Math.max(10, Math.round((sepRoot.height > 0 ? Math.min(sepRoot.height, 28) : sepRoot.referenceSize) * 0.7))
@@ -119,6 +121,59 @@ Item {
         radius: 1
         color: sepRoot.color
         antialiasing: true
+    }
+
+    // 8. Colon / Double Dot (Vertical)
+    Column {
+        id: colonCol
+        visible: sepRoot.style === "colon"
+        anchors.centerIn: parent
+        spacing: 3
+
+        Rectangle {
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: 3
+            height: 3
+            radius: 1.5
+            color: sepRoot.color
+            antialiasing: true
+        }
+        Rectangle {
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: 3
+            height: 3
+            radius: 1.5
+            color: sepRoot.color
+            antialiasing: true
+        }
+    }
+
+    // 9. Chevron / Angle (›)
+    Canvas {
+        id: chevronCanvas
+        visible: sepRoot.style === "chevron"
+        anchors.centerIn: parent
+        width: 6
+        height: Math.max(10, Math.round((sepRoot.height > 0 ? Math.min(sepRoot.height, 26) : sepRoot.referenceSize) * 0.7))
+        onPaint: {
+            var ctx = getContext("2d");
+            ctx.reset();
+            ctx.strokeStyle = sepRoot.color;
+            ctx.lineWidth = 1.5;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.beginPath();
+            var midY = height / 2;
+            ctx.moveTo(1.5, 2);
+            ctx.lineTo(width - 1.5, midY);
+            ctx.lineTo(1.5, height - 2);
+            ctx.stroke();
+        }
+        Connections {
+            target: sepRoot
+            function onColorChanged() { chevronCanvas.requestPaint(); }
+            function onHeightChanged() { chevronCanvas.requestPaint(); }
+        }
     }
 }
 
