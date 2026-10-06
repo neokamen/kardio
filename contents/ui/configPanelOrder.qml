@@ -27,6 +27,8 @@ KCM.SimpleKCM {
     property string activeCatalogCategory: "all"
     property string catalogSearchQuery: ""
     property string previewOrientation: "horizontal"
+    property int dragFromIndex: -1
+    property int dropTargetIndex: -1
 
     function resolveIcon(name) {
         if (!name) return "configure";
@@ -171,6 +173,7 @@ KCM.SimpleKCM {
                 displayName = i18n("RAM Temp");
             }
         } else if (group === "swap") {
+            icon = "swap-symbolic";
             previewVal = subKey === "percent" ? "0%" : "0 MB";
         } else if (group === "temp") {
             previewVal = "48°C";
@@ -304,8 +307,8 @@ KCM.SimpleKCM {
                 { id: "ram/percentage", label: i18n("RAM Porcentaje (%)"), icon: "memory-symbolic", group: "ram" },
                 { id: "ram/used", label: i18n("RAM Usado / Total"), icon: "memory-symbolic", group: "ram" },
                 { id: "ram/temp", label: i18n("🌡️ RAM Temp (DDR5)"), icon: "temperature-symbolic", group: "ram" },
-                { id: "swap/percent", label: i18n("SWAP Porcentaje (%)"), icon: "memory-symbolic", group: "ram" },
-                { id: "swap/used", label: i18n("SWAP Usado"), icon: "memory-symbolic", group: "ram" }
+                { id: "swap/percent", label: i18n("SWAP Porcentaje (%)"), icon: "swap-symbolic", group: "ram" },
+                { id: "swap/used", label: i18n("SWAP Usado"), icon: "swap-symbolic", group: "ram" }
             ]
         });
 
@@ -615,102 +618,135 @@ KCM.SimpleKCM {
                 spacing: Kirigami.Units.mediumSpacing
 
                 QQC2.Label {
-                    text: i18n("Arrastra o pulsa las flechas para desplazar cada elemento a la posición exacta que desees:")
+                    text: i18n("Arrastra directamente cualquier casilla para reordenar su posición en el panel:")
                     opacity: 0.75
                 }
 
-                // Flow of sequence cards
+                // Flow of sequence cards with direct Drag & Drop reordering
                 Flow {
+                    id: sequenceFlow
                     Layout.fillWidth: true
                     spacing: Kirigami.Units.smallSpacing
 
                     Repeater {
                         model: panelOrderPage.currentList
 
-                        delegate: Rectangle {
-                            id: sequenceChip
+                        delegate: Item {
+                            id: chipWrapper
                             required property var modelData
                             required property int index
 
-                            property var info: panelOrderPage.describeMetric(sequenceChip.modelData)
+                            property var info: panelOrderPage.describeMetric(chipWrapper.modelData)
+                            implicitWidth: sequenceChip.width
+                            implicitHeight: sequenceChip.height
 
-                            implicitWidth: chipInnerRow.implicitWidth + 16
-                            implicitHeight: 46
-                            radius: 8
-                            color: Qt.rgba(Kirigami.Theme.backgroundColor.r, Kirigami.Theme.backgroundColor.g, Kirigami.Theme.backgroundColor.b, 0.7)
-                            border.color: sequenceChip.info.color
-                            border.width: 1.5
+                            DropArea {
+                                anchors.fill: parent
+                                keys: ["panelSequenceItem"]
+                                onEntered: function(drag) {
+                                    panelOrderPage.dropTargetIndex = chipWrapper.index;
+                                }
+                            }
 
-                            RowLayout {
-                                id: chipInnerRow
-                                anchors.centerIn: parent
-                                spacing: 8
+                            Rectangle {
+                                id: sequenceChip
+                                width: chipInnerRow.implicitWidth + 20
+                                height: 46
+                                radius: 8
+                                color: Qt.rgba(Kirigami.Theme.backgroundColor.r, Kirigami.Theme.backgroundColor.g, Kirigami.Theme.backgroundColor.b, 0.75)
+                                border.color: (panelOrderPage.dropTargetIndex === chipWrapper.index && panelOrderPage.dragFromIndex !== chipWrapper.index)
+                                              ? Kirigami.Theme.highlightColor
+                                              : chipWrapper.info.color
+                                border.width: (panelOrderPage.dropTargetIndex === chipWrapper.index && panelOrderPage.dragFromIndex !== chipWrapper.index) ? 2.5 : 1.5
 
-                                // Position Badge
-                                Rectangle {
-                                    implicitWidth: 24; implicitHeight: 24
-                                    radius: 12
-                                    color: sequenceChip.info.color
+                                Drag.active: dragArea.drag.active
+                                Drag.keys: ["panelSequenceItem"]
+                                Drag.hotSpot.x: width / 2
+                                Drag.hotSpot.y: height / 2
 
-                                    QQC2.Label {
-                                        anchors.centerIn: parent
-                                        text: "#" + (sequenceChip.index + 1)
-                                        font.bold: true
-                                        font.pixelSize: 10
-                                        color: "#ffffff"
+                                opacity: Drag.active ? 0.85 : 1.0
+                                scale: Drag.active ? 1.06 : 1.0
+                                z: Drag.active ? 999 : 1
+
+                                MouseArea {
+                                    id: dragArea
+                                    anchors.fill: parent
+                                    drag.target: sequenceChip
+                                    cursorShape: pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+                                    onPressed: {
+                                        panelOrderPage.dragFromIndex = chipWrapper.index;
+                                        panelOrderPage.dropTargetIndex = chipWrapper.index;
+                                    }
+                                    onReleased: {
+                                        if (panelOrderPage.dragFromIndex !== -1 && panelOrderPage.dropTargetIndex !== -1 && panelOrderPage.dragFromIndex !== panelOrderPage.dropTargetIndex) {
+                                            panelOrderPage.moveItem(panelOrderPage.dragFromIndex, panelOrderPage.dropTargetIndex);
+                                        }
+                                        sequenceChip.x = 0;
+                                        sequenceChip.y = 0;
+                                        panelOrderPage.dragFromIndex = -1;
+                                        panelOrderPage.dropTargetIndex = -1;
                                     }
                                 }
 
-                                // Metric Icon
-                                Kirigami.Icon {
-                                    source: panelOrderPage.resolveIcon(sequenceChip.info.icon)
-                                    implicitWidth: 16; implicitHeight: 16
-                                    color: sequenceChip.info.color
-                                }
-
-                                // Label & Preview
-                                ColumnLayout {
-                                    spacing: 0
-                                    QQC2.Label {
-                                        text: sequenceChip.info.label
-                                        font.bold: true
-                                        font.pixelSize: Kirigami.Theme.smallFont.pixelSize
-                                        elide: Text.ElideRight
-                                        Layout.maximumWidth: 140
-                                    }
-                                    QQC2.Label {
-                                        text: sequenceChip.info.preview
-                                        font.pixelSize: Math.max(9, Kirigami.Theme.smallFont.pixelSize - 1)
-                                        opacity: 0.65
-                                    }
-                                }
-
-                                // Reorder actions
                                 RowLayout {
-                                    spacing: 1
+                                    id: chipInnerRow
+                                    anchors.centerIn: parent
+                                    spacing: 8
 
-                                    QQC2.ToolButton {
-                                        icon.name: "go-previous"
-                                        implicitWidth: 24; implicitHeight: 24
-                                        enabled: sequenceChip.index > 0
-                                        onClicked: panelOrderPage.moveItem(sequenceChip.index, sequenceChip.index - 1)
-                                        QQC2.ToolTip.text: i18n("Mover hacia la izquierda")
-                                        QQC2.ToolTip.visible: hovered
+                                    // Drag Handle Grip Icon
+                                    Kirigami.Icon {
+                                        source: "handle-sort"
+                                        implicitWidth: 14; implicitHeight: 14
+                                        opacity: 0.55
+                                        color: Kirigami.Theme.textColor
+                                        QQC2.ToolTip.text: i18n("Arrastra para mover la posición")
+                                        QQC2.ToolTip.visible: dragArea.containsMouse && !dragArea.pressed
                                     }
 
-                                    QQC2.ToolButton {
-                                        icon.name: "go-next"
-                                        implicitWidth: 24; implicitHeight: 24
-                                        enabled: sequenceChip.index < panelOrderPage.currentList.length - 1
-                                        onClicked: panelOrderPage.moveItem(sequenceChip.index, sequenceChip.index + 1)
-                                        QQC2.ToolTip.text: i18n("Mover hacia la derecha")
-                                        QQC2.ToolTip.visible: hovered
+                                    // Position Badge
+                                    Rectangle {
+                                        implicitWidth: 22; implicitHeight: 22
+                                        radius: 11
+                                        color: chipWrapper.info.color
+
+                                        QQC2.Label {
+                                            anchors.centerIn: parent
+                                            text: "#" + (chipWrapper.index + 1)
+                                            font.bold: true
+                                            font.pixelSize: 10
+                                            color: "#ffffff"
+                                        }
                                     }
 
+                                    // Metric Icon
+                                    Kirigami.Icon {
+                                        source: panelOrderPage.resolveIcon(chipWrapper.info.icon)
+                                        implicitWidth: 16; implicitHeight: 16
+                                        color: chipWrapper.info.color
+                                    }
+
+                                    // Label & Preview
+                                    ColumnLayout {
+                                        spacing: 0
+                                        QQC2.Label {
+                                            text: chipWrapper.info.label
+                                            font.bold: true
+                                            font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                                            elide: Text.ElideRight
+                                            Layout.maximumWidth: 140
+                                        }
+                                        QQC2.Label {
+                                            text: chipWrapper.info.preview
+                                            font.pixelSize: Math.max(9, Kirigami.Theme.smallFont.pixelSize - 1)
+                                            opacity: 0.65
+                                        }
+                                    }
+
+                                    // Remove action
                                     QQC2.ToolButton {
                                         icon.name: "dialog-close"
                                         implicitWidth: 24; implicitHeight: 24
-                                        onClicked: panelOrderPage.removeItem(sequenceChip.index)
+                                        onClicked: panelOrderPage.removeItem(chipWrapper.index)
                                         QQC2.ToolTip.text: i18n("Desanclar de la barra")
                                         QQC2.ToolTip.visible: hovered
                                     }

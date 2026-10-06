@@ -142,9 +142,9 @@ ColumnLayout {
                 }
             }
 
-            // Quick Action Toolbar
+            // Quick Action Toolbar (Refrescar y Fijar únicamente)
             RowLayout {
-                spacing: 2
+                spacing: 4
 
                 QQC2.ToolButton {
                     icon.name: "view-refresh-symbolic"
@@ -152,25 +152,6 @@ ColumnLayout {
                     QQC2.ToolTip.text: i18n("Reescanear sensores de hardware")
                     QQC2.ToolTip.visible: hovered
                     onClicked: fullView.refreshRequested()
-                }
-
-                QQC2.ToolButton {
-                    icon.name: "utilities-system-monitor"
-                    implicitWidth: 28; implicitHeight: 28
-                    QQC2.ToolTip.text: i18n("Abrir Monitor del Sistema de KDE")
-                    QQC2.ToolTip.visible: hovered
-                    onClicked: executable.exec("plasma-systemmonitor || ksysguard")
-                }
-
-                QQC2.ToolButton {
-                    icon.name: "configure"
-                    implicitWidth: 28; implicitHeight: 28
-                    QQC2.ToolTip.text: i18n("Ajustes de Kardio")
-                    QQC2.ToolTip.visible: hovered
-                    onClicked: {
-                        var act = Plasmoid.internalAction("configure") || Plasmoid.action("configure");
-                        if (act) act.trigger();
-                    }
                 }
 
                 QQC2.ToolButton {
@@ -186,7 +167,7 @@ ColumnLayout {
     }
 
     // ═══════════════════════════════════════════════════════════════════════
-    // 2. SEARCH & CATEGORY FILTER CHIPS
+    // 2. SEARCH & CATEGORY FILTER CHIPS (DESPLAZABLE HORIZONTALMENTE)
     // ═══════════════════════════════════════════════════════════════════════
     RowLayout {
         Layout.fillWidth: true
@@ -209,39 +190,42 @@ ColumnLayout {
         }
     }
 
-    // Category Filter Chips
-    QQC2.ScrollView {
+    // Category Filter Chips (Horizontal ListView con desplazamiento suave)
+    ListView {
+        id: categoryFilterList
         Layout.fillWidth: true
         implicitHeight: 34
+        orientation: ListView.Horizontal
+        spacing: 6
         clip: true
-        contentHeight: availableHeight
-        QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOff
-        QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
+        flickableDirection: Flickable.HorizontalFlick
+        boundsBehavior: Flickable.StopAtBounds
 
-        RowLayout {
-            spacing: 6
+        QQC2.ScrollBar.horizontal: QQC2.ScrollBar {
+            policy: QQC2.ScrollBar.AsNeeded
+            active: categoryFilterList.moving || categoryFilterList.flicking
+        }
 
-            Repeater {
-                model: [
-                    { id: "all", label: i18n("Todos"), icon: "system-run" },
-                    { id: "cpu", label: "CPU", icon: "cpu-symbolic" },
-                    { id: "gpu", label: "GPU", icon: "gpu-symbolic" },
-                    { id: "ram", label: "RAM", icon: "memory-symbolic" },
-                    { id: "disk", label: i18n("Discos"), icon: "storage-symbolic" },
-                    { id: "net", label: i18n("Red"), icon: "network-wireless-symbolic" },
-                    { id: "temp", label: i18n("Térmico"), icon: "temperature-symbolic" },
-                    { id: "bat", label: i18n("Batería"), icon: "battery-symbolic" },
-                    { id: "fan", label: i18n("Fans"), icon: "fan-symbolic" }
-                ]
+        model: [
+            { id: "all", label: i18n("Todos"), icon: "system-run" },
+            { id: "cpu", label: "CPU", icon: "cpu-symbolic" },
+            { id: "gpu", label: "GPU", icon: "gpu-symbolic" },
+            { id: "memory", label: "RAM & SWAP", icon: "memory-symbolic" },
+            { id: "disk", label: i18n("Discos"), icon: "storage-symbolic" },
+            { id: "net", label: i18n("Red"), icon: "network-wireless-symbolic" },
+            { id: "temp", label: i18n("Térmico"), icon: "temperature-symbolic" },
+            { id: "bat", label: i18n("Batería"), icon: "battery-symbolic" },
+            { id: "fan", label: i18n("Fans"), icon: "fan-symbolic" }
+        ]
 
-                delegate: QQC2.Button {
-                    required property var modelData
-                    text: modelData.label
-                    icon.name: fullView.resolveIcon(modelData.icon)
-                    highlighted: fullView.filterCategory === modelData.id
-                    implicitHeight: 28
-                    onClicked: fullView.filterCategory = modelData.id
-                }
+        delegate: QQC2.Button {
+            required property var modelData
+            text: modelData.label
+            icon.name: fullView.resolveIcon(modelData.icon)
+            highlighted: fullView.filterCategory === modelData.id
+            implicitHeight: 28
+            onClicked: {
+                fullView.filterCategory = modelData.id;
             }
         }
     }
@@ -271,7 +255,20 @@ ColumnLayout {
                     spacing: 4
 
                     readonly property string catKey: modelData.key
-                    readonly property bool matchesCat: fullView.filterCategory === "all" || fullView.filterCategory === catKey
+                    readonly property bool matchesCat: {
+                        if (fullView.filterCategory === "all") return true;
+                        var fc = fullView.filterCategory;
+                        if (fc === "cpu" && (catKey === "processor" || catKey === "cpu")) return true;
+                        if (fc === "gpu" && catKey === "gpu") return true;
+                        if (fc === "memory" && (catKey === "memory" || catKey === "ram" || catKey === "swap")) return true;
+                        if (fc === "disk" && (catKey === "storage" || catKey === "disk")) return true;
+                        if (fc === "net" && (catKey === "network" || catKey === "net")) return true;
+                        if (fc === "temp" && (catKey === "temperature" || catKey === "temp")) return true;
+                        if (fc === "bat" && (catKey === "battery" || catKey === "bat")) return true;
+                        if (fc === "fan" && catKey === "fan") return true;
+                        if (fc === "system" && (catKey === "system" || catKey === "uptime")) return true;
+                        return fc === catKey;
+                    }
                     visible: matchesCat
 
                     // Category Banner Card

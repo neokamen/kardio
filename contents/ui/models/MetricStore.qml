@@ -291,6 +291,7 @@ Item {
                 displayValue: s.swap.swapPercentValue,
                 label: cfg.swapLabel,
                 subLabel: "Usage (%)",
+                icon: cfg.resolveIcon("swap-symbolic"),
                 status: !isNaN(s.swap.swapPercentage) ? "ready" : "loading"
             }));
 
@@ -299,6 +300,7 @@ Item {
                 displayValue: s.swap.swapUsedValue,
                 label: cfg.swapLabel,
                 subLabel: "Used",
+                icon: cfg.resolveIcon("swap-symbolic"),
                 status: !isNaN(s.swap.swapUsedRaw) ? "ready" : "loading"
             }));
 
@@ -307,6 +309,7 @@ Item {
                 displayValue: s.swap.swapFreeValue,
                 label: cfg.swapLabel,
                 subLabel: "Free",
+                icon: cfg.resolveIcon("swap-symbolic"),
                 status: !isNaN(s.swap.swapFreeRaw) ? "ready" : "loading"
             }));
 
@@ -315,6 +318,7 @@ Item {
                 displayValue: s.swap.swapTotalValue,
                 label: cfg.swapLabel,
                 subLabel: "Total",
+                icon: cfg.resolveIcon("swap-symbolic"),
                 status: !isNaN(s.swap.swapTotalRaw) ? "ready" : "loading"
             }));
         }

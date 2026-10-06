@@ -38,7 +38,7 @@ var GROUPS = {
         id: "swap",
         name: "Swap",
         defaultLabel: "SWAP",
-        defaultIcon: "memory-symbolic",
+        defaultIcon: "swap-symbolic",
         defaultSubMetrics: "percent,used",
         subs: [
             { key: "percent", label: "Usage (%)" },
@@ -149,6 +149,7 @@ var BUNDLED_ICONS = [
     "network-upload-symbolic",
     "network-wireless-symbolic",
     "storage-symbolic",
+    "swap-symbolic",
     "system-symbolic",
     "temperature-symbolic",
     "voltage-symbolic"
@@ -303,6 +304,7 @@ var DEFINITIONS = {
         subKey: "percent",
         sensorId: "memory/swap/usedPercent",
         label: "Usage (%)",
+        icon: "swap-symbolic",
         thresholdType: "normal",
         thresholdKey: "swap"
     },
@@ -312,6 +314,7 @@ var DEFINITIONS = {
         subKey: "used",
         sensorId: "memory/swap/used",
         label: "Used",
+        icon: "swap-symbolic",
         thresholdType: "none"
     },
     "swap.free": {
@@ -320,6 +323,7 @@ var DEFINITIONS = {
         subKey: "free",
         sensorId: "memory/swap/free",
         label: "Free",
+        icon: "swap-symbolic",
         thresholdType: "none"
     },
     "swap.total": {
@@ -328,6 +332,7 @@ var DEFINITIONS = {
         subKey: "total",
         sensorId: "memory/swap/total",
         label: "Total",
+        icon: "swap-symbolic",
         thresholdType: "none"
     },
     "temp.system": {

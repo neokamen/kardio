@@ -88,7 +88,7 @@ KCM.SimpleKCM {
                                 Label {
                                     id: versionLabel
                                     anchors.centerIn: parent
-                                    text: "v0.3.0"
+                                    text: "v0.3.1"
                                     font.pointSize: Kirigami.Theme.smallFont.pointSize - 1
                                     font.weight: Font.Bold
                                     color: Kirigami.Theme.highlightColor

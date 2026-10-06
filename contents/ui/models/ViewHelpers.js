@@ -73,7 +73,7 @@ function buildPopupGroups(metricsList, orderedKeys) {
 
         categories.push({
             key: "memory",
-            groupLabel: "Memory",
+            groupLabel: "Memoria & SWAP",
             icon: "memory-symbolic",
             aggregateValue: ramPct ? ramPct.displayValue : (ramMetrics[0] ? ramMetrics[0].displayValue : ""),
             aggregateColor: ramPct ? ramPct.color : (ramMetrics[0] ? ramMetrics[0].color : ""),

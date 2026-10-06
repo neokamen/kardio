@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <g fill="#bebebe">
+    <!-- Top Swap Arrow (Pointing Right) -->
+    <path d="M1 3.5h9.5V1.75l4.5 2.75-4.5 2.75V5.5H1v-2z"/>
+    <!-- Central Virtual Memory / Swap Paging Chip -->
+    <rect x="2" y="7" width="12" height="2" rx="0.5" opacity="0.45"/>
+    <path d="M3 9.5h2v1H3zm3 0h2v1H6zm3 0h2v1H9zm3 0h1v1h-1z" opacity="0.6"/>
+    <!-- Bottom Swap Arrow (Pointing Left) -->
+    <path d="M15 12.5H5.5v1.75L1 11.5l4.5-2.75V10.5H15v2z"/>
+  </g>
+</svg>

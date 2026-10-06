@@ -9,7 +9,7 @@ ConfigModel {
     }
     ConfigCategory {
         name: i18n("Panel Items")
-        icon: "edit-list-order"
+        icon: "format-list-ordered"
         source: "configPanelOrder.qml"
     }
     ConfigCategory {
