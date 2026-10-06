@@ -10,6 +10,7 @@ echo "[STATUS] Packaging $PLASMOID_NAME version $VERSION..."
 zip -r "$FILENAME" \
     metadata.json \
     org.kde.plasma.kardio.svg \
+    kardio-banner.svg \
     contents \
     LICENSE \
     README.md \

@@ -13,13 +13,20 @@ Item {
         return (ramUsedSensor.value / ramTotalSensor.value) * 100;
     }
 
+    property bool dynamicUnits: true
+    property bool padNumbers: false
+
     readonly property string ramValue: {
         if (isNaN(ramPercentage))
             return "...";
-        return Utils.formatBytes(ramUsedSensor.value) + "/" + Utils.formatBytes(ramTotalSensor.value) + "G";
+        return Utils.formatMemoryBytes(ramUsedSensor.value, dynamicUnits) + "/" + Utils.formatBytes(ramTotalSensor.value) + "G";
     }
 
-    readonly property string ramPercentValue: isNaN(ramPercentage) ? "..." : Math.round(ramPercentage).toString().padStart(3) + "%"
+    readonly property string ramPercentValue: {
+        if (isNaN(ramPercentage)) return "...";
+        var str = Math.round(ramPercentage).toString();
+        return padNumbers ? str.padStart(3) + "%" : str + "%";
+    }
 
     Sensors.Sensor {
         id: ramUsedSensor

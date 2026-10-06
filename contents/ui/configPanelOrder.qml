@@ -3,6 +3,7 @@ import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.kde.kcmutils as KCM
+import org.kde.plasma.plasmoid
 import "./models"
 import "./models/MetricDefinitions.js" as MetricDefinitions
 
@@ -88,6 +89,19 @@ KCM.SimpleKCM {
     function reverseOrder() {
         var list = currentList.slice().reverse();
         cfg_pinnedMetrics = list.join(",");
+    }
+
+    function reloadFromConfiguration() {
+        if (typeof Plasmoid !== "undefined" && Plasmoid.configuration && Plasmoid.configuration.pinnedMetrics !== undefined) {
+            cfg_pinnedMetrics = Plasmoid.configuration.pinnedMetrics;
+        }
+    }
+
+    Connections {
+        target: (typeof Plasmoid !== "undefined" && Plasmoid.configuration) ? Plasmoid.configuration : null
+        function onPinnedMetricsChanged() {
+            panelOrderPage.reloadFromConfiguration();
+        }
     }
 
     function autoOrganizeByHierarchy() {
@@ -587,6 +601,14 @@ KCM.SimpleKCM {
                     text: i18n("Secuencia y Posición en el Panel")
                     level: 3
                     Layout.fillWidth: true
+                }
+
+                QQC2.Button {
+                    icon.name: "view-refresh"
+                    text: i18n("Actualizar")
+                    QQC2.ToolTip.text: i18n("Recarga métricas y secuencia desde la configuración actual o cambios al vuelo")
+                    QQC2.ToolTip.visible: hovered
+                    onClicked: panelOrderPage.reloadFromConfiguration()
                 }
 
                 // Batch reordering tools

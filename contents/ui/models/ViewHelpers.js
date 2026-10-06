@@ -252,6 +252,7 @@ function buildPopupGroups(metricsList, orderedKeys) {
 function _resolveSegmentLabel(metric) {
     if (metric.prefix) return metric.prefix;
     if (metric.group === "swap") return "SWAP";
+    if (metric.group === "ram" && metric.subKey === "temp") return "";
     if (metric.subKey === "hotspot") return "HS";
     if (metric.subKey === "vramTemp") return "VRAM";
     if (metric.subKey === "memFreq") return "MEM";
@@ -263,7 +264,7 @@ function _resolveSegmentIcon(metric) {
     if (metric.group === "swap") {
         return metric.icon || "swap-symbolic";
     }
-    if (metric.subKey === "hotspot" || metric.subKey === "vramTemp") {
+    if (metric.subKey === "hotspot" || metric.subKey === "vramTemp" || (metric.group === "ram" && metric.subKey === "temp")) {
         return "temperature-symbolic";
     }
     if (metric.subKey === "down" || metric.subKey === "up" || metric.subKey === "totalDown" || metric.subKey === "totalUp"
@@ -303,7 +304,7 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily) {
         var metric = metricMap[id];
         if (!metric) continue;
 
-        // When mergeSameFamily is enabled and RAM is pinned, group SWAP into the RAM block
+        // When mergeSameFamily is enabled and RAM is pinned, group SWAP and RAM Temp into the RAM block
         var isRamOrSwap = (metric.group === "ram" || metric.group === "swap");
         var groupKey;
         if (mergeSameFamily && hasRamPinned && isRamOrSwap) {
@@ -318,6 +319,7 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily) {
                 var firstSegIcon = existingItem._firstSubIcon || "";
                 existingItem.segments = [
                     {
+                        id: existingItem.id,
                         value: existingItem.value,
                         color: existingItem.color,
                         label: existingItem._firstSubLabel || "",
@@ -330,6 +332,7 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily) {
             }
             var segIcon = _resolveSegmentIcon(metric);
             existingItem.segments.push({
+                id: metric.id,
                 value: metric.displayValue,
                 color: metric.color,
                 label: _resolveSegmentLabel(metric),
@@ -337,14 +340,19 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily) {
                 key: metric.subKey || metric.id
             });
 
-            // Ensure SWAP metrics always stay at the end of the RAM block
+            // Respect user's sequence from pinnedList so the user can choose where RAM Temp and Swap sit in the block
             if (groupKey === "ram") {
                 existingItem.segments.sort(function(a, b) {
-                    var aIsSwap = (a.key && String(a.key).indexOf("swap") !== -1) || a.icon === "swap-symbolic" || a.label === "SWAP";
-                    var bIsSwap = (b.key && String(b.key).indexOf("swap") !== -1) || b.icon === "swap-symbolic" || b.label === "SWAP";
-                    if (aIsSwap && !bIsSwap) return 1;
-                    if (!aIsSwap && bIsSwap) return -1;
-                    return 0;
+                    var idxA = -1;
+                    var idxB = -1;
+                    for (var p = 0; p < pinnedList.length; p++) {
+                        var pk = pinnedList[p];
+                        if (a.id === pk || (a.key && pk.indexOf(a.key) !== -1)) { if (idxA === -1) idxA = p; }
+                        if (b.id === pk || (b.key && pk.indexOf(b.key) !== -1)) { if (idxB === -1) idxB = p; }
+                    }
+                    if (idxA === -1) idxA = 999;
+                    if (idxB === -1) idxB = 999;
+                    return idxA - idxB;
                 });
                 if (hasRamPinned) {
                     existingItem.icon = "memory-symbolic";

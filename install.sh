@@ -23,6 +23,9 @@ cp -r "$SRC_DIR/contents" "$DEST_DIR/"
 if [[ -f "$SRC_DIR/org.kde.plasma.kardio.svg" ]]; then
     cp "$SRC_DIR/org.kde.plasma.kardio.svg" "$DEST_DIR/"
 fi
+if [[ -f "$SRC_DIR/kardio-banner.svg" ]]; then
+    cp "$SRC_DIR/kardio-banner.svg" "$DEST_DIR/"
+fi
 
 mkdir -p "$(dirname "$KPACKAGE_DIR")"
 ln -s "$DEST_DIR" "$KPACKAGE_DIR"

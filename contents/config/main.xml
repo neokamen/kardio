@@ -345,6 +345,12 @@
         <entry name="separatorStyle" type="String">
             <default>line</default>
         </entry>
+        <entry name="enableNumberPadding" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="swapDynamicUnits" type="Bool">
+            <default>true</default>
+        </entry>
 
         <!-- Profile system -->
         <entry name="profileList" type="String">

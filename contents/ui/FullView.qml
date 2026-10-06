@@ -30,6 +30,7 @@ ColumnLayout {
     signal toggleMetricPin(string metricId)
     signal refreshRequested()
     signal activateProfile(string id)
+    signal savePreset(string name)
 
     property string filterCategory: "all"
     property string searchQuery: ""
@@ -190,42 +191,58 @@ ColumnLayout {
         }
     }
 
-    // Category Filter Chips (Horizontal ListView con desplazamiento suave)
-    ListView {
-        id: categoryFilterList
+    // Category Filter Chips (Horizontal ListView con desplazamiento suave y barra separada)
+    ColumnLayout {
         Layout.fillWidth: true
-        implicitHeight: 34
-        orientation: ListView.Horizontal
-        spacing: 6
-        clip: true
-        flickableDirection: Flickable.HorizontalFlick
-        boundsBehavior: Flickable.StopAtBounds
+        spacing: 2
 
-        QQC2.ScrollBar.horizontal: QQC2.ScrollBar {
-            policy: QQC2.ScrollBar.AsNeeded
-            active: categoryFilterList.moving || categoryFilterList.flicking
+        ListView {
+            id: categoryFilterList
+            Layout.fillWidth: true
+            implicitHeight: 30
+            orientation: ListView.Horizontal
+            spacing: 6
+            clip: true
+            flickableDirection: Flickable.HorizontalFlick
+            boundsBehavior: Flickable.StopAtBounds
+
+            model: [
+                { id: "all", label: i18n("Todos"), icon: "system-run" },
+                { id: "cpu", label: "CPU", icon: "cpu-symbolic" },
+                { id: "gpu", label: "GPU", icon: "gpu-symbolic" },
+                { id: "memory", label: "RAM & SWAP", icon: "memory-symbolic" },
+                { id: "disk", label: i18n("Discos"), icon: "storage-symbolic" },
+                { id: "net", label: i18n("Red"), icon: "network-wireless-symbolic" },
+                { id: "temp", label: i18n("Térmico"), icon: "temperature-symbolic" },
+                { id: "bat", label: i18n("Batería"), icon: "battery-symbolic" },
+                { id: "fan", label: i18n("Fans"), icon: "fan-symbolic" }
+            ]
+
+            delegate: QQC2.Button {
+                required property var modelData
+                text: modelData.label
+                icon.name: fullView.resolveIcon(modelData.icon)
+                highlighted: fullView.filterCategory === modelData.id
+                implicitHeight: 28
+                onClicked: {
+                    fullView.filterCategory = modelData.id;
+                }
+            }
         }
 
-        model: [
-            { id: "all", label: i18n("Todos"), icon: "system-run" },
-            { id: "cpu", label: "CPU", icon: "cpu-symbolic" },
-            { id: "gpu", label: "GPU", icon: "gpu-symbolic" },
-            { id: "memory", label: "RAM & SWAP", icon: "memory-symbolic" },
-            { id: "disk", label: i18n("Discos"), icon: "storage-symbolic" },
-            { id: "net", label: i18n("Red"), icon: "network-wireless-symbolic" },
-            { id: "temp", label: i18n("Térmico"), icon: "temperature-symbolic" },
-            { id: "bat", label: i18n("Batería"), icon: "battery-symbolic" },
-            { id: "fan", label: i18n("Fans"), icon: "fan-symbolic" }
-        ]
-
-        delegate: QQC2.Button {
-            required property var modelData
-            text: modelData.label
-            icon.name: fullView.resolveIcon(modelData.icon)
-            highlighted: fullView.filterCategory === modelData.id
-            implicitHeight: 28
-            onClicked: {
-                fullView.filterCategory = modelData.id;
+        QQC2.ScrollBar {
+            id: categoryFilterScrollBar
+            Layout.fillWidth: true
+            implicitHeight: 6
+            orientation: Qt.Horizontal
+            visible: categoryFilterList.contentWidth > categoryFilterList.width
+            size: categoryFilterList.contentWidth > 0 ? Math.min(1.0, categoryFilterList.width / categoryFilterList.contentWidth) : 1.0
+            position: categoryFilterList.contentWidth > 0 ? Math.max(0, Math.min(1.0 - size, categoryFilterList.contentX / categoryFilterList.contentWidth)) : 0
+            active: categoryFilterList.moving || categoryFilterList.flicking || hovered || pressed
+            onPositionChanged: {
+                if (pressed && categoryFilterList.contentWidth > 0) {
+                    categoryFilterList.contentX = position * categoryFilterList.contentWidth;
+                }
             }
         }
     }
@@ -501,7 +518,26 @@ ColumnLayout {
                         onObjectAdded: (idx, obj) => profileFlyoutMenu.insertItem(idx, obj)
                         onObjectRemoved: (idx, obj) => profileFlyoutMenu.removeItem(obj)
                     }
+
+                    QQC2.MenuSeparator {}
+
+                    QQC2.MenuItem {
+                        text: i18n("Guardar configuración actual...")
+                        icon.name: "document-save"
+                        onClicked: {
+                            profileFlyoutMenu.close();
+                            savePresetPopup.open();
+                        }
+                    }
                 }
+            }
+
+            QQC2.ToolButton {
+                icon.name: "document-save"
+                implicitWidth: 26; implicitHeight: 26
+                QQC2.ToolTip.text: i18n("Guardar configuración como nuevo preset")
+                QQC2.ToolTip.visible: hovered
+                onClicked: savePresetPopup.open()
             }
 
             Item { Layout.fillWidth: true }
@@ -519,6 +555,70 @@ ColumnLayout {
                     opacity: 0.65
                 }
             }
+        }
+    }
+
+    QQC2.Popup {
+        id: savePresetPopup
+        anchors.centerIn: parent
+        modal: true
+        focus: true
+        closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutside
+        width: Math.min(parent.width - 32, Kirigami.Units.gridUnit * 16)
+        padding: Kirigami.Units.smallSpacing * 2
+
+        contentItem: ColumnLayout {
+            spacing: Kirigami.Units.smallSpacing
+
+            PlasmaComponents.Label {
+                text: i18n("Guardar Preset")
+                font.bold: true
+                color: Kirigami.Theme.highlightColor
+            }
+
+            PlasmaComponents.Label {
+                text: i18n("Introduce un nombre para el nuevo preset:")
+                font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                opacity: 0.8
+            }
+
+            QQC2.TextField {
+                id: presetNameInput
+                Layout.fillWidth: true
+                placeholderText: i18n("Nombre del preset...")
+                onAccepted: {
+                    if (text.trim().length > 0) {
+                        fullView.savePreset(text.trim());
+                        savePresetPopup.close();
+                    }
+                }
+            }
+
+            RowLayout {
+                Layout.alignment: Qt.AlignRight
+                spacing: 6
+
+                QQC2.Button {
+                    text: i18n("Cancelar")
+                    onClicked: savePresetPopup.close()
+                }
+
+                QQC2.Button {
+                    text: i18n("Guardar")
+                    highlighted: true
+                    enabled: presetNameInput.text.trim().length > 0
+                    onClicked: {
+                        fullView.savePreset(presetNameInput.text.trim());
+                        savePresetPopup.close();
+                    }
+                }
+            }
+        }
+
+        onOpened: {
+            presetNameInput.text = i18n("Preset %1", (fullView.profileSummaries ? fullView.profileSummaries.length : 0) + 1);
+            presetNameInput.selectAll();
+            presetNameInput.forceActiveFocus();
         }
     }
 }

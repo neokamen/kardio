@@ -1,7 +1,7 @@
 # Kardio - the plasma monitor
 
 <p align="center">
-  <img src="contents/icons/kardio.svg" width="128" height="128" alt="Kardio Icon" />
+  <img src="kardio-banner.svg" alt="Kardio - the plasma monitor" width="100%" />
 </p>
 
 **Kardio** is a modular, high-performance system vitals monitor applet designed for **KDE Plasma 6**.
@@ -54,7 +54,15 @@ plasmawindowed org.kde.plasma.kardio
 
 ---
 
+## Author & Repository
+
+- **Author**: AlexMC "neokamen"
+- **GitHub**: [https://github.com/neokamen/kardio](https://github.com/neokamen/kardio)
+
+---
+
 ## License
 
 GPL-3.0 License. See [LICENSE](LICENSE) for details.
+
 

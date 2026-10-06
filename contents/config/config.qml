@@ -27,4 +27,9 @@ ConfigModel {
         icon: "color-management"
         source: "configColors.qml"
     }
+    ConfigCategory {
+        name: i18n("Perfiles")
+        icon: "user-identity"
+        source: "configProfiles.qml"
+    }
 }

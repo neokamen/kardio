@@ -39,6 +39,8 @@ PlasmoidItem {
     property int effectiveFontSize:   fontSize > 0 ? fontSize : -1
     property bool mergeFamilyMetrics: profileManager.activeConfig.mergeFamilyMetrics
     property bool showSeparators:     profileManager.activeConfig.showSeparators
+    property bool enableNumberPadding: Boolean(profileManager.activeConfig.enableNumberPadding)
+    property bool swapDynamicUnits:    (profileManager.activeConfig.swapDynamicUnits !== undefined) ? Boolean(profileManager.activeConfig.swapDynamicUnits) : true
 
     Plasmoid.backgroundHints: PlasmaCore.Types.DefaultBackground | PlasmaCore.Types.ConfigurableBackground
 
@@ -122,6 +124,7 @@ PlasmoidItem {
                 id: _cpu
                 discovery: _discovery
                 updateInterval: metricConfig.updateInterval
+                padNumbers: root.enableNumberPadding
                 popupExpanded: root.expanded
                 hasPinnedCores: {
                     var pl = metricConfig.pinnedList || [];
@@ -135,11 +138,15 @@ PlasmoidItem {
             MemorySensors {
                 id: _memory
                 updateInterval: metricConfig.updateInterval
+                dynamicUnits: root.swapDynamicUnits
+                padNumbers: root.enableNumberPadding
             }
 
             SwapSensors {
                 id: _swap
                 updateInterval: metricConfig.updateInterval
+                dynamicUnits: root.swapDynamicUnits
+                padNumbers: root.enableNumberPadding
             }
 
             TempSensors {
@@ -471,6 +478,7 @@ PlasmoidItem {
         labelOpacity: root.labelOpacity
         separatorOpacity: root.separatorOpacity
         separatorStyle: root.separatorStyle
+        enableNumberPadding: root.enableNumberPadding
         showSeparators: root.showSeparators
         onToggleExpanded: root.expanded = !root.expanded
 
@@ -502,6 +510,9 @@ PlasmoidItem {
             activeProfileName: profileManager.activeProfileName
             onActivateProfile: function(id) {
                 profileManager.activateProfile(id);
+            }
+            onSavePreset: function(name) {
+                return profileManager.createProfileFromCurrent(name);
             }
             onTogglePinned: root.pinned = !root.pinned
             onToggleMetricPin: function(metricId) {

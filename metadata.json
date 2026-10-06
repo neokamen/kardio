@@ -7,10 +7,12 @@
     "Category": "System Information",
     "Authors": [
       {
-        "Name": "Kardio Team"
+        "Name": "AlexMC \"neokamen\"",
+        "Email": "neokamen@local"
       }
     ],
-    "Version": "0.3.2",
+    "Version": "0.3.3",
+    "Website": "https://github.com/neokamen/kardio",
     "License": "GPL-3.0"
   },
   "KPackageStructure": "Plasma/Applet",

@@ -21,6 +21,7 @@ Item {
     required property real labelOpacity
     required property real separatorOpacity
     property string separatorStyle: "line"
+    property bool enableNumberPadding: false
     required property bool showSeparators
     required property string backgroundType
     required property bool isPlanar
@@ -76,6 +77,7 @@ Item {
         readonly property real labelOpacity: compactRoot.labelOpacity
         readonly property real separatorOpacity: compactRoot.separatorOpacity
         readonly property string separatorStyle: compactRoot.separatorStyle
+        readonly property bool enableNumberPadding: compactRoot.enableNumberPadding
         readonly property bool showSeparators: compactRoot.showSeparators
         readonly property bool isVertical: compactRoot.isVertical
         readonly property bool customFont: compactRoot.customFont
@@ -180,9 +182,11 @@ Item {
                     // (Layout.preferredWidth has no effect here). Width only
                     // ever grows within the session to avoid reflow when a
                     // fluctuating value crosses a digit-count boundary.
-                    width: compactRow._stickyWidth(
-                        segRoot.parentKey + ":" + (modelData.key !== undefined ? modelData.key : index),
-                        implicitWidth)
+                    width: compactRow.enableNumberPadding
+                        ? compactRow._stickyWidth(
+                            segRoot.parentKey + ":" + (modelData.key !== undefined ? modelData.key : index),
+                            implicitWidth)
+                        : implicitWidth
                 }
             }
         }
@@ -274,7 +278,7 @@ Item {
                 color: modelData.color || compactRow.baseTextColor
                 horizontalAlignment: Text.AlignRight
                 Layout.alignment: Qt.AlignVCenter
-                Layout.preferredWidth: compactRow._stickyWidth(modelData.key || ("idx:" + index), implicitWidth)
+                Layout.preferredWidth: compactRow.enableNumberPadding ? compactRow._stickyWidth(modelData.key || ("idx:" + index), implicitWidth) : implicitWidth
             }
 
             SegmentsRow {
@@ -321,7 +325,7 @@ Item {
                         font.bold: compactRow.fontBold
                         color: modelData.color || compactRow.baseTextColor
                         horizontalAlignment: Text.AlignHCenter
-                        Layout.preferredWidth: compactRow._stickyWidth(modelData.key || ("idx:" + index), implicitWidth)
+                        Layout.preferredWidth: compactRow.enableNumberPadding ? compactRow._stickyWidth(modelData.key || ("idx:" + index), implicitWidth) : implicitWidth
                     }
 
                     SegmentsRow {

@@ -16,10 +16,13 @@ Item {
         return cpuSensor.value;
     }
 
+    property bool padNumbers: false
+
     readonly property string cpuValue: {
         if (isNaN(cpuNumericValue))
             return "...";
-        return Math.round(cpuNumericValue).toString().padStart(3) + "%";
+        var str = Math.round(cpuNumericValue).toString();
+        return padNumbers ? str.padStart(3) + "%" : str + "%";
     }
 
     // Frequency in MHz from KSysGuard
@@ -158,7 +161,7 @@ Item {
             var c = _discoveredCores[i];
             var val = _modelValue("cpu/" + c.id + "/usage");
             var num = (typeof val === "number" && !isNaN(val)) ? val : NaN;
-            var str = !isNaN(num) ? Math.round(num).toString().padStart(3) + "%" : "...";
+            var str = !isNaN(num) ? (padNumbers ? Math.round(num).toString().padStart(3) + "%" : Math.round(num).toString() + "%") : "...";
             newList.push({
                 id: c.id,
                 name: c.name,

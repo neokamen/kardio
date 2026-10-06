@@ -10,6 +10,17 @@ QtObject {
         return gb.toFixed(1);
     }
 
+    function formatMemoryBytes(bytes, dynamicUnits) {
+        if (typeof bytes !== "number" || isNaN(bytes))
+            return "...";
+        if (dynamicUnits && bytes < 1024 * 1024 * 1024) {
+            var mb = bytes / (1024 * 1024);
+            return Math.round(mb) + "M";
+        }
+        var gb = bytes / (1024 * 1024 * 1024);
+        return gb.toFixed(1) + "G";
+    }
+
     function formatData(bytes) {
         if (typeof bytes !== "number" || isNaN(bytes) || bytes < 0)
             return "...";

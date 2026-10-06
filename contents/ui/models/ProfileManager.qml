@@ -130,7 +130,9 @@ QtObject {
         fanMaxRpm:                2000,
         labelOpacity:             0.65,
         separatorOpacity:         0.4,
-        separatorStyle:           "line"
+        separatorStyle:           "line",
+        enableNumberPadding:      false,
+        swapDynamicUnits:         true
     })
 
     // Live config object that MetricConfig.target binds to
@@ -241,6 +243,8 @@ QtObject {
         property real   labelOpacity:             0.65
         property real   separatorOpacity:         0.4
         property string separatorStyle:           "line"
+        property bool   enableNumberPadding:      false
+        property bool   swapDynamicUnits:         true
 
         onPinnedMetricsChanged: root._saveActiveConfigKey("pinnedMetrics", pinnedMetrics)
         onGpuLabelsChanged:     root._saveActiveConfigKey("gpuLabels", gpuLabels)
@@ -305,14 +309,28 @@ QtObject {
             var val = Plasmoid.configuration[key];
             snap[key] = (val !== undefined) ? val : defs[key];
         }
-        var id = _uuid();
-        var profile = { id: id, name: "Default", createdAt: Date.now(), isDefault: true, data: snap };
-        _profiles = [profile];
+        var id1 = _uuid();
+        var profile1 = { id: id1, name: "Predeterminado", createdAt: Date.now(), isDefault: true, data: snap };
+
+        var id2 = _uuid();
+        var gamingData = {};
+        for (var k2 in snap) gamingData[k2] = snap[k2];
+        gamingData.pinnedMetrics = "cpu/usage,gpu/usage,gpu/temp,ram/percentage,temp/system";
+        var profile2 = { id: id2, name: "Gaming & Rendimiento", createdAt: Date.now() + 1, isDefault: false, data: gamingData };
+
+        var id3 = _uuid();
+        var minData = {};
+        for (var k3 in snap) minData[k3] = snap[k3];
+        minData.pinnedMetrics = "cpu/usage,ram/percentage";
+        minData.displayMode = "icons";
+        var profile3 = { id: id3, name: "Minimalista", createdAt: Date.now() + 2, isDefault: false, data: minData };
+
+        _profiles = [profile1, profile2, profile3];
         _syncing = true;
         Plasmoid.configuration.profileListVersion = 1;
         Plasmoid.configuration.migrationDone = true;
         _flush();
-        _activateProfileInternal(id);
+        _activateProfileInternal(id1);
         _syncing = false;
         _rebuildSummaries();
     }
@@ -371,6 +389,22 @@ QtObject {
                 }
             }
             target.isDefault = true;
+            _flush();
+        }
+
+        if (_profiles.length === 1) {
+            if (_profiles[0].name === "Default") _profiles[0].name = "Predeterminado";
+            var baseData = _profiles[0].data || _defaults;
+            var gData = {};
+            for (var gk in baseData) gData[gk] = baseData[gk];
+            gData.pinnedMetrics = "cpu/usage,gpu/usage,gpu/temp,ram/percentage,temp/system";
+            _profiles.push({ id: _uuid(), name: "Gaming & Rendimiento", createdAt: Date.now() + 1, isDefault: false, data: gData });
+
+            var mData = {};
+            for (var mk in baseData) mData[mk] = baseData[mk];
+            mData.pinnedMetrics = "cpu/usage,ram/percentage";
+            mData.displayMode = "icons";
+            _profiles.push({ id: _uuid(), name: "Minimalista", createdAt: Date.now() + 2, isDefault: false, data: mData });
             _flush();
         }
 
@@ -476,6 +510,21 @@ QtObject {
             data[key] = _defaults[key];
         }
         _profiles.push({ id: id, name: name, createdAt: Date.now(), data: data });
+        _flush();
+        _rebuildSummaries();
+        return id;
+    }
+
+    function createProfileFromCurrent(name) {
+        if (!name || name.trim() === "") return "";
+        var id = _uuid();
+        var current = _findProfile(_activeProfileId);
+        var base = current ? current.data : _defaults;
+        var data = {};
+        for (var k in base) {
+            data[k] = base[k];
+        }
+        _profiles.push({ id: id, name: name.trim(), createdAt: Date.now(), isDefault: false, data: data });
         _flush();
         _rebuildSummaries();
         return id;

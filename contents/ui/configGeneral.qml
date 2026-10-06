@@ -23,6 +23,8 @@ KCM.SimpleKCM {
     property bool cfg_mergeFamilyMetrics: true
     property bool cfg_showSeparators: true
     property string cfg_separatorStyle: "line"
+    property bool cfg_enableNumberPadding: false
+    property bool cfg_swapDynamicUnits: true
 
     readonly property bool iconsEnabled: cfg_displayMode === "icons" || cfg_displayMode === "icons+text"
     readonly property bool textEnabled: cfg_displayMode === "text" || cfg_displayMode === "icons+text"
@@ -89,7 +91,7 @@ KCM.SimpleKCM {
                                 Label {
                                     id: versionLabel
                                     anchors.centerIn: parent
-                                    text: "v0.3.2"
+                                    text: "v0.3.3"
                                     font.pointSize: Kirigami.Theme.smallFont.pointSize - 1
                                     font.weight: Font.Bold
                                     color: Kirigami.Theme.highlightColor
@@ -953,6 +955,131 @@ KCM.SimpleKCM {
                                 highlighted: cfg_fanUnit === "percent"
                                 onClicked: cfg_fanUnit = "percent"
                             }
+                        }
+                    }
+                }
+
+                Kirigami.Separator { Layout.fillWidth: true }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: Kirigami.Units.smallSpacing
+
+                    Label {
+                        text: i18n("Formato Numérico y Relleno de Espacios:")
+                        font.weight: Font.DemiBold
+                    }
+
+                    CheckBox {
+                        id: swapDynamicUnitsCheck
+                        text: i18n("Unidades dinámicas en Memoria y SWAP (mostrar en MB hasta 1024 MB, luego pasar a GB)")
+                        checked: cfg_swapDynamicUnits
+                        onToggled: cfg_swapDynamicUnits = checked
+                    }
+
+                    CheckBox {
+                        id: enableNumberPaddingCheck
+                        text: i18n("Alinear números con espacios de relleno (Padding fijo)")
+                        checked: cfg_enableNumberPadding
+                        onToggled: cfg_enableNumberPadding = checked
+                        ToolTip.text: i18n("Desactivar para eliminar huecos vacíos antes del número (ej: '0.0G' en SWAP sin espacios previos).")
+                        ToolTip.visible: hovered
+                    }
+                }
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // 6. ACERCA DE KARDIO (ABOUT)
+        // ═══════════════════════════════════════════════════════════════════
+        Kirigami.Card {
+            Layout.fillWidth: true
+            header: Kirigami.Heading {
+                text: i18n("Acerca de Kardio")
+                level: 3
+            }
+
+            contentItem: ColumnLayout {
+                spacing: Kirigami.Units.mediumSpacing
+
+                // Banner
+                Rectangle {
+                    Layout.fillWidth: true
+                    implicitHeight: 120
+                    radius: 8
+                    clip: true
+                    color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.05)
+                    border.color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.25)
+                    border.width: 1
+
+                    Image {
+                        anchors.fill: parent
+                        source: Qt.resolvedUrl("../icons/kardio-banner.svg")
+                        fillMode: Image.PreserveAspectFit
+                        smooth: true
+                        mipmap: true
+                    }
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Kirigami.Units.largeSpacing
+
+                    ColumnLayout {
+                        spacing: 4
+                        Layout.fillWidth: true
+
+                        RowLayout {
+                            spacing: 8
+                            Label {
+                                text: "Kardio"
+                                font.bold: true
+                                font.pointSize: Kirigami.Theme.defaultFont.pointSize + 2
+                                color: Kirigami.Theme.textColor
+                            }
+                            Rectangle {
+                                radius: 4
+                                color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.2)
+                                implicitWidth: aboutVersionLabel.implicitWidth + 10
+                                implicitHeight: aboutVersionLabel.implicitHeight + 4
+                                Label {
+                                    id: aboutVersionLabel
+                                    anchors.centerIn: parent
+                                    text: "v0.3.3"
+                                    font.pointSize: Kirigami.Theme.smallFont.pointSize - 1
+                                    font.weight: Font.Bold
+                                    color: Kirigami.Theme.highlightColor
+                                }
+                            }
+                        }
+
+                        Label {
+                            text: i18n("The Next-Gen KDE Plasma Telemetry Monitor")
+                            font: Kirigami.Theme.smallFont
+                            opacity: 0.8
+                        }
+
+                        Label {
+                            text: i18n("Autor: AlexMC \"neokamen\"")
+                            font.weight: Font.DemiBold
+                            color: Kirigami.Theme.textColor
+                        }
+
+                        Label {
+                            text: i18n("Licencia: GPL-3.0-or-later")
+                            font: Kirigami.Theme.smallFont
+                            opacity: 0.7
+                        }
+                    }
+
+                    ColumnLayout {
+                        spacing: 8
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+
+                        Button {
+                            icon.name: "globe"
+                            text: i18n("Código fuente en GitHub")
+                            onClicked: Qt.openUrlExternally("https://github.com/neokamen/kardio")
                         }
                     }
                 }
