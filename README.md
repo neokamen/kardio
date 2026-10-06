@@ -57,3 +57,4 @@ plasmawindowed org.kde.plasma.kardio
 ## License
 
 GPL-3.0 License. See [LICENSE](LICENSE) for details.
+

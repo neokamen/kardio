@@ -171,6 +171,7 @@ PlasmoidItem {
                 updateInterval: metricConfig.updateInterval
                 networkInterface: metricConfig.networkInterface
                 networkUnit: metricConfig.networkUnit
+                tempUnit: metricConfig.tempUnit
             }
 
             DiskSensors {

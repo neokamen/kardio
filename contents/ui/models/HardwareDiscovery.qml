@@ -9,6 +9,7 @@ Item {
     readonly property int count: _allIds.length
     readonly property int revision: _revision
     readonly property var allSensorIds: _allIds
+    readonly property var allSensorsList: _allSensors
 
     // Pre-indexed hardware properties
     readonly property var discoveredGpus: _gpus
@@ -18,6 +19,8 @@ Item {
     readonly property var discoveredNetworkIfaces: _netIfaces
     readonly property var discoveredBatteries: _batteries
     readonly property var discoveredDiskTemps: _diskTemps
+    readonly property var discoveredWifiTemps: _wifiTemps
+    readonly property string cpuPowerSensor: _cpuPowerSensor
 
     // Query cache for O(1) repeated pattern queries
     property var _patternCache: ({})
@@ -77,6 +80,8 @@ Item {
     property var _netIfaces: ["auto"]
     property var _batteries: []
     property var _diskTemps: []
+    property var _wifiTemps: []
+    property string _cpuPowerSensor: ""
 
     Sensors.SensorTreeModel {
         id: sensorTree
@@ -122,12 +127,15 @@ Item {
         var gpuHotspotMap = {};
         var gpuVramTempMap = {};
         var gpuMemFreqMap = {};
+        var gpuVoltageMap = {};
         var diskMap = {};
         var fanSet = {};
         var coreMap = {};
         var ifaceSet = {};
         var batSet = {};
         var diskTempSet = {};
+        var wifiTempSet = {};
+        var cpuPowerId = "";
 
         var pGpu = MetricDefinitions.PATTERNS ? MetricDefinitions.PATTERNS.GPU : /^gpu\/(gpu\d+)\/usage$/;
         var pDisk = MetricDefinitions.PATTERNS ? MetricDefinitions.PATTERNS.DISK_READ : /^disk\/(nvme\d+(?:c\d+)?n\d+|nvme\d+|sd[a-z]+|vd[a-z]+|xvd[a-z]+|mmcblk\d+)\/read$/;
@@ -135,7 +143,9 @@ Item {
         var pCore = MetricDefinitions.PATTERNS ? MetricDefinitions.PATTERNS.CPU_CORE : /^cpu\/(cpu\d+)\/usage$/;
         var pNet = MetricDefinitions.PATTERNS ? MetricDefinitions.PATTERNS.NETWORK_IFACE : /^network\/([^/]+)\/download$/;
         var pBat = MetricDefinitions.PATTERNS ? MetricDefinitions.PATTERNS.BATTERY : /^power\/(.+)\/chargePercentage$/;
-        var pDiskTemp = MetricDefinitions.PATTERNS ? MetricDefinitions.PATTERNS.DISK_TEMP : /^(?:disk\/(?:nvme\d+(?:c\d+)?n\d+|nvme\d+|sd[a-z]+|vd[a-z]+|xvd[a-z]+|mmcblk\d+)\/temperature|lmsensors\/(?:nvme-pci-[^/]+|drivetemp-scsi-[^/]+|scsi-[^/]+|drivetemp-[^/]+)\/temp\d+)$/;
+        var pDiskTemp = MetricDefinitions.PATTERNS ? MetricDefinitions.PATTERNS.DISK_TEMP : /^(?:disk\/[^/]+\/temperature|lmsensors\/(?:nvme|drivetemp|scsi|ata|drive|smart|hdd)[^/]*\/temp\d+)$/i;
+        var pWifiTemp = MetricDefinitions.PATTERNS ? MetricDefinitions.PATTERNS.WIFI_TEMP : /^(?:network\/[^/]+\/temperature|lmsensors\/(?:iwlwifi|wifi|wlan|ath\d+|rtw|mt79\d+)[^/]*\/temp\d+)$/i;
+        var pCpuPower = /^(?:cpu\/all\/power|lmsensors\/(?:k10temp|coretemp|rapl|powercap)[^/]*\/(?:power\d+|ppt|tdp)|power\/cpu\/power)$/i;
 
         for (var row = 0; row < rowCount; row++) {
             var idx = flatSensors.index(row, 0);
@@ -160,14 +170,18 @@ Item {
                     gpuVramTempMap[gid] = sid;
                 } else if (sid === "gpu/" + gid + "/memoryFrequency") {
                     gpuMemFreqMap[gid] = sid;
+                } else if (sid === "gpu/" + gid + "/in0" || /vddgfx|voltage/i.test(name)) {
+                    gpuVoltageMap[gid] = sid;
                 }
-            } else if ((m = sid.match(/^lmsensors\/(?:amdgpu|nouveau|nvidia)[^/]*\/(temp\d+|junction|hotspot|mem)/i))) {
+            } else if ((m = sid.match(/^lmsensors\/(?:amdgpu|nouveau|nvidia)[^/]*\/(temp\d+|junction|hotspot|mem|in\d+)/i))) {
                 var subType = m[1].toLowerCase();
                 var targetGpuId = "gpu0";
                 if ((subType === "temp2" || /hotspot|junction/i.test(name) || /hotspot|junction/i.test(sid)) && !gpuHotspotMap[targetGpuId]) {
                     gpuHotspotMap[targetGpuId] = sid;
                 } else if ((subType === "temp3" || /vram|mem/i.test(name) || /vram|mem/i.test(sid)) && !gpuVramTempMap[targetGpuId]) {
                     gpuVramTempMap[targetGpuId] = sid;
+                } else if ((subType === "in0" || /vddgfx/i.test(name)) && !gpuVoltageMap[targetGpuId]) {
+                    gpuVoltageMap[targetGpuId] = sid;
                 }
             } else if ((m = sid.match(pDisk))) {
                 diskMap[m[1]] = true;
@@ -181,6 +195,13 @@ Item {
                 batSet[m[1]] = true;
             } else if (pDiskTemp.test(sid)) {
                 diskTempSet[sid] = true;
+            }
+
+            if (pWifiTemp.test(sid)) {
+                wifiTempSet[sid] = true;
+            }
+            if (!cpuPowerId && pCpuPower.test(sid)) {
+                cpuPowerId = sid;
             }
         }
 
@@ -196,9 +217,13 @@ Item {
                 name: "GPU " + (i + 1),
                 hotspotSensor: gpuHotspotMap[id] || ("gpu/" + id + "/temp2"),
                 vramTempSensor: gpuVramTempMap[id] || ("gpu/" + id + "/temp3"),
-                memFreqSensor: gpuMemFreqMap[id] || ("gpu/" + id + "/memoryFrequency")
+                memFreqSensor: gpuMemFreqMap[id] || ("gpu/" + id + "/memoryFrequency"),
+                voltageSensor: gpuVoltageMap[id] || ("gpu/" + id + "/in0")
             };
         });
+
+        _wifiTemps = Object.keys(wifiTempSet).sort();
+        _cpuPowerSensor = cpuPowerId;
 
         var dList = Object.keys(diskMap).sort();
         _disks = dList.map(function(id, i) { return { id: id, name: "Disk " + (i + 1) }; });

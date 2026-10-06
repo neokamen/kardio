@@ -181,6 +181,27 @@ Item {
                 }));
             }
 
+            if (s.cpu.cpuPeakFreqValue && s.cpu.cpuPeakFreqValue !== "...") {
+                list.push(_createMetric("cpu.maxFreq", {
+                    value: s.cpu.cpuPeakFreqRaw,
+                    displayValue: s.cpu.cpuPeakFreqValue,
+                    label: cfg.cpuLabel,
+                    subLabel: "Peak Frequency",
+                    status: !isNaN(s.cpu.cpuPeakFreqRaw) ? "ready" : "loading"
+                }));
+            }
+
+            if (s.cpu.cpuPowerValue && s.cpu.cpuPowerValue !== "") {
+                list.push(_createMetric("cpu.power", {
+                    value: s.cpu.cpuPowerRaw,
+                    displayValue: s.cpu.cpuPowerValue,
+                    label: cfg.cpuLabel,
+                    subLabel: "Package Power",
+                    icon: cfg.resolveIcon("voltage-symbolic"),
+                    status: !isNaN(s.cpu.cpuPowerRaw) ? "ready" : "loading"
+                }));
+            }
+
             if (s.cpu.cpuLoad1Value && s.cpu.cpuLoad1Value !== "...") {
                 list.push(_createMetric("cpu.load1", {
                     value: s.cpu.cpuLoad1Raw,
@@ -391,6 +412,16 @@ Item {
                             status: !isNaN(gd.powerNumber) ? "ready" : "loading"
                         }));
                     }
+                    if (gd.voltage) {
+                        list.push(_createMetric("gpu.voltage", {
+                            deviceId: gd.id, deviceName: gpuName,
+                            label: gpuName + " Voltage", groupLabel: gpuName,
+                            subLabel: "Voltage",
+                            icon: cfg.resolveIcon("voltage-symbolic"),
+                            value: gd.voltageNumber, displayValue: gd.voltage,
+                            status: !isNaN(gd.voltageNumber) ? "ready" : "loading"
+                        }));
+                    }
                 }
             }
         }
@@ -468,6 +499,17 @@ Item {
                     label: cfg.netLabel + " Signal",
                     subLabel: "Wi-Fi Signal",
                     icon: cfg.resolveIcon("network-wireless-symbolic"),
+                    status: "ready"
+                }));
+            }
+            if (s.network.hasWifiTemp && !isNaN(s.network.wifiTempRaw)) {
+                list.push(_createMetric("net.temp", {
+                    value: s.network.wifiTempRaw,
+                    displayValue: s.network.wifiTempValue,
+                    label: cfg.netLabel + " Wi-Fi Temp",
+                    subLabel: "Wi-Fi Temp",
+                    icon: cfg.resolveIcon("network-wireless-symbolic"),
+                    secondaryIcon: cfg.resolveIcon("temperature-symbolic"),
                     status: "ready"
                 }));
             }

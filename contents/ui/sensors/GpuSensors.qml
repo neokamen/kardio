@@ -152,6 +152,7 @@ Item {
             var hotspotSensor = (gpuInfo && gpuInfo.hotspotSensor) ? gpuInfo.hotspotSensor : ("gpu/" + g + "/temp2");
             var vramTempSensor = (gpuInfo && gpuInfo.vramTempSensor) ? gpuInfo.vramTempSensor : ("gpu/" + g + "/temp3");
             var memFreqSensor = (gpuInfo && gpuInfo.memFreqSensor) ? gpuInfo.memFreqSensor : ("gpu/" + g + "/memoryFrequency");
+            var voltageSensor = (gpuInfo && gpuInfo.voltageSensor) ? gpuInfo.voltageSensor : ("gpu/" + g + "/in0");
 
             if (m.indexOf("usage") >= 0) ids.push("gpu/" + g + "/usage");
             if (m.indexOf("vram")  >= 0) {
@@ -164,6 +165,7 @@ Item {
             if (m.indexOf("freq")     >= 0) ids.push("gpu/" + g + "/coreFrequency");
             if (m.indexOf("memFreq")  >= 0) ids.push(memFreqSensor);
             if (m.indexOf("power")    >= 0) ids.push("gpu/" + g + "/power");
+            if (m.indexOf("voltage")  >= 0) ids.push(voltageSensor);
         }
         return ids;
     }
@@ -221,6 +223,7 @@ Item {
             var showF  = m.indexOf("freq")  >= 0;
             var showMF = m.indexOf("memFreq") >= 0;
             var showP  = m.indexOf("power") >= 0;
+            var showVlt = m.indexOf("voltage") >= 0;
 
             // Resolve display name: custom label > default name > fallback
             var gpuInfo = null;
@@ -233,6 +236,7 @@ Item {
             var hotspotSensor = (gpuInfo && gpuInfo.hotspotSensor) ? gpuInfo.hotspotSensor : ("gpu/" + g + "/temp2");
             var vramTempSensor = (gpuInfo && gpuInfo.vramTempSensor) ? gpuInfo.vramTempSensor : ("gpu/" + g + "/temp3");
             var memFreqSensor = (gpuInfo && gpuInfo.memFreqSensor) ? gpuInfo.memFreqSensor : ("gpu/" + g + "/memoryFrequency");
+            var voltageSensor = (gpuInfo && gpuInfo.voltageSensor) ? gpuInfo.voltageSensor : ("gpu/" + g + "/in0");
 
             var uVal   = showU  ? _modelValue("gpu/" + g + "/usage")         : NaN;
             var vuVal  = showV  ? _modelValue("gpu/" + g + "/usedVram")       : NaN;
@@ -243,6 +247,7 @@ Item {
             var fVal   = showF  ? _modelValue("gpu/" + g + "/coreFrequency")  : NaN;
             var mfVal  = showMF ? _modelValue(memFreqSensor)                  : NaN;
             var pVal   = showP  ? _modelValue("gpu/" + g + "/power")          : NaN;
+            var vltVal = showVlt ? _modelValue(voltageSensor)                 : NaN;
 
             var uStr = !isNaN(uVal) ? Math.round(uVal).toString().padStart(3) + "%" : "";
             var vStr = "";
@@ -263,17 +268,19 @@ Item {
                 else mfStr = Math.round(mfVal) + " MHz";
             }
             var pStr = (!isNaN(pVal) && pVal > 0) ? pVal.toFixed(1) + "W" : "";
+            var vltStr = (!isNaN(vltVal) && vltVal > 0) ? ((vltVal > 50 ? (vltVal / 1000).toFixed(2) : vltVal.toFixed(2)) + " V") : "";
 
             newList.push({ id: g, name: name,
                            usage: uStr, vram: vStr, temp: tStr, hotspot: hsStr, vramTemp: vt2Str,
-                           freq: fStr, memFreq: mfStr, power: pStr,
+                           freq: fStr, memFreq: mfStr, power: pStr, voltage: vltStr,
                            usageNumber: !isNaN(uVal) ? uVal : NaN,
                            tempNumber:  (!isNaN(tVal) && tVal > 0) ? tVal : NaN,
                            hotspotNumber: (!isNaN(hsVal) && hsVal > 0) ? hsVal : NaN,
                            vramTempNumber: (!isNaN(vt2Val) && vt2Val > 0) ? vt2Val : NaN,
                            freqNumber:  (!isNaN(fVal) && fVal > 0) ? fVal : NaN,
                            memFreqNumber: (!isNaN(mfVal) && mfVal > 0) ? mfVal : NaN,
-                           powerNumber: (!isNaN(pVal) && pVal > 0) ? pVal : NaN });
+                           powerNumber: (!isNaN(pVal) && pVal > 0) ? pVal : NaN,
+                           voltageNumber: (!isNaN(vltVal) && vltVal > 0) ? vltVal : NaN });
 
             if (!isNaN(uVal)) { totalUsage += uVal; usageCount++; }
             if (!isNaN(vuVal) && !isNaN(vtVal) && vtVal > 0 && vuVal >= 0) {

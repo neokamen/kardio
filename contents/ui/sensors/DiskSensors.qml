@@ -8,7 +8,7 @@
 
         property var discovery: null
         property int updateInterval: 2000
-        property bool enabled: true
+        enabled: true
         property string tempUnit: "C"
         property string networkUnit: "bytes"
         property string diskLabels: ""

@@ -32,6 +32,21 @@ Item {
         return Math.round(mhz) + " MHz";
     }
 
+    // Peak Frequency in MHz from KSysGuard
+    readonly property real cpuPeakFreqRaw: (maxFreqSensor.status === Sensors.Sensor.Ready && maxFreqSensor.value != null) ? Number(maxFreqSensor.value) : NaN
+    readonly property string cpuPeakFreqValue: {
+        if (isNaN(cpuPeakFreqRaw) || cpuPeakFreqRaw <= 0)
+            return "...";
+        if (cpuPeakFreqRaw >= 1000)
+            return (cpuPeakFreqRaw / 1000).toFixed(2) + " GHz";
+        return Math.round(cpuPeakFreqRaw) + " MHz";
+    }
+
+    // CPU Package Power in Watts
+    readonly property string cpuPowerSensorId: (discovery && discovery.cpuPowerSensor) ? discovery.cpuPowerSensor : "cpu/all/power"
+    readonly property real cpuPowerRaw: (cpuPowerSensor.status === Sensors.Sensor.Ready && cpuPowerSensor.value != null && Number(cpuPowerSensor.value) > 0) ? Number(cpuPowerSensor.value) : NaN
+    readonly property string cpuPowerValue: isNaN(cpuPowerRaw) ? "" : cpuPowerRaw.toFixed(1) + " W"
+
     readonly property real cpuLoad1Raw: (load1Sensor.status === Sensors.Sensor.Ready && load1Sensor.value != null) ? Number(load1Sensor.value) : NaN
     readonly property real cpuLoad5Raw: (load5Sensor.status === Sensors.Sensor.Ready && load5Sensor.value != null) ? Number(load5Sensor.value) : NaN
     readonly property real cpuLoad15Raw: (load15Sensor.status === Sensors.Sensor.Ready && load15Sensor.value != null) ? Number(load15Sensor.value) : NaN
@@ -50,6 +65,19 @@ Item {
         id: freqSensor
         sensorId: "cpu/all/averageFrequency"
         updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: maxFreqSensor
+        sensorId: "cpu/all/maximumFrequency"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: cpuPowerSensor
+        sensorId: root.cpuPowerSensorId
+        updateRateLimit: root.updateInterval
+        enabled: root.cpuPowerSensorId !== ""
     }
 
     Sensors.Sensor {

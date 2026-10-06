@@ -145,7 +145,7 @@ function buildPopupGroups(metricsList, orderedKeys) {
     }
 
     // 7. Network
-    var netMetrics = available.filter(function(m) { return m.group === "net"; });
+    var netMetrics = available.filter(function(m) { return m.group === "net" && m.subKey !== "temp"; });
     if (netMetrics.length > 0) {
         var netDown = map["net/down"] || netMetrics[0];
         categories.push({

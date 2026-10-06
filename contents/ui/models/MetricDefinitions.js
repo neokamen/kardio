@@ -11,13 +11,15 @@ var GROUPS = {
         defaultIcon: "cpu-symbolic",
         defaultSubMetrics: "usage,freq,temp",
         subs: [
-            { key: "usage",  label: "Usage" },
-            { key: "freq",   label: "Frequency" },
-            { key: "temp",   label: "Temperature" },
-            { key: "load1",  label: "Load (1m)" },
-            { key: "load5",  label: "Load (5m)" },
-            { key: "load15", label: "Load (15m)" },
-            { key: "core",   label: "Cores" }
+            { key: "usage",   label: "Usage" },
+            { key: "freq",    label: "Frequency" },
+            { key: "maxFreq", label: "Peak Frequency" },
+            { key: "power",   label: "Package Power" },
+            { key: "temp",    label: "Temperature" },
+            { key: "load1",   label: "Load (1m)" },
+            { key: "load5",   label: "Load (5m)" },
+            { key: "load15",  label: "Load (15m)" },
+            { key: "core",    label: "Cores" }
         ]
     },
     ram: {
@@ -67,7 +69,8 @@ var GROUPS = {
             { key: "vramTemp", label: "VRAM Temp" },
             { key: "freq",     label: "Core Frequency" },
             { key: "memFreq",  label: "Memory Frequency" },
-            { key: "power",    label: "Power" }
+            { key: "power",    label: "Power" },
+            { key: "voltage",  label: "Core Voltage" }
         ]
     },
     bat: {
@@ -94,6 +97,7 @@ var GROUPS = {
             { key: "totalDown", label: "Total Downloaded" },
             { key: "totalUp",   label: "Total Uploaded" },
             { key: "signal",    label: "Wi-Fi Signal" },
+            { key: "temp",      label: "Wi-Fi Temperature" },
             { key: "ip",        label: "IP address" }
         ]
     },
@@ -162,7 +166,8 @@ var PATTERNS = {
     GPU_HOTSPOT: /^(?:gpu\/(gpu\d+)\/(?:temp2|hotspot|junction)|lmsensors\/(?:amdgpu|nouveau)[^/]*\/(?:temp2|junction|hotspot))$/i,
     GPU_VRAM_TEMP: /^(?:gpu\/(gpu\d+)\/(?:temp3|mem|vram|memory)|lmsensors\/(?:amdgpu|nouveau)[^/]*\/(?:temp3|mem|vram))$/i,
     DISK_READ: /^disk\/(nvme\d+(?:c\d+)?n\d+|nvme\d+|sd[a-z]+|vd[a-z]+|xvd[a-z]+|mmcblk\d+)\/read$/,
-    DISK_TEMP: /^(?:disk\/(?:nvme\d+(?:c\d+)?n\d+|nvme\d+|sd[a-z]+|vd[a-z]+|xvd[a-z]+|mmcblk\d+)\/temperature|lmsensors\/(?:nvme-pci-[^/]+|drivetemp-scsi-[^/]+|scsi-[^/]+|drivetemp-[^/]+)\/temp\d+)$/,
+    DISK_TEMP: /^(?:disk\/[^/]+\/temperature|lmsensors\/(?:nvme|drivetemp|scsi|ata|drive|smart|hdd)[^/]*\/temp\d+)$/i,
+    WIFI_TEMP: /^(?:network\/[^/]+\/temperature|lmsensors\/(?:iwlwifi|wifi|wlan|ath\d+|rtw|mt79\d+)[^/]*\/temp\d+)$/i,
     FAN: /^(lmsensors|cpu|gpu)\/.*\/fan\d+$/i,
     NETWORK_IFACE: /^network\/([^/]+)\/download$/,
     TEMP_LMSENSORS: /^lmsensors\/(.+)\/temp\d+$/,
@@ -203,6 +208,23 @@ var DEFINITIONS = {
         subKey: "freq",
         sensorId: "cpu/all/averageFrequency",
         label: "Frequency",
+        thresholdType: "none"
+    },
+    "cpu.maxFreq": {
+        id: "cpu.maxFreq",
+        group: "cpu",
+        subKey: "maxFreq",
+        sensorId: "cpu/all/maximumFrequency",
+        label: "Peak Frequency",
+        thresholdType: "none"
+    },
+    "cpu.power": {
+        id: "cpu.power",
+        group: "cpu",
+        subKey: "power",
+        sensorId: "cpu/all/power",
+        label: "Package Power",
+        icon: "voltage-symbolic",
         thresholdType: "none"
     },
     "cpu.temp": {
@@ -388,6 +410,15 @@ var DEFINITIONS = {
         label: "Power",
         thresholdType: "none"
     },
+    "gpu.voltage": {
+        id: "gpu.voltage",
+        group: "gpu",
+        subKey: "voltage",
+        sensorPattern: "gpu/{id}/in0",
+        label: "Core Voltage",
+        icon: "voltage-symbolic",
+        thresholdType: "none"
+    },
     "bat.percentage": {
         id: "bat.percentage",
         group: "bat",
@@ -451,6 +482,17 @@ var DEFINITIONS = {
         icon: "network-wireless-symbolic",
         thresholdType: "inverted",
         thresholdKey: "battery"
+    },
+    "net.temp": {
+        id: "net.temp",
+        group: "net",
+        subKey: "temp",
+        sensorPattern: "network/{id}/temperature",
+        label: "Wi-Fi Temp",
+        icon: "network-wireless-symbolic",
+        secondaryIcon: "temperature-normal",
+        thresholdType: "normal",
+        thresholdKey: "temp"
     },
     "net.totalDown": {
         id: "net.totalDown",

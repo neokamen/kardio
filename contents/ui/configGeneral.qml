@@ -1,7 +1,7 @@
-import QtQuick 2.0
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.0
-import org.kde.kirigami 2.5 as Kirigami
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import org.kde.kirigami as Kirigami
 import org.kde.kcmutils as KCM
 
 KCM.SimpleKCM {
@@ -10,10 +10,10 @@ KCM.SimpleKCM {
     property alias cfg_updateInterval: intervalSlider.value
     property alias cfg_iconSize: iconSizeSlider.value
     property alias cfg_fontSize: fontSizeSlider.value
-    property alias cfg_fontBold: fontBoldCheck.checked
+    property alias cfg_fontBold: fontBoldSwitch.checked
     property alias cfg_labelOpacity: labelOpacitySlider.value
     property alias cfg_separatorOpacity: separatorOpacitySlider.value
-    property string cfg_displayMode: "text"
+    property string cfg_displayMode: "icons+text"
     property string cfg_fontFamily: "monospace"
     property string cfg_layoutType: "horizontal"
     property string cfg_backgroundType: "default"
@@ -23,332 +23,871 @@ KCM.SimpleKCM {
     property bool cfg_mergeFamilyMetrics: true
     property bool cfg_showSeparators: true
 
-    readonly property var displayModes: ["text", "icons", "icons+text", "none"]
-    readonly property var displayModeLabels: [i18n("Text"), i18n("Icons"), i18n("Icons + Text"), i18n("None")]
     readonly property bool iconsEnabled: cfg_displayMode === "icons" || cfg_displayMode === "icons+text"
+    readonly property bool textEnabled: cfg_displayMode === "text" || cfg_displayMode === "icons+text"
 
-    readonly property var layoutTypes: ["horizontal", "vertical"]
-    readonly property var layoutTypeLabels: [i18n("Horizontal"), i18n("Vertical")]
+    ColumnLayout {
+        id: mainLayout
+        spacing: Kirigami.Units.largeSpacing
+        Layout.fillWidth: true
 
-    readonly property var backgroundTypes: ["default", "translucent", "shadow", "transparent"]
-    readonly property var backgroundTypeLabels: [i18n("Default"), i18n("Translucent"), i18n("Shadow Only"), i18n("Fully Transparent")]
+        // ═══════════════════════════════════════════════════════════════════
+        // 1. HERO BRAND BANNER: Kardio Pulse & Live Preview
+        // ═══════════════════════════════════════════════════════════════════
+        Rectangle {
+            Layout.fillWidth: true
+            implicitHeight: heroCol.implicitHeight + (Kirigami.Units.largeSpacing * 2)
+            radius: Kirigami.Units.smallSpacing * 1.5
+            color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.08)
+            border.color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.3)
+            border.width: 1
 
-    Kirigami.FormLayout {
+            ColumnLayout {
+                id: heroCol
+                anchors.fill: parent
+                anchors.margins: Kirigami.Units.largeSpacing
+                spacing: Kirigami.Units.mediumSpacing
 
-        ComboBox {
-            id: displayModeCombo
-            Kirigami.FormData.label: i18n("Display mode:")
-            model: configPage.displayModeLabels
-            currentIndex: {
-                var idx = configPage.displayModes.indexOf(cfg_displayMode);
-                return idx >= 0 ? idx : 0;
-            }
-            onActivated: {
-                cfg_displayMode = configPage.displayModes[currentIndex];
-            }
-        }
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Kirigami.Units.mediumSpacing
 
-        ComboBox {
-            id: layoutTypeCombo
-            Kirigami.FormData.label: i18n("Layout:")
-            model: configPage.layoutTypeLabels
-            currentIndex: {
-                var idx = configPage.layoutTypes.indexOf(cfg_layoutType);
-                return idx >= 0 ? idx : 0;
-            }
-            onActivated: {
-                cfg_layoutType = configPage.layoutTypes[currentIndex];
-            }
-        }
+                    Rectangle {
+                        width: Kirigami.Units.iconSizes.large
+                        height: Kirigami.Units.iconSizes.large
+                        radius: Math.round(width * 0.3)
+                        color: Kirigami.Theme.highlightColor
 
-        RowLayout {
-            Kirigami.FormData.label: i18n("Background:")
-            spacing: Kirigami.Units.smallSpacing
-
-            ComboBox {
-                id: backgroundTypeCombo
-                model: configPage.backgroundTypeLabels
-                currentIndex: {
-                    var idx = configPage.backgroundTypes.indexOf(cfg_backgroundType);
-                    return idx >= 0 ? idx : 0;
-                }
-                onActivated: {
-                    cfg_backgroundType = configPage.backgroundTypes[currentIndex];
-                }
-            }
-
-            Kirigami.ContextualHelpButton {
-                toolTipText: i18n("Controls the widget background when placed directly on the desktop. When placed inside a panel, the widget blends seamlessly into the panel bar.")
-            }
-        }
-
-        Slider {
-            id: iconSizeSlider
-            Kirigami.FormData.label: i18n("Icon size:")
-            from: 8
-            to: 24
-            stepSize: 2
-            value: 12
-            visible: configPage.iconsEnabled
-        }
-
-        Label {
-            text: iconSizeSlider.value + " px"
-            opacity: 0.7
-            visible: configPage.iconsEnabled
-        }
-
-        RowLayout {
-            id: fontRow
-            Kirigami.FormData.label: i18n("Font:")
-
-            property var allFonts: []
-            property var installedDefaults: []
-
-            readonly property var candidateFonts: [
-                "monospace", "Sans Serif", "Hack", "Fira Code",
-                "JetBrains Mono", "Noto Sans", "Roboto", "Inter",
-                "DejaVu Sans Mono", "Liberation Mono"
-            ]
-
-            function ensureFontsLoaded() {
-                if (allFonts.length === 0) {
-                    allFonts = Qt.fontFamilies();
-                    var installed = [];
-                    for (var i = 0; i < candidateFonts.length; i++) {
-                        if (allFonts.indexOf(candidateFonts[i]) !== -1) {
-                            installed.push(candidateFonts[i]);
+                        Kirigami.Icon {
+                            anchors.centerIn: parent
+                            width: Kirigami.Units.iconSizes.medium
+                            height: Kirigami.Units.iconSizes.medium
+                            source: Qt.resolvedUrl("../icons/kardio-symbolic.svg")
+                            color: Kirigami.Theme.highlightedTextColor
+                            isMask: true
                         }
                     }
-                    installedDefaults = installed;
-                }
-            }
 
-            function buildInitialList() {
-                ensureFontsLoaded();
-                var list = installedDefaults.slice();
-                if (cfg_fontFamily && list.indexOf(cfg_fontFamily) === -1) {
-                    list.unshift(cfg_fontFamily);
-                }
-                return list;
-            }
+                    ColumnLayout {
+                        spacing: 2
+                        Layout.fillWidth: true
 
-            function filterFonts(query) {
-                ensureFontsLoaded();
-                var q = query.trim().toLowerCase();
-                if (q === "") return buildInitialList();
-                var results = [];
-                for (var i = 0; i < allFonts.length && results.length < 50; i++) {
-                    if (allFonts[i].toLowerCase().indexOf(q) !== -1) {
-                        results.push(allFonts[i]);
-                    }
-                }
-                return results;
-            }
+                        RowLayout {
+                            spacing: Kirigami.Units.smallSpacing
+                            Label {
+                                text: "Kardio"
+                                font.pointSize: Kirigami.Theme.defaultFont.pointSize + 4
+                                font.weight: Font.Bold
+                                color: Kirigami.Theme.textColor
+                            }
+                            Rectangle {
+                                radius: 4
+                                color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.2)
+                                implicitWidth: versionLabel.implicitWidth + 10
+                                implicitHeight: versionLabel.implicitHeight + 4
+                                Label {
+                                    id: versionLabel
+                                    anchors.centerIn: parent
+                                    text: "v0.3.0"
+                                    font.pointSize: Kirigami.Theme.smallFont.pointSize - 1
+                                    font.weight: Font.Bold
+                                    color: Kirigami.Theme.highlightColor
+                                }
+                            }
+                        }
 
-            function populateList(query) {
-                fontSuggestionsModel.clear();
-                var filtered = filterFonts(query);
-                for (var i = 0; i < filtered.length; i++) {
-                    fontSuggestionsModel.append({ name: filtered[i] });
-                }
-            }
-
-            TextField {
-                id: fontInput
-                Layout.preferredWidth: 200
-                text: cfg_fontFamily
-                placeholderText: i18n("Type to search fonts...")
-
-                onTextEdited: {
-                    fontRow.populateList(text);
-                    fontPopup.open();
-                }
-
-                onEditingFinished: {
-                    if (!fontSuggestionsList.activeFocus) {
-                        cfg_fontFamily = text;
-                        fontPopup.close();
+                        Label {
+                            text: i18n("The Next-Gen Plasma Telemetry Monitor")
+                            font: Kirigami.Theme.smallFont
+                            opacity: 0.75
+                        }
                     }
                 }
 
-                Keys.onEscapePressed: {
-                    fontPopup.close();
-                }
-                Keys.onDownPressed: {
-                    fontRow.populateList(text);
-                    fontPopup.open();
-                    fontSuggestionsList.currentIndex = -1;
-                    fontSuggestionsList.forceActiveFocus();
+                // Live Simulator Bar
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: Kirigami.Units.smallSpacing
+
+                    Label {
+                        text: i18n("VISTA PREVIA EN VIVO (SIMULADOR DE PANEL):")
+                        font.pointSize: Kirigami.Theme.smallFont.pointSize - 1
+                        font.weight: Font.Bold
+                        opacity: 0.6
+                    }
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        implicitHeight: Math.max(38, Kirigami.Units.gridUnit * 2.2)
+                        radius: Kirigami.Units.smallSpacing
+                        color: {
+                            if (cfg_backgroundType === "transparent") return "transparent";
+                            if (cfg_backgroundType === "translucent") return Qt.rgba(Kirigami.Theme.backgroundColor.r, Kirigami.Theme.backgroundColor.g, Kirigami.Theme.backgroundColor.b, 0.45);
+                            return Qt.rgba(Kirigami.Theme.backgroundColor.r, Kirigami.Theme.backgroundColor.g, Kirigami.Theme.backgroundColor.b, 0.85);
+                        }
+                        border.color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.2)
+                        border.width: 1
+
+                        RowLayout {
+                            anchors.centerIn: parent
+                            spacing: Kirigami.Units.mediumSpacing
+
+                            // Simulated CPU Metric Tile
+                            RowLayout {
+                                spacing: 4
+                                Kirigami.Icon {
+                                    visible: configPage.iconsEnabled
+                                    source: Qt.resolvedUrl("../icons/cpu-symbolic.svg")
+                                    width: cfg_iconSize
+                                    height: cfg_iconSize
+                                    isMask: true
+                                    color: Kirigami.Theme.textColor
+                                }
+                                Label {
+                                    visible: configPage.textEnabled
+                                    text: "CPU"
+                                    font.family: cfg_fontFamily
+                                    font.bold: cfg_fontBold
+                                    font.pixelSize: cfg_fontSize > 0 ? cfg_fontSize : Kirigami.Theme.defaultFont.pixelSize
+                                    opacity: cfg_labelOpacity
+                                }
+                                Label {
+                                    text: "18%"
+                                    font.family: cfg_fontFamily
+                                    font.bold: cfg_fontBold
+                                    font.pixelSize: cfg_fontSize > 0 ? cfg_fontSize : Kirigami.Theme.defaultFont.pixelSize
+                                    color: Kirigami.Theme.textColor
+                                }
+                            }
+
+                            Rectangle {
+                                visible: cfg_showSeparators
+                                width: 1
+                                height: 16
+                                color: Kirigami.Theme.textColor
+                                opacity: cfg_separatorOpacity
+                            }
+
+                            // Simulated Temp Metric Tile
+                            RowLayout {
+                                spacing: 4
+                                Kirigami.Icon {
+                                    visible: configPage.iconsEnabled
+                                    source: Qt.resolvedUrl("../icons/temperature-symbolic.svg")
+                                    width: cfg_iconSize
+                                    height: cfg_iconSize
+                                    isMask: true
+                                    color: Kirigami.Theme.textColor
+                                }
+                                Label {
+                                    text: cfg_tempUnit === "F" ? "125°F" : "52°C"
+                                    font.family: cfg_fontFamily
+                                    font.bold: cfg_fontBold
+                                    font.pixelSize: cfg_fontSize > 0 ? cfg_fontSize : Kirigami.Theme.defaultFont.pixelSize
+                                    color: Kirigami.Theme.textColor
+                                }
+                            }
+
+                            Rectangle {
+                                visible: cfg_showSeparators
+                                width: 1
+                                height: 16
+                                color: Kirigami.Theme.textColor
+                                opacity: cfg_separatorOpacity
+                            }
+
+                            // Simulated GPU Tile
+                            RowLayout {
+                                spacing: 4
+                                Kirigami.Icon {
+                                    visible: configPage.iconsEnabled
+                                    source: Qt.resolvedUrl("../icons/gpu-symbolic.svg")
+                                    width: cfg_iconSize
+                                    height: cfg_iconSize
+                                    isMask: true
+                                    color: Kirigami.Theme.textColor
+                                }
+                                Label {
+                                    visible: configPage.textEnabled
+                                    text: "GPU"
+                                    font.family: cfg_fontFamily
+                                    font.bold: cfg_fontBold
+                                    font.pixelSize: cfg_fontSize > 0 ? cfg_fontSize : Kirigami.Theme.defaultFont.pixelSize
+                                    opacity: cfg_labelOpacity
+                                }
+                                Label {
+                                    text: "34%"
+                                    font.family: cfg_fontFamily
+                                    font.bold: cfg_fontBold
+                                    font.pixelSize: cfg_fontSize > 0 ? cfg_fontSize : Kirigami.Theme.defaultFont.pixelSize
+                                    color: Kirigami.Theme.textColor
+                                }
+                            }
+
+                            Rectangle {
+                                visible: cfg_showSeparators
+                                width: 1
+                                height: 16
+                                color: Kirigami.Theme.textColor
+                                opacity: cfg_separatorOpacity
+                            }
+
+                            // Simulated Net Tile
+                            RowLayout {
+                                spacing: 4
+                                Kirigami.Icon {
+                                    visible: configPage.iconsEnabled
+                                    source: Qt.resolvedUrl("../icons/network-download-symbolic.svg")
+                                    width: cfg_iconSize
+                                    height: cfg_iconSize
+                                    isMask: true
+                                    color: Kirigami.Theme.textColor
+                                }
+                                Label {
+                                    text: cfg_networkUnit === "bits" ? "11.2 Mb/s" : "1.4 MB/s"
+                                    font.family: cfg_fontFamily
+                                    font.bold: cfg_fontBold
+                                    font.pixelSize: cfg_fontSize > 0 ? cfg_fontSize : Kirigami.Theme.defaultFont.pixelSize
+                                    color: Kirigami.Theme.textColor
+                                }
+                            }
+                        }
+                    }
                 }
             }
+        }
 
-            Popup {
-                id: fontPopup
-                parent: fontInput
-                x: 0
-                y: fontInput.height
-                width: fontInput.width
-                height: Math.min(fontSuggestionsList.contentHeight, 250)
-                padding: 0
-                closePolicy: Popup.CloseOnPressOutside
+        // ═══════════════════════════════════════════════════════════════════
+        // 2. VISUAL DISPLAY MODE STUDIO
+        // ═══════════════════════════════════════════════════════════════════
+        Kirigami.Card {
+            Layout.fillWidth: true
+            header: Kirigami.Heading {
+                text: i18n("Modo de Visualización en Panel")
+                level: 3
+            }
 
-                ListView {
-                    id: fontSuggestionsList
-                    anchors.fill: parent
-                    clip: true
-                    model: ListModel { id: fontSuggestionsModel }
+            contentItem: ColumnLayout {
+                spacing: Kirigami.Units.mediumSpacing
 
-                    delegate: ItemDelegate {
-                        width: fontSuggestionsList.width
-                        text: model.name
-                        highlighted: fontSuggestionsList.currentIndex === index
+                Label {
+                    text: i18n("Elige cómo se presentan las métricas ancladas en la barra o panel de Plasma:")
+                    opacity: 0.75
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                }
+
+                GridLayout {
+                    columns: 2
+                    Layout.fillWidth: true
+                    columnSpacing: Kirigami.Units.mediumSpacing
+                    rowSpacing: Kirigami.Units.mediumSpacing
+
+                    // Option: Icons + Text (Hybrid)
+                    Rectangle {
+                        Layout.fillWidth: true
+                        implicitHeight: 68
+                        radius: Kirigami.Units.smallSpacing
+                        color: cfg_displayMode === "icons+text"
+                               ? Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.15)
+                               : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.04)
+                        border.color: cfg_displayMode === "icons+text" ? Kirigami.Theme.highlightColor : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.15)
+                        border.width: cfg_displayMode === "icons+text" ? 2 : 1
+
+                        TapHandler { onTapped: cfg_displayMode = "icons+text" }
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: Kirigami.Units.mediumSpacing
+                            spacing: Kirigami.Units.mediumSpacing
+
+                            Rectangle {
+                                width: 36; height: 36; radius: 6
+                                color: cfg_displayMode === "icons+text" ? Kirigami.Theme.highlightColor : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.1)
+                                Kirigami.Icon {
+                                    anchors.centerIn: parent
+                                    source: "view-list-details"
+                                    width: 20; height: 20
+                                    color: cfg_displayMode === "icons+text" ? Kirigami.Theme.highlightedTextColor : Kirigami.Theme.textColor
+                                }
+                            }
+                            ColumnLayout {
+                                spacing: 2
+                                Layout.fillWidth: true
+                                Label { text: i18n("Híbrido (Iconos + Texto)"); font.weight: Font.Bold }
+                                Label { text: i18n("Equilibrio ideal: etiqueta, glifo y valor numérico"); font: Kirigami.Theme.smallFont; opacity: 0.65; wrapMode: Text.WordWrap }
+                            }
+                            Kirigami.Icon {
+                                visible: cfg_displayMode === "icons+text"
+                                source: "checkmark"
+                                color: Kirigami.Theme.highlightColor
+                                width: 18; height: 18
+                            }
+                        }
+                    }
+
+                    // Option: Text Only
+                    Rectangle {
+                        Layout.fillWidth: true
+                        implicitHeight: 68
+                        radius: Kirigami.Units.smallSpacing
+                        color: cfg_displayMode === "text"
+                               ? Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.15)
+                               : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.04)
+                        border.color: cfg_displayMode === "text" ? Kirigami.Theme.highlightColor : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.15)
+                        border.width: cfg_displayMode === "text" ? 2 : 1
+
+                        TapHandler { onTapped: cfg_displayMode = "text" }
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: Kirigami.Units.mediumSpacing
+                            spacing: Kirigami.Units.mediumSpacing
+
+                            Rectangle {
+                                width: 36; height: 36; radius: 6
+                                color: cfg_displayMode === "text" ? Kirigami.Theme.highlightColor : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.1)
+                                Kirigami.Icon {
+                                    anchors.centerIn: parent
+                                    source: "draw-text"
+                                    width: 20; height: 20
+                                    color: cfg_displayMode === "text" ? Kirigami.Theme.highlightedTextColor : Kirigami.Theme.textColor
+                                }
+                            }
+                            ColumnLayout {
+                                spacing: 2
+                                Layout.fillWidth: true
+                                Label { text: i18n("Solo Texto (Clásico)"); font.weight: Font.Bold }
+                                Label { text: i18n("Mínimo consumo visual en formato tradicional"); font: Kirigami.Theme.smallFont; opacity: 0.65; wrapMode: Text.WordWrap }
+                            }
+                            Kirigami.Icon {
+                                visible: cfg_displayMode === "text"
+                                source: "checkmark"
+                                color: Kirigami.Theme.highlightColor
+                                width: 18; height: 18
+                            }
+                        }
+                    }
+
+                    // Option: Icons Only
+                    Rectangle {
+                        Layout.fillWidth: true
+                        implicitHeight: 68
+                        radius: Kirigami.Units.smallSpacing
+                        color: cfg_displayMode === "icons"
+                               ? Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.15)
+                               : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.04)
+                        border.color: cfg_displayMode === "icons" ? Kirigami.Theme.highlightColor : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.15)
+                        border.width: cfg_displayMode === "icons" ? 2 : 1
+
+                        TapHandler { onTapped: cfg_displayMode = "icons" }
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: Kirigami.Units.mediumSpacing
+                            spacing: Kirigami.Units.mediumSpacing
+
+                            Rectangle {
+                                width: 36; height: 36; radius: 6
+                                color: cfg_displayMode === "icons" ? Kirigami.Theme.highlightColor : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.1)
+                                Kirigami.Icon {
+                                    anchors.centerIn: parent
+                                    source: "preferences-desktop-icons"
+                                    width: 20; height: 20
+                                    color: cfg_displayMode === "icons" ? Kirigami.Theme.highlightedTextColor : Kirigami.Theme.textColor
+                                }
+                            }
+                            ColumnLayout {
+                                spacing: 2
+                                Layout.fillWidth: true
+                                Label { text: i18n("Solo Iconos (Ultra Compacto)"); font.weight: Font.Bold }
+                                Label { text: i18n("Máximo ahorro de espacio horizontal en el panel"); font: Kirigami.Theme.smallFont; opacity: 0.65; wrapMode: Text.WordWrap }
+                            }
+                            Kirigami.Icon {
+                                visible: cfg_displayMode === "icons"
+                                source: "checkmark"
+                                color: Kirigami.Theme.highlightColor
+                                width: 18; height: 18
+                            }
+                        }
+                    }
+
+                    // Option: None
+                    Rectangle {
+                        Layout.fillWidth: true
+                        implicitHeight: 68
+                        radius: Kirigami.Units.smallSpacing
+                        color: cfg_displayMode === "none"
+                               ? Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.15)
+                               : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.04)
+                        border.color: cfg_displayMode === "none" ? Kirigami.Theme.highlightColor : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.15)
+                        border.width: cfg_displayMode === "none" ? 2 : 1
+
+                        TapHandler { onTapped: cfg_displayMode = "none" }
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: Kirigami.Units.mediumSpacing
+                            spacing: Kirigami.Units.mediumSpacing
+
+                            Rectangle {
+                                width: 36; height: 36; radius: 6
+                                color: cfg_displayMode === "none" ? Kirigami.Theme.highlightColor : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.1)
+                                Kirigami.Icon {
+                                    anchors.centerIn: parent
+                                    source: "view-hidden"
+                                    width: 20; height: 20
+                                    color: cfg_displayMode === "none" ? Kirigami.Theme.highlightedTextColor : Kirigami.Theme.textColor
+                                }
+                            }
+                            ColumnLayout {
+                                spacing: 2
+                                Layout.fillWidth: true
+                                Label { text: i18n("Oculto en Barra"); font.weight: Font.Bold }
+                                Label { text: i18n("Solo abre el popup informativo al pulsar el icono"); font: Kirigami.Theme.smallFont; opacity: 0.65; wrapMode: Text.WordWrap }
+                            }
+                            Kirigami.Icon {
+                                visible: cfg_displayMode === "none"
+                                source: "checkmark"
+                                color: Kirigami.Theme.highlightColor
+                                width: 18; height: 18
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // 3. LAYOUT & DESKTOP SURFACE CARDS
+        // ═══════════════════════════════════════════════════════════════════
+        Kirigami.Card {
+            Layout.fillWidth: true
+            header: Kirigami.Heading {
+                text: i18n("Orientación y Fondo de Superficie")
+                level: 3
+            }
+
+            contentItem: ColumnLayout {
+                spacing: Kirigami.Units.largeSpacing
+
+                // Layout Selector Pills
+                ColumnLayout {
+                    spacing: Kirigami.Units.smallSpacing
+                    Label { text: i18n("Orientación de lectura del panel:"); font.weight: Font.DemiBold }
+
+                    RowLayout {
+                        spacing: Kirigami.Units.mediumSpacing
+                        Button {
+                            icon.name: "distribute-horizontal"
+                            text: i18n("Horizontal (Barra superior / inferior)")
+                            highlighted: cfg_layoutType === "horizontal"
+                            onClicked: cfg_layoutType = "horizontal"
+                        }
+                        Button {
+                            icon.name: "distribute-vertical"
+                            text: i18n("Vertical (Dock lateral)")
+                            highlighted: cfg_layoutType === "vertical"
+                            onClicked: cfg_layoutType = "vertical"
+                        }
+                    }
+                }
+
+                // Desktop Surface Style
+                ColumnLayout {
+                    spacing: Kirigami.Units.smallSpacing
+                    Label { text: i18n("Estilo de fondo en Escritorio (Modo Widget Libre):"); font.weight: Font.DemiBold }
+
+                    RowLayout {
+                        spacing: Kirigami.Units.smallSpacing
+                        Button {
+                            text: i18n("Plasma Theme")
+                            highlighted: cfg_backgroundType === "default"
+                            onClicked: cfg_backgroundType = "default"
+                        }
+                        Button {
+                            text: i18n("🧊 Translúcido")
+                            highlighted: cfg_backgroundType === "translucent"
+                            onClicked: cfg_backgroundType = "translucent"
+                        }
+                        Button {
+                            text: i18n("🌘 Sombra Sutil")
+                            highlighted: cfg_backgroundType === "shadow"
+                            onClicked: cfg_backgroundType = "shadow"
+                        }
+                        Button {
+                            text: i18n("🪟 Transparente Puro")
+                            highlighted: cfg_backgroundType === "transparent"
+                            onClicked: cfg_backgroundType = "transparent"
+                        }
+                    }
+                }
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // 4. TYPOGRAPHY & PROPORTIONS STUDIO
+        // ═══════════════════════════════════════════════════════════════════
+        Kirigami.Card {
+            Layout.fillWidth: true
+            header: Kirigami.Heading {
+                text: i18n("Estudio Tipográfico y Escala")
+                level: 3
+            }
+
+            contentItem: ColumnLayout {
+                spacing: Kirigami.Units.mediumSpacing
+
+                // Font Search and Selection with System Dropdown
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Kirigami.Units.smallSpacing
+
+                    Label {
+                        text: i18n("Familia de Fuente:")
+                        Layout.preferredWidth: 140
+                        font.weight: Font.DemiBold
+                    }
+
+                    TextField {
+                        id: fontInput
+                        Layout.fillWidth: true
+                        text: cfg_fontFamily
+                        placeholderText: i18n("Haz clic o escribe para buscar fuentes...")
+                        onEditingFinished: {
+                            if (text.trim().length > 0) cfg_fontFamily = text.trim();
+                        }
+
+                        onPressed: {
+                            if (!fontDropdownPopup.visible) {
+                                fontDropdownPopup.open();
+                            }
+                        }
+
+                        Popup {
+                            id: fontDropdownPopup
+                            y: fontInput.height + 4
+                            width: Math.max(340, fontInput.width)
+                            height: 280
+                            padding: 6
+                            closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape
+
+                            property var allFonts: Qt.fontFamilies()
+                            property string filterText: ""
+
+                            readonly property var filteredList: {
+                                var q = filterText.toLowerCase().trim();
+                                var res = [];
+                                for (var i = 0; i < allFonts.length; i++) {
+                                    if (q.length === 0 || allFonts[i].toLowerCase().indexOf(q) !== -1) {
+                                        res.push(allFonts[i]);
+                                        if (res.length >= 100) break;
+                                    }
+                                }
+                                return res;
+                            }
+
+                            ColumnLayout {
+                                anchors.fill: parent
+                                spacing: 4
+
+                                TextField {
+                                    id: fontSearchInPopup
+                                    Layout.fillWidth: true
+                                    placeholderText: i18n("Filtrar fuente (ej: Nerd, Mono, Sans)...")
+                                    onTextChanged: fontDropdownPopup.filterText = text
+                                }
+
+                                ListView {
+                                    id: fontListInPopup
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    clip: true
+                                    model: fontDropdownPopup.filteredList
+                                    ScrollBar.vertical: ScrollBar { active: true }
+
+                                    delegate: ItemDelegate {
+                                        width: fontListInPopup.width
+                                        highlighted: cfg_fontFamily === modelData
+                                        contentItem: RowLayout {
+                                            spacing: 8
+                                            Label {
+                                                text: modelData
+                                                font.family: modelData
+                                                font.pixelSize: 13
+                                                Layout.fillWidth: true
+                                                elide: Text.ElideRight
+                                            }
+                                            Label {
+                                                text: "123 58°C"
+                                                font.family: modelData
+                                                opacity: 0.6
+                                                font.pixelSize: 11
+                                            }
+                                        }
+                                        onClicked: {
+                                            cfg_fontFamily = modelData;
+                                            fontInput.text = modelData;
+                                            fontDropdownPopup.close();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    ToolButton {
+                        icon.name: fontDropdownPopup.visible ? "arrow-up" : "arrow-down"
                         onClicked: {
-                            cfg_fontFamily = model.name;
-                            fontInput.text = model.name;
-                            fontPopup.close();
-                            fontInput.forceActiveFocus();
+                            if (fontDropdownPopup.visible) fontDropdownPopup.close();
+                            else fontDropdownPopup.open();
+                        }
+                        ToolTip.text: i18n("Ver todas las fuentes del sistema")
+                        ToolTip.visible: hovered
+                    }
+
+                    Button {
+                        text: "⚡ Nerd Font"
+                        icon.name: "font"
+                        highlighted: cfg_fontFamily.toLowerCase().indexOf("nerd") !== -1
+                        onClicked: {
+                            var families = Qt.fontFamilies();
+                            var found = "";
+                            for (var i = 0; i < families.length; i++) {
+                                if (families[i].toLowerCase().indexOf("nerd font mono") !== -1 || families[i].toLowerCase().indexOf("nerd font") !== -1) {
+                                    found = families[i];
+                                    break;
+                                }
+                            }
+                            var target = found || "JetBrainsMono Nerd Font Mono";
+                            cfg_fontFamily = target;
+                            fontInput.text = target;
                         }
                     }
 
-                    Keys.onReturnPressed: {
-                        if (currentIndex >= 0) {
-                            var item = fontSuggestionsModel.get(currentIndex);
-                            cfg_fontFamily = item.name;
-                            fontInput.text = item.name;
+                    Button {
+                        text: "Hack"
+                        onClicked: { cfg_fontFamily = "Hack"; fontInput.text = "Hack"; }
+                    }
+                    Button {
+                        text: "Mono"
+                        onClicked: { cfg_fontFamily = "monospace"; fontInput.text = "monospace"; }
+                    }
+                    Button {
+                        text: "Sans"
+                        onClicked: { cfg_fontFamily = "Sans Serif"; fontInput.text = "Sans Serif"; }
+                    }
+                }
+
+                // Bold & Font Size Controls
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Kirigami.Units.largeSpacing
+
+                    RowLayout {
+                        spacing: Kirigami.Units.smallSpacing
+                        Switch {
+                            id: fontBoldSwitch
                         }
-                        fontPopup.close();
-                        fontInput.forceActiveFocus();
+                        Label {
+                            text: i18n("Texto en Negrita (Bold)")
+                            font.weight: fontBoldSwitch.checked ? Font.Bold : Font.Normal
+                        }
                     }
 
-                    Keys.onEscapePressed: {
-                        fontPopup.close();
-                        fontInput.forceActiveFocus();
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Kirigami.Units.smallSpacing
+                        Label { text: i18n("Tamaño de Fuente:"); Layout.preferredWidth: 120 }
+                        Slider {
+                            id: fontSizeSlider
+                            Layout.fillWidth: true
+                            from: 0; to: 24; stepSize: 1; value: 0
+                        }
+                        Label {
+                            text: fontSizeSlider.value === 0 ? i18n("Auto (Sistema)") : fontSizeSlider.value + " px"
+                            font.bold: true
+                            Layout.preferredWidth: 90
+                        }
+                    }
+                }
+
+                // Icon Size
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Kirigami.Units.smallSpacing
+                    visible: configPage.iconsEnabled
+                    Label { text: i18n("Tamaño de Glifos:"); Layout.preferredWidth: 140 }
+                    Slider {
+                        id: iconSizeSlider
+                        Layout.fillWidth: true
+                        from: 8; to: 28; stepSize: 2; value: 12
+                    }
+                    Label {
+                        text: iconSizeSlider.value + " px"
+                        font.bold: true
+                        Layout.preferredWidth: 60
+                    }
+                }
+
+                // Opacities & Separators
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Kirigami.Units.largeSpacing
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Kirigami.Units.smallSpacing
+                        Label { text: i18n("Opacidad de Etiquetas:"); Layout.preferredWidth: 140 }
+                        Slider {
+                            id: labelOpacitySlider
+                            Layout.fillWidth: true
+                            from: 0.1; to: 1.0; stepSize: 0.05; value: 0.65
+                        }
+                        Label {
+                            text: Math.round(labelOpacitySlider.value * 100) + "%"
+                            font.bold: true
+                            Layout.preferredWidth: 45
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Kirigami.Units.smallSpacing
+                        Label { text: i18n("Opacidad Separadores:"); Layout.preferredWidth: 140 }
+                        Slider {
+                            id: separatorOpacitySlider
+                            Layout.fillWidth: true
+                            from: 0.0; to: 1.0; stepSize: 0.05; value: 0.40
+                        }
+                        Label {
+                            text: Math.round(separatorOpacitySlider.value * 100) + "%"
+                            font.bold: true
+                            Layout.preferredWidth: 45
+                        }
+                    }
+                }
+
+                // Toggles for grouping & separators
+                RowLayout {
+                    spacing: Kirigami.Units.largeSpacing
+
+                    Switch {
+                        id: showSeparatorsSwitch
+                        text: i18n("Mostrar barras separadoras entre métricas")
+                        checked: cfg_showSeparators
+                        onToggled: cfg_showSeparators = checked
+                    }
+
+                    Switch {
+                        id: mergeFamilyMetricsSwitch
+                        text: i18n("Agrupar métricas del mismo hardware en un solo bloque")
+                        checked: cfg_mergeFamilyMetrics
+                        onToggled: cfg_mergeFamilyMetrics = checked
                     }
                 }
             }
         }
 
-
-
-        Label {
-            text: i18n("Type to search, ↓ to browse, Enter or click to select")
-            opacity: 0.6
-            font: Kirigami.Theme.smallFont
-        }
-
-        Slider {
-            id: fontSizeSlider
-            Kirigami.FormData.label: i18n("Font size:")
-            from: 0
-            to: 24
-            stepSize: 1
-            value: 0
-        }
-
-        Label {
-            text: fontSizeSlider.value === 0 ? i18n("System default") : fontSizeSlider.value + " px"
-            opacity: 0.7
-        }
-
-        CheckBox {
-            id: fontBoldCheck
-            Kirigami.FormData.label: i18n("Bold font:")
-            text: i18n("Bold")
-        }
-
-        RowLayout {
-            Kirigami.FormData.label: i18n("Panel grouping:")
-            spacing: Kirigami.Units.smallSpacing
-
-            CheckBox {
-                id: mergeFamilyMetricsCheck
-                text: i18n("Merge metrics of the same device into one item")
-                checked: cfg_mergeFamilyMetrics
-                onToggled: cfg_mergeFamilyMetrics = checked
+        // ═══════════════════════════════════════════════════════════════════
+        // 5. UNITS & TELEMETRY ENGINE INTERVAL
+        // ═══════════════════════════════════════════════════════════════════
+        Kirigami.Card {
+            Layout.fillWidth: true
+            header: Kirigami.Heading {
+                text: i18n("Motor de Muestreo y Preferencias de Unidades")
+                level: 3
             }
 
-            Kirigami.ContextualHelpButton {
-                toolTipText: i18n("Combines metrics belonging to the same hardware group (e.g. CPU Usage & Frequency, Network Download & Upload) into a single compact tile on the panel.")
+            contentItem: ColumnLayout {
+                spacing: Kirigami.Units.mediumSpacing
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Kirigami.Units.smallSpacing
+
+                    Label {
+                        text: i18n("Frecuencia de Actualización:")
+                        Layout.preferredWidth: 180
+                        font.weight: Font.DemiBold
+                    }
+
+                    Slider {
+                        id: intervalSlider
+                        Layout.fillWidth: true
+                        from: 500
+                        to: 6000
+                        stepSize: 250
+                        value: 2000
+                    }
+
+                    Label {
+                        text: (intervalSlider.value / 1000).toFixed(2) + " seg"
+                        font.bold: true
+                        color: Kirigami.Theme.highlightColor
+                        Layout.preferredWidth: 70
+                    }
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Kirigami.Units.largeSpacing
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 4
+                        Label { text: i18n("Unidad de Temperatura:"); font.weight: Font.DemiBold }
+                        RowLayout {
+                            Button {
+                                text: "°C Celsius"
+                                highlighted: cfg_tempUnit === "C"
+                                onClicked: cfg_tempUnit = "C"
+                            }
+                            Button {
+                                text: "°F Fahrenheit"
+                                highlighted: cfg_tempUnit === "F"
+                                onClicked: cfg_tempUnit = "F"
+                            }
+                        }
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 4
+                        Label { text: i18n("Unidad de Red e I/O:"); font.weight: Font.DemiBold }
+                        RowLayout {
+                            Button {
+                                text: "Bytes (KB/s, MB/s)"
+                                highlighted: cfg_networkUnit === "bytes"
+                                onClicked: cfg_networkUnit = "bytes"
+                            }
+                            Button {
+                                text: "Bits (Kb/s, Mb/s)"
+                                highlighted: cfg_networkUnit === "bits"
+                                onClicked: cfg_networkUnit = "bits"
+                            }
+                        }
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 4
+                        Label { text: i18n("Unidad de Ventilador:"); font.weight: Font.DemiBold }
+                        RowLayout {
+                            Button {
+                                text: "RPM Absoluto"
+                                highlighted: cfg_fanUnit === "rpm"
+                                onClicked: cfg_fanUnit = "rpm"
+                            }
+                            Button {
+                                text: "% Porcentaje"
+                                highlighted: cfg_fanUnit === "percent"
+                                onClicked: cfg_fanUnit = "percent"
+                            }
+                        }
+                    }
+                }
             }
-        }
-
-        CheckBox {
-            Kirigami.FormData.label: i18n("Separators:")
-            text: i18n("Show separators between metrics")
-            checked: cfg_showSeparators
-            onToggled: cfg_showSeparators = checked
-        }
-
-        Slider {
-            id: labelOpacitySlider
-            Kirigami.FormData.label: i18n("Label opacity:")
-            from: 0
-            to: 1
-            stepSize: 0.05
-            value: 0.65
-        }
-
-        Label {
-            text: Math.round(labelOpacitySlider.value * 100) + "%"
-            opacity: 0.7
-        }
-
-        Slider {
-            id: separatorOpacitySlider
-            Kirigami.FormData.label: i18n("Separator opacity:")
-            from: 0
-            to: 1
-            stepSize: 0.05
-            value: 0.4
-        }
-
-        Label {
-            text: Math.round(separatorOpacitySlider.value * 100) + "%"
-            opacity: 0.7
-        }
-
-        Slider {
-            id: intervalSlider
-            Kirigami.FormData.label: i18n("Update interval:")
-            from: 1000
-            to: 10000
-            stepSize: 500
-            value: 2000
-        }
-
-        Label {
-            text: (intervalSlider.value / 1000).toFixed(1) + " " + i18n("seconds")
-            opacity: 0.7
-        }
-
-        Kirigami.Separator {
-            Kirigami.FormData.isSection: true
-            Kirigami.FormData.label: i18n("Unit Preferences")
-        }
-
-        ComboBox {
-            id: tempUnitCombo
-            Kirigami.FormData.label: i18n("Temperature unit:")
-            model: [i18n("Celsius (°C)"), i18n("Fahrenheit (°F)")]
-            currentIndex: cfg_tempUnit === "F" ? 1 : 0
-            onActivated: cfg_tempUnit = (currentIndex === 1 ? "F" : "C")
-        }
-
-        ComboBox {
-            id: networkUnitCombo
-            Kirigami.FormData.label: i18n("Network/Disk I/O unit:")
-            model: [i18n("Bytes  (KB, MB)"), i18n("Bits  (Kb, Mb)")]
-            currentIndex: cfg_networkUnit === "bits" ? 1 : 0
-            onActivated: cfg_networkUnit = (currentIndex === 1 ? "bits" : "bytes")
-        }
-
-        ComboBox {
-            id: fanUnitCombo
-            Kirigami.FormData.label: i18n("Fan Speed unit:")
-            model: [i18n("RPM"), i18n("Percentage (%)")]
-            currentIndex: cfg_fanUnit === "percent" ? 1 : 0
-            onActivated: cfg_fanUnit = (currentIndex === 1 ? "percent" : "rpm")
         }
     }
 }

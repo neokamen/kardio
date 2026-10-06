@@ -1,5 +1,4 @@
 import QtQuick 2.0
-
 import org.kde.plasma.configuration 2.0
 
 ConfigModel {
@@ -14,23 +13,18 @@ ConfigModel {
         source: "configPanelOrder.qml"
     }
     ConfigCategory {
-        name: i18n("Sensors & Hardware")
+        name: i18n("Sensores & Hardware")
         icon: "preferences-system-hardware"
         source: "configMetrics.qml"
     }
     ConfigCategory {
-        name: i18n("Icons")
-        icon: "preferences-desktop-icons"
-        source: "configIcons.qml"
+        name: i18n("Explorador de Sensores")
+        icon: "system-search"
+        source: "SensorExplorer.qml"
     }
     ConfigCategory {
-        name: i18n("Colors")
+        name: i18n("Colores & Alertas")
         icon: "color-management"
         source: "configColors.qml"
-    }
-    ConfigCategory {
-        name: i18n("Profiles")
-        icon: "bookmarks"
-        source: "configProfiles.qml"
     }
 }

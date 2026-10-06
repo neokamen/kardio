@@ -38,3 +38,4 @@ echo "  4. Drag it onto your panel or desktop"
 echo ""
 echo "To test immediately in a window: plasmawindowed $PLASMOID_ID"
 echo "To uninstall: rm -rf $DEST_DIR $KPACKAGE_DIR"
+

@@ -41,3 +41,4 @@
   <!-- Pulse peak indicator dot -->
   <circle cx="25" cy="9" r="2" fill="#f9e2af" filter="url(#glow)"/>
 </svg>
+

@@ -9,6 +9,7 @@ Item {
     property int updateInterval: 2000
     property string networkInterface: "auto"
     property string networkUnit: "bytes"
+    property string tempUnit: "C"
 
     // Resolved paths
     // Traffic sensors aggregate across all interfaces — "all" is valid here.
@@ -213,5 +214,18 @@ Item {
         sensorId: root.netSignalSensorId
         updateRateLimit: root.updateInterval
         enabled: root.netSignalSensorId !== ""
+    }
+
+    // Wi-Fi temperature sensor
+    readonly property string wifiTempSensorId: (discovery && discovery.discoveredWifiTemps && discovery.discoveredWifiTemps.length > 0) ? discovery.discoveredWifiTemps[0] : ""
+    readonly property real wifiTempRaw: (wifiTempSensor.status === Sensors.Sensor.Ready && wifiTempSensor.value != null && Number(wifiTempSensor.value) > 0) ? Number(wifiTempSensor.value) : NaN
+    readonly property string wifiTempValue: isNaN(wifiTempRaw) ? "" : Utils.formatTemp(wifiTempRaw, tempUnit)
+    readonly property bool hasWifiTemp: wifiTempSensorId !== "" && !isNaN(wifiTempRaw)
+
+    Sensors.Sensor {
+        id: wifiTempSensor
+        sensorId: root.wifiTempSensorId
+        updateRateLimit: root.updateInterval
+        enabled: root.wifiTempSensorId !== ""
     }
 }

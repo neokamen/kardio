@@ -19,3 +19,4 @@ zip -r "$FILENAME" \
     -x "*.DS_Store"
 
 echo "[OK] Created package: $FILENAME"
+
