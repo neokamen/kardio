@@ -1,0 +1,1280 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-07 17:29+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: contents/ui/configGeneral.qml:125
+msgid "The Next-Gen Plasma Telemetry Monitor"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:138
+msgid "VISTA PREVIA EN VIVO (SIMULADOR DE PANEL):"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:305
+msgid "Modo de Visualización en Panel"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:310
+msgid ""
+"Elige cómo se presentan las métricas ancladas en la barra o panel de Plasma:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:356
+msgid "Híbrido (Iconos + Texto)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:357
+msgid "Equilibrio ideal: etiqueta, glifo y valor numérico"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:402
+msgid "Solo Texto (Clásico)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:403
+msgid "Mínimo consumo visual en formato tradicional"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:448
+msgid "Solo Iconos (Ultra Compacto)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:449
+msgid "Máximo ahorro de espacio horizontal en el panel"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:494
+msgid "Oculto en Barra"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:495
+msgid "Solo abre el popup informativo al pulsar el icono"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:529
+msgid "Orientación y Fondo de Superficie"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:537
+msgid "Orientación de lectura del panel:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:548
+msgid "Horizontal (Barra superior / inferior)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:555
+msgid "Vertical (Dock lateral)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:566
+msgid "Estilo de fondo en Escritorio (Modo Widget Libre):"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:576
+msgid "Plasma Theme"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:582
+msgid "🧊 Translúcido"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:588
+msgid "🌘 Sombra Sutil"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:594
+msgid "🪟 Transparente Puro"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:623
+msgid "Estudio Tipográfico y Escala"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:633
+msgid "Familia de Fuente:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:642
+msgid "Haz clic o escribe para buscar fuentes..."
+msgstr ""
+
+#: contents/ui/configGeneral.qml:683
+msgid "Filtrar fuente (ej: Nerd, Mono, Sans)..."
+msgstr ""
+
+#: contents/ui/configGeneral.qml:731
+msgid "Ver todas las fuentes del sistema"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:779
+msgid "Texto en Negrita (Bold)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:787
+msgid "Tamaño de Fuente:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:794
+msgid "Auto (Sistema)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:806
+msgid "Tamaño de Glifos:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:827
+msgid "Opacidad de Etiquetas:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:843
+msgid "Opacidad Separadores:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:863
+msgid "Mostrar barras separadoras entre métricas"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:870
+msgid "Agrupar métricas del mismo hardware en un solo bloque"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:883
+msgid "Estilo Visual del Separador:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:895
+msgid "Línea"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:896
+msgid "Doble"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:897
+msgid "Punto"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:898
+msgid "Dos Puntos"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:899
+msgid "Píldora"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:900
+msgid "Diagonal"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:901
+msgid "Chevrón"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:902
+msgid "Rombo"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:903
+msgid "Guión"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:969
+msgid "Motor de Muestreo y Preferencias de Unidades"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:978
+msgid "Frecuencia de Actualización:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1009
+msgid "Unidad de Temperatura:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1027
+msgid "Unidad de Red e I/O:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1045
+msgid "Unidad de Ventilador:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1068
+msgid "Formato Numérico y Relleno de Espacios:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1074
+msgid ""
+"Unidades dinámicas en Memoria y SWAP (mostrar en MB hasta 1024 MB, luego "
+"pasar a GB)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1084
+msgid "Red (Descarga y Subida) - Unidad mínima:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1090
+msgid "Automático (Bytes / KB / MB)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1091
+msgid "Forzar mínimo KB (descartar Bytes: ej. 0.0 KB)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1092
+msgid "Forzar mínimo MB (descartar Bytes y KB: ej. 0.00 MB)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1117
+msgid "Relleno de espacios en blanco (Padding numérico individual):"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1122
+msgid ""
+"Selecciona individualmente qué parámetros alinean números con espacios "
+"delante para ancho fijo:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1133
+msgid "Marcar todos"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1141
+msgid "Desmarcar todos"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1157
+msgid "CPU (uso, núcleos)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1163
+msgid "RAM (porcentaje)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1169
+msgid "SWAP (porcentaje, uso)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1175
+msgid "Temperatura"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1181
+msgid "GPU (uso)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1187
+msgid "Batería (porcentaje)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1193
+msgid "Red Descarga (↓)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1199
+msgid "Red Subida (↑)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1205
+msgid "Disco (tasa, uso)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1211
+msgid "Ventiladores (RPM)"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:1217
+msgid "Tiempo encendido (Uptime)"
+msgstr ""
+
+#: contents/ui/FullView.qml:131
+msgid "%1 en panel"
+msgstr ""
+
+#: contents/ui/FullView.qml:140
+msgid "Gestión rápida de métricas al vuelo"
+msgstr ""
+
+#: contents/ui/FullView.qml:153
+msgid "Reescanear sensores de hardware"
+msgstr ""
+
+#: contents/ui/FullView.qml:161
+msgid "Desanclar ventana"
+msgstr ""
+
+#: contents/ui/FullView.qml:161
+msgid "Fijar ventana abierta"
+msgstr ""
+
+#: contents/ui/FullView.qml:180
+msgid "Buscar métrica al vuelo (ej: temp, wifi, cpu)..."
+msgstr ""
+
+#: contents/ui/FullView.qml:210 contents/ui/configPanelOrder.qml:1050
+msgid "Todos"
+msgstr ""
+
+#: contents/ui/FullView.qml:214 contents/ui/configPanelOrder.qml:1077
+msgid "Discos"
+msgstr ""
+
+#: contents/ui/FullView.qml:215 contents/ui/configPanelOrder.qml:1084
+msgid "Red"
+msgstr ""
+
+#: contents/ui/FullView.qml:216
+msgid "Térmico"
+msgstr ""
+
+#: contents/ui/FullView.qml:217
+msgid "Batería"
+msgstr ""
+
+#: contents/ui/FullView.qml:218
+msgid "Fans"
+msgstr ""
+
+#: contents/ui/FullView.qml:463
+msgid "Panel"
+msgstr ""
+
+#: contents/ui/FullView.qml:463
+msgid "Anclar"
+msgstr ""
+
+#: contents/ui/FullView.qml:501
+msgid "Perfil: %1"
+msgstr ""
+
+#: contents/ui/FullView.qml:525
+msgid "Guardar configuración actual..."
+msgstr ""
+
+#: contents/ui/FullView.qml:538
+msgid "Guardar configuración como nuevo preset"
+msgstr ""
+
+#: contents/ui/FullView.qml:553
+msgid "Monitorización activa"
+msgstr ""
+
+#: contents/ui/FullView.qml:574
+msgid "Guardar Preset"
+msgstr ""
+
+#: contents/ui/FullView.qml:580
+msgid "Introduce un nombre para el nuevo preset:"
+msgstr ""
+
+#: contents/ui/FullView.qml:588
+msgid "Nombre del preset..."
+msgstr ""
+
+#: contents/ui/FullView.qml:602
+msgid "Cancelar"
+msgstr ""
+
+#: contents/ui/FullView.qml:607
+msgid "Guardar"
+msgstr ""
+
+#: contents/ui/FullView.qml:619
+msgid "Preset %1"
+msgstr ""
+
+#: contents/ui/configProfiles.qml:33
+msgid "Delete Profile"
+msgstr ""
+
+#: contents/ui/configProfiles.qml:34
+msgid "Delete \"%1\"? This cannot be undone."
+msgstr ""
+
+#: contents/ui/configProfiles.qml:53
+msgid ""
+"Profile activation is disabled while settings are open. Switch profiles from "
+"the widget."
+msgstr ""
+
+#: contents/ui/configProfiles.qml:59
+msgid "Active profile:"
+msgstr ""
+
+#: contents/ui/configProfiles.qml:70
+msgid "Profiles"
+msgstr ""
+
+#: contents/ui/configProfiles.qml:138
+msgid "Rename"
+msgstr ""
+
+#: contents/ui/configProfiles.qml:150
+msgid "Save name"
+msgstr ""
+
+#: contents/ui/configProfiles.qml:159
+msgid "Duplicate"
+msgstr ""
+
+#: contents/ui/configProfiles.qml:162
+msgid " (copy)"
+msgstr ""
+
+#: contents/ui/configProfiles.qml:173
+msgid "Cannot delete the original Default profile"
+msgstr ""
+
+#: contents/ui/configProfiles.qml:175
+msgid "Cannot delete the active profile"
+msgstr ""
+
+#: contents/ui/configProfiles.qml:177
+msgid "Delete"
+msgstr ""
+
+#: contents/ui/configProfiles.qml:178
+msgid "Cannot delete the only profile"
+msgstr ""
+
+#: contents/ui/configProfiles.qml:197
+msgid "New profile name…"
+msgstr ""
+
+#: contents/ui/configProfiles.qml:209
+msgid "Add"
+msgstr ""
+
+#: contents/ui/configProfiles.qml:218
+msgid "Shortcut"
+msgstr ""
+
+#: contents/ui/configProfiles.qml:223
+msgid "Profile switcher:"
+msgstr ""
+
+#: contents/ui/ProfileSwitcherPopup.qml:108
+msgid "Kardio Profile"
+msgstr ""
+
+#: contents/ui/configIcons.qml:112
+msgid ""
+"Activa o desactiva iconos individualmente para cada sensor o sub-métrica del "
+"panel, o cámbialos por iconos personalizados de tu tema."
+msgstr ""
+
+#: contents/ui/configIcons.qml:118
+msgid "CPU (Procesador):"
+msgstr ""
+
+#: contents/ui/configIcons.qml:132 contents/ui/configIcons.qml:155
+#: contents/ui/configIcons.qml:178 contents/ui/configIcons.qml:201
+#: contents/ui/configIcons.qml:224 contents/ui/configIcons.qml:247
+#: contents/ui/configIcons.qml:270 contents/ui/configIcons.qml:293
+#: contents/ui/configIcons.qml:316 contents/ui/configIcons.qml:339
+#: contents/ui/configIcons.qml:362 contents/ui/configIcons.qml:385
+#: contents/ui/configIcons.qml:408
+msgid "Cambiar..."
+msgstr ""
+
+#: contents/ui/configIcons.qml:141
+msgid "RAM (Memoria):"
+msgstr ""
+
+#: contents/ui/configIcons.qml:164
+msgid "SWAP (Intercambio):"
+msgstr ""
+
+#: contents/ui/configIcons.qml:187
+msgid "Temperatura:"
+msgstr ""
+
+#: contents/ui/configIcons.qml:210
+msgid "GPU (Gráficos):"
+msgstr ""
+
+#: contents/ui/configIcons.qml:233
+msgid "Batería:"
+msgstr ""
+
+#: contents/ui/configIcons.qml:256
+msgid "Potencia (Watts):"
+msgstr ""
+
+#: contents/ui/configIcons.qml:279
+msgid "Red (General):"
+msgstr ""
+
+#: contents/ui/configIcons.qml:302
+msgid "Red Descarga (↓):"
+msgstr ""
+
+#: contents/ui/configIcons.qml:325
+msgid "Red Subida (↑):"
+msgstr ""
+
+#: contents/ui/configIcons.qml:348
+msgid "Discos (Almacenamiento):"
+msgstr ""
+
+#: contents/ui/configIcons.qml:371
+msgid "Ventiladores (Fans):"
+msgstr ""
+
+#: contents/ui/configIcons.qml:394
+msgid "Tiempo Encendido (Uptime):"
+msgstr ""
+
+#: contents/ui/configIcons.qml:417
+msgid "Restablecer todos a valores por defecto"
+msgstr ""
+
+#: contents/ui/configColors.qml:82
+msgid "Simulador de Espectro Térmico y Alertas en Vivo"
+msgstr ""
+
+#: contents/ui/configColors.qml:90
+msgid ""
+"Visualización de las 3 zonas térmicas según los umbrales de aviso y peligro "
+"configurados:"
+msgstr ""
+
+#: contents/ui/configColors.qml:115
+msgid "Normal (< %1°C)"
+msgstr ""
+
+#: contents/ui/configColors.qml:130
+msgid "Aviso (%1°C)"
+msgstr ""
+
+#: contents/ui/configColors.qml:146
+msgid "Crítico (≥ %1°C)"
+msgstr ""
+
+#: contents/ui/configColors.qml:164
+msgid "Paleta Base de la Interfaz"
+msgstr ""
+
+#: contents/ui/configColors.qml:176
+msgid "Usar colores personalizados (reemplaza los colores del tema de Plasma)"
+msgstr ""
+
+#: contents/ui/configColors.qml:185
+msgid "Paletas rápidas:"
+msgstr ""
+
+#: contents/ui/configColors.qml:212
+msgid "Color de Fuente:"
+msgstr ""
+
+#: contents/ui/configColors.qml:233 contents/ui/configColors.qml:257
+#: contents/ui/configColors.qml:281
+msgid "Auto"
+msgstr ""
+
+#: contents/ui/configColors.qml:236
+msgid "Color de Etiquetas:"
+msgstr ""
+
+#: contents/ui/configColors.qml:260
+msgid "Color de Iconos:"
+msgstr ""
+
+#: contents/ui/configColors.qml:292
+msgid "Colores de Alerta por Umbral"
+msgstr ""
+
+#: contents/ui/configColors.qml:304
+msgid "Activar coloreado dinámico según nivel de carga y temperaturas"
+msgstr ""
+
+#: contents/ui/configColors.qml:315
+msgid "Color de Aviso (Warning):"
+msgstr ""
+
+#: contents/ui/configColors.qml:335
+msgid "Color Crítico (Critical):"
+msgstr ""
+
+#: contents/ui/configColors.qml:362
+msgid "Umbrales de Carga y Temperatura: CPU & GPU"
+msgstr ""
+
+#: contents/ui/configColors.qml:374
+msgid "CPU: Uso (%) [Aviso: %1% · Crítico: %2%]"
+msgstr ""
+
+#: contents/ui/configColors.qml:384
+msgid "CPU: Temp (°C) [Aviso: %1°C · Crítico: %2°C]"
+msgstr ""
+
+#: contents/ui/configColors.qml:394
+msgid "GPU: Uso (%) [Aviso: %1% · Crítico: %2%]"
+msgstr ""
+
+#: contents/ui/configColors.qml:404
+msgid "GPU: Núcleo Temp (°C) [Aviso: %1°C · Crítico: %2°C]"
+msgstr ""
+
+#: contents/ui/configColors.qml:414
+msgid "GPU: Punto Caliente Hotspot (°C) [Aviso: %1°C · Crítico: %2°C]"
+msgstr ""
+
+#: contents/ui/configColors.qml:424
+msgid "GPU: Memoria VRAM Temp (°C) [Aviso: %1°C · Crítico: %2°C]"
+msgstr ""
+
+#: contents/ui/configColors.qml:439
+msgid "Umbrales: Memoria, Discos & Batería"
+msgstr ""
+
+#: contents/ui/configColors.qml:451
+msgid "RAM: Ocupación (%) [Aviso: %1% · Crítico: %2%]"
+msgstr ""
+
+#: contents/ui/configColors.qml:461
+msgid "SWAP: Ocupación (%) [Aviso: %1% · Crítico: %2%]"
+msgstr ""
+
+#: contents/ui/configColors.qml:471
+msgid "Discos: Temp (°C) [Aviso: %1°C · Crítico: %2°C]"
+msgstr ""
+
+#: contents/ui/configColors.qml:481
+msgid "Batería: Nivel Bajo (%) [Aviso: %1% · Crítico: %2%]"
+msgstr ""
+
+#: contents/ui/configColors.qml:502
+msgid "Elige Color de Fuente"
+msgstr ""
+
+#: contents/ui/configColors.qml:508
+msgid "Elige Color de Etiquetas"
+msgstr ""
+
+#: contents/ui/configColors.qml:514
+msgid "Elige Color de Iconos"
+msgstr ""
+
+#: contents/ui/configColors.qml:520
+msgid "Elige Color de Aviso"
+msgstr ""
+
+#: contents/ui/configColors.qml:526
+msgid "Elige Color Crítico"
+msgstr ""
+
+#: contents/ui/SensorExplorer.qml:176
+msgid "Explorador de Sensores y Hardware (Estilo KDE System Monitor)"
+msgstr ""
+
+#: contents/ui/SensorExplorer.qml:182
+msgid ""
+"Inspecciona todos los nodos hwmon, sysfs y ksystemstats de tu ordenador en "
+"tiempo real (%1 sensores disponibles)"
+msgstr ""
+
+#: contents/ui/SensorExplorer.qml:190
+msgid "Copiar Diagnóstico Completo"
+msgstr ""
+
+#: contents/ui/SensorExplorer.qml:216
+msgid "¡Informe de diagnóstico copiado al portapapeles con éxito!"
+msgstr ""
+
+#: contents/ui/SensorExplorer.qml:237
+msgid ""
+"Buscar sensores por nombre o ruta (ej: wifi, temp, watt, nvme, sda, in0, "
+"fan)..."
+msgstr ""
+
+#: contents/ui/SensorExplorer.qml:254
+msgid "Todos (%1)"
+msgstr ""
+
+#: contents/ui/SensorExplorer.qml:259
+msgid "🌡️ Temperaturas"
+msgstr ""
+
+#: contents/ui/SensorExplorer.qml:264
+msgid "⚡ Frecuencias / Relojes"
+msgstr ""
+
+#: contents/ui/SensorExplorer.qml:269
+msgid "🔌 Energía / Watts / Voltaje"
+msgstr ""
+
+#: contents/ui/SensorExplorer.qml:274
+msgid "💻 CPU"
+msgstr ""
+
+#: contents/ui/SensorExplorer.qml:279
+msgid "🎮 GPU"
+msgstr ""
+
+#: contents/ui/SensorExplorer.qml:284
+msgid "💾 Discos"
+msgstr ""
+
+#: contents/ui/SensorExplorer.qml:289
+msgid "🌐 Red"
+msgstr ""
+
+#: contents/ui/SensorExplorer.qml:294
+msgid "🌀 Ventiladores"
+msgstr ""
+
+#: contents/ui/SensorExplorer.qml:304
+msgid "Mostrando %1 sensores coincidentes:"
+msgstr ""
+
+#: contents/ui/SensorExplorer.qml:310
+msgid "Valores en vivo actualizándose cada 2s"
+msgstr ""
+
+#: contents/ui/SensorExplorer.qml:421
+msgid "Copiar ID de sensor: %1"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:90
+msgid "RADAR DE SENSORES Y HARDWARE DETECTADO EN EL SISTEMA:"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:114
+msgid "CPU: %1 núcleos detectados"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:134
+msgid "GPU: %1 unidad(es)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:154
+msgid "Discos: %1 detectados (%2)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:175
+msgid "Wi-Fi Sensor Térmico: Activo (%1)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:176
+msgid "Wi-Fi: Sin sensor térmico hwmon"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:193
+msgid ""
+"¿No ves la temperatura de tu disco duro mecánico (SATA/HDD)? En Linux, los "
+"discos mecánicos requieren el módulo drivetemp para exponer sus sensores de "
+"temperatura. Abre tu terminal y ejecuta: sudo modprobe drivetemp (o guárdalo "
+"en /etc/modules-load.d/drivetemp.conf para el arranque)."
+msgstr ""
+
+#: contents/ui/configMetrics.qml:209
+msgid "Procesador (CPU & Energía)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:218
+msgid "Etiqueta en panel:"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:227
+msgid "Sub-métricas y telemetrías disponibles:"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:234
+msgid "Uso de CPU (%)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:239
+msgid "Frecuencia Media (GHz)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:244
+msgid "⚡ Frecuencia Pico / Max (Turbo)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:249
+msgid "🔌 Consumo Paquete (Watts)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:254
+msgid "🌡️ Temperatura (°C)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:259
+msgid "Cargas (1m, 5m, 15m)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:270
+msgid "Desglose Núcleos Cores"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:290
+msgid "Tarjeta Gráfica (GPU & VRAM)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:299
+msgid "GPUs Seleccionadas:"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:318
+msgid "Sub-métricas avanzadas de GPU:"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:325
+msgid "Carga GPU (%)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:330
+msgid "Memoria VRAM"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:335
+msgid "🌡️ Temperatura Núcleo"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:340
+msgid "🔥 Punto Caliente (Hotspot)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:345
+msgid "🧠 Temperatura de VRAM"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:350
+msgid "Reloj Núcleo (MHz/GHz)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:355
+msgid "Reloj Memoria VRAM"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:360
+msgid "🔌 Potencia PPT (Watts)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:365
+msgid "⚡ Voltaje Núcleo (Vddgfx)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:385
+msgid "Memoria (RAM & Archivo Swap)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:394
+msgid "Etiqueta RAM:"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:401
+msgid "Etiqueta Swap:"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:410
+msgid "Opciones de telemetría de memoria:"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:417
+msgid "RAM: Porcentaje (%)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:422
+msgid "RAM: Usado / Total (GB)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:427
+msgid "🌡️ RAM: Temperatura (DDR5 SPD)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:432
+msgid "SWAP: Porcentaje (%)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:437
+msgid "SWAP: Usado (GB)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:457
+msgid "Almacenamiento (Discos & I/O)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:466
+msgid "Etiqueta principal:"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:475
+msgid "Métricas de transferencia y estado de disco:"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:482
+msgid "Velocidad de Lectura (↓)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:487
+msgid "Velocidad de Escritura (↑)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:492
+msgid "Porcentaje de Ocupación (%)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:497
+msgid "Espacio Usado / Total"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:502
+msgid "🌡️ Temperatura de Discos"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:522
+msgid "Red y Telemetría Inalámbrica"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:531
+msgid "Interfaz activa:"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:542
+msgid "Telemetría de tráfico y hardware de red:"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:549
+msgid "Descarga en vivo (↓)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:554
+msgid "Subida en vivo (↑)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:559
+msgid "Total Descargado Sesión"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:564
+msgid "Total Subido Sesión"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:569
+msgid "📶 Señal Wi-Fi (%)"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:574
+msgid "🌡️ Temperatura Wi-Fi"
+msgstr ""
+
+#: contents/ui/configMetrics.qml:579
+msgid "Dirección IP Local"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:205
+msgid "CPU Peak Freq"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:209
+msgid "CPU Watts"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:218
+msgid "RAM Temp"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:233
+msgid "Wi-Fi Temp"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:301
+msgid "CPU Uso (%)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:302
+msgid "CPU Frecuencia Media"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:303
+msgid "⚡ CPU Frecuencia Pico (Turbo)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:304
+msgid "🔌 CPU Consumo (Watts)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:305
+msgid "🌡️ CPU Temperatura"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:306
+msgid "CPU Carga (1m)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:313
+msgid "Procesador (CPU)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:338
+msgid "Gráficos (GPU & VRAM)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:348
+msgid "Memoria (RAM & SWAP)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:352
+msgid "RAM Porcentaje (%)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:353
+msgid "RAM Usado / Total"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:354
+msgid "🌡️ RAM Temp (DDR5)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:355
+msgid "SWAP Porcentaje (%)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:356
+msgid "SWAP Usado"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:363
+msgid "Discos Uso Global (%)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:364
+msgid "Espacio Global Usado/Total"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:375
+msgid "Almacenamiento (Discos)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:383
+msgid "Descarga (↓)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:384
+msgid "Subida (↑)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:385
+msgid "Total Descargado"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:386
+msgid "Total Subido"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:387
+msgid "📶 Señal Wi-Fi"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:388
+msgid "🌡️ Wi-Fi Temperatura"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:389
+msgid "IP Local"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:393
+msgid "Red & Conectividad"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:401
+msgid "🌡️ Sistema Temp"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:402
+msgid "Batería (%)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:403
+msgid "Batería Watts"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:404
+msgid "Tiempo Encendido (Uptime)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:408
+msgid "Ventilador %1 RPM"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:412
+msgid "Refrigeración, Batería & Sistema"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:455
+msgid "Simulador del Panel Plasma (Previsualización en Vivo)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:471
+msgid "%1 métricas activas"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:480
+msgid ""
+"Así es exactamente como se renderiza Kardio en tu panel de KDE. Puedes "
+"previsualizarlo en orientación horizontal o vertical:"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:493
+msgid "⬌ Vista Horizontal (Panel Superior/Inferior)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:501
+msgid "⬍ Vista Vertical (Panel Lateral)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:521
+msgid ""
+"El panel está vacío. Selecciona métricas del catálogo inferior para "
+"añadirlas."
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:664
+msgid "Secuencia y Posición en el Panel"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:679
+msgid "Actualizar"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:680
+msgid ""
+"Recarga métricas y secuencia desde la configuración actual o cambios al vuelo"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:689
+msgid "Jerarquía Lógica"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:690
+msgid ""
+"Auto-organiza por orden óptimo: CPU ➔ GPU ➔ RAM ➔ Discos ➔ Red ➔ Sistema"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:698
+msgid "Invertir"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:699
+msgid "Invierte la secuencia de izquierda a derecha"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:707
+msgid "Vaciar"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:714
+msgid ""
+"Arrastra directamente cualquier casilla para reordenar su posición en el "
+"panel:"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:797
+msgid "Arrastra para mover la posición"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:853
+msgid "Mover a la izquierda (ajuste fino)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:862
+msgid "Mover a la derecha (ajuste fino)"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:874
+msgid "Icono visible. Clic para ocultar icono en el panel"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:875
+msgid "Icono oculto. Clic para activar icono en el panel"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:886
+msgid "Desanclar de la barra"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:917
+msgid "Plantillas Rápidas de Panel"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:922
+msgid "Configura tu barra con un solo clic según tu actividad:"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:934
+msgid "🚀 Gaming Beast"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:944
+msgid "❄️ Vigilancia Térmica Extrema"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:954
+msgid "🌐 Red y Almacenamiento"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:964
+msgid "🍃 Modo Minimalista"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:973
+msgid "Restablecer Estándar"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:1013
+msgid "Catálogo de Sensores Disponibles"
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:1027
+msgid "Filtrar métricas por nombre o palabra clave..."
+msgstr ""
+
+#: contents/ui/configPanelOrder.qml:1091
+msgid "Sistema"
+msgstr ""
+
+#: contents/config/config.qml:6
+msgid "General"
+msgstr ""
+
+#: contents/config/config.qml:11
+msgid "Panel Items"
+msgstr ""
+
+#: contents/config/config.qml:16
+msgid "Sensores & Hardware"
+msgstr ""
+
+#: contents/config/config.qml:21
+msgid "Explorador de Sensores"
+msgstr ""
+
+#: contents/config/config.qml:26
+msgid "Colores & Alertas"
+msgstr ""
+
+#: contents/config/config.qml:31
+msgid "Iconos"
+msgstr ""
+
+#: contents/config/config.qml:36
+msgid "Perfiles"
+msgstr ""

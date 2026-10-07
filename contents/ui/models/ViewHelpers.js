@@ -279,6 +279,18 @@ function _resolveSegmentIcon(metric, disabledList) {
     return "";
 }
 
+function _getPinnedIndex(pinnedList, metricId) {
+    if (!pinnedList || !metricId) return 999;
+    var idx = pinnedList.indexOf(metricId);
+    if (idx !== -1) return idx;
+    for (var p = 0; p < pinnedList.length; p++) {
+        var pk = pinnedList[p];
+        if (pk === metricId) return p;
+        if (metricId.indexOf(pk + "/") === 0 || pk.indexOf(metricId + "/") === 0) return p;
+    }
+    return 999;
+}
+
 function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIcons) {
     if (!metricsList || metricsList.length === 0 || !pinnedList || pinnedList.length === 0) return [];
     if (mergeSameFamily === undefined) mergeSameFamily = true;
@@ -355,20 +367,13 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
                 key: metric.subKey || metric.id
             });
 
-            // Respect user's sequence from pinnedList so the user can choose where RAM Temp and Swap sit in the block
+            // Respect user's sequence from pinnedList so segments follow the order configured in pinnedList
+            existingItem.segments.sort(function(a, b) {
+                var idxA = _getPinnedIndex(pinnedList, a.id);
+                var idxB = _getPinnedIndex(pinnedList, b.id);
+                return idxA - idxB;
+            });
             if (groupKey === "ram") {
-                existingItem.segments.sort(function(a, b) {
-                    var idxA = -1;
-                    var idxB = -1;
-                    for (var p = 0; p < pinnedList.length; p++) {
-                        var pk = pinnedList[p];
-                        if (a.id === pk || (a.key && pk.indexOf(a.key) !== -1)) { if (idxA === -1) idxA = p; }
-                        if (b.id === pk || (b.key && pk.indexOf(b.key) !== -1)) { if (idxB === -1) idxB = p; }
-                    }
-                    if (idxA === -1) idxA = 999;
-                    if (idxB === -1) idxB = 999;
-                    return idxA - idxB;
-                });
                 if (hasRamPinned && disabledList.indexOf("ram") === -1 && disabledList.indexOf("memory") === -1) {
                     existingItem.icon = "memory-symbolic";
                 }
