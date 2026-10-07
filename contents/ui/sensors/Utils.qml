@@ -15,10 +15,10 @@ QtObject {
             return "...";
         if (dynamicUnits && bytes < 1024 * 1024 * 1024) {
             var mb = bytes / (1024 * 1024);
-            return Math.round(mb) + "M";
+            return Math.round(mb) + "MB";
         }
         var gb = bytes / (1024 * 1024 * 1024);
-        return gb.toFixed(1) + "G";
+        return gb.toFixed(1) + "GB";
     }
 
     function formatData(bytes) {
@@ -34,10 +34,11 @@ QtObject {
     }
 
     // unit: "bytes" (default, KB/MB) or "bits" (Kb/Mb)
-    // Always uses 3 significant figures, padded to 6 chars for stable display
-    function formatRate(bytesPerSec, unit) {
+    // padNumbers: boolean, whether to pad to 6 chars
+    // minUnit: "auto" (default, B), "KB", or "MB"
+    function formatRate(bytesPerSec, unit, padNumbers, minUnit) {
         if (typeof bytesPerSec !== "number" || isNaN(bytesPerSec))
-            return "...".padStart(6);
+            return padNumbers ? "...".padStart(6) : "...";
         var val, divisor, suffixes;
         if (unit === "bits") {
             val = Math.max(0, bytesPerSec * 8);
@@ -50,19 +51,42 @@ QtObject {
         }
         var absVal = val;
         var si = 0;
+
+        var minIndex = 0;
+        if (minUnit === "KB" || minUnit === "Kb") {
+            minIndex = 1;
+        } else if (minUnit === "MB" || minUnit === "Mb") {
+            minIndex = 2;
+        }
+
         var scaled = absVal;
         while (scaled >= divisor && si < suffixes.length - 1) {
             scaled /= divisor;
             si++;
         }
+
+        if (si < minIndex) {
+            while (si < minIndex) {
+                scaled /= divisor;
+                si++;
+            }
+        }
+
         var num;
-        if (scaled < 10)
-            num = scaled.toFixed(2);
-        else if (scaled < 100)
+        if (scaled < 10) {
+            if (scaled === 0 && minIndex > 0) {
+                num = (minIndex === 2) ? "0.00" : "0.0";
+            } else {
+                num = scaled.toFixed(scaled < 1 && scaled > 0 ? 2 : 1);
+            }
+        } else if (scaled < 100) {
             num = scaled.toFixed(1);
-        else
+        } else {
             num = String(Math.round(scaled));
-        return (num + suffixes[si]).padStart(6);
+        }
+
+        var res = num + suffixes[si];
+        return padNumbers ? res.padStart(6) : res;
     }
 
     // celsiusValue: raw °C number from sensor; unit: "C" or "F"

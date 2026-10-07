@@ -313,6 +313,20 @@ QtObject {
     readonly property string fanLabels:           (target && target[propertyPrefix + "fanLabels"])          || ""
     readonly property string gpuSubMetrics:       (target && target[propertyPrefix + "gpuSubMetrics"])      || "usage,vram,temp"
     readonly property string diskSubMetrics:      (target && target[propertyPrefix + "diskSubMetrics"])     || "read,write"
+    readonly property string paddedMetrics:       (target && target[propertyPrefix + "paddedMetrics"] !== undefined) ? target[propertyPrefix + "paddedMetrics"] : ""
+    readonly property string netDownMinUnit:      (target && target[propertyPrefix + "netDownMinUnit"] !== undefined) ? target[propertyPrefix + "netDownMinUnit"] : "auto"
+
+    function isMetricPadded(id, group) {
+        if (!paddedMetrics || paddedMetrics === "") return false;
+        var list = paddedMetrics.split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+        if (id && list.indexOf(id) !== -1) return true;
+        if (group && list.indexOf(group) !== -1) return true;
+        if (id && id.indexOf("/") !== -1) {
+            var g = id.split("/")[0];
+            if (list.indexOf(g) !== -1) return true;
+        }
+        return false;
+    }
 
     // Group order in popup catalogue
     readonly property string metricOrder: (target && target[propertyPrefix + "metricOrder"]) || "cpu,ram,temp,gpu,bat,net,disk,fan,uptime"

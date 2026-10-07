@@ -40,6 +40,8 @@ PlasmoidItem {
     property bool mergeFamilyMetrics: profileManager.activeConfig.mergeFamilyMetrics
     property bool showSeparators:     profileManager.activeConfig.showSeparators
     property bool enableNumberPadding: Boolean(profileManager.activeConfig.enableNumberPadding)
+    property string paddedMetrics:     profileManager.activeConfig.paddedMetrics || ""
+    property string netDownMinUnit:    profileManager.activeConfig.netDownMinUnit || "auto"
     property bool swapDynamicUnits:    (profileManager.activeConfig.swapDynamicUnits !== undefined) ? Boolean(profileManager.activeConfig.swapDynamicUnits) : true
 
     Plasmoid.backgroundHints: PlasmaCore.Types.DefaultBackground | PlasmaCore.Types.ConfigurableBackground
@@ -124,7 +126,7 @@ PlasmoidItem {
                 id: _cpu
                 discovery: _discovery
                 updateInterval: metricConfig.updateInterval
-                padNumbers: root.enableNumberPadding
+                padNumbers: metricConfig.isMetricPadded("cpu/usage", "cpu")
                 popupExpanded: root.expanded
                 hasPinnedCores: {
                     var pl = metricConfig.pinnedList || [];
@@ -139,14 +141,14 @@ PlasmoidItem {
                 id: _memory
                 updateInterval: metricConfig.updateInterval
                 dynamicUnits: root.swapDynamicUnits
-                padNumbers: root.enableNumberPadding
+                padNumbers: metricConfig.isMetricPadded("ram/percentage", "ram")
             }
 
             SwapSensors {
                 id: _swap
                 updateInterval: metricConfig.updateInterval
                 dynamicUnits: root.swapDynamicUnits
-                padNumbers: root.enableNumberPadding
+                padNumbers: metricConfig.isMetricPadded("swap/percent", "swap")
             }
 
             TempSensors {
@@ -154,6 +156,7 @@ PlasmoidItem {
                 discovery: _discovery
                 updateInterval: metricConfig.updateInterval
                 tempUnit: metricConfig.tempUnit
+                padNumbers: metricConfig.isMetricPadded("temp/system", "temp")
             }
 
             GpuSensors {
@@ -164,6 +167,7 @@ PlasmoidItem {
                 gpuSelection: metricConfig.gpuSelection
                 gpuLabels: metricConfig.gpuLabels
                 tempUnit: metricConfig.tempUnit
+                padNumbers: metricConfig.isMetricPadded("gpu/usage", "gpu")
             }
 
             BatterySensors {
@@ -171,6 +175,7 @@ PlasmoidItem {
                 discovery: _discovery
                 updateInterval: metricConfig.updateInterval
                 batteryDevice: metricConfig.batteryDevice || "auto"
+                padNumbers: metricConfig.isMetricPadded("bat/percentage", "bat")
             }
 
             NetworkSensors {
@@ -180,6 +185,9 @@ PlasmoidItem {
                 networkInterface: metricConfig.networkInterface
                 networkUnit: metricConfig.networkUnit
                 tempUnit: metricConfig.tempUnit
+                padDownNumbers: metricConfig.isMetricPadded("net/down", "net")
+                padUpNumbers: metricConfig.isMetricPadded("net/up", "net")
+                netDownMinUnit: metricConfig.netDownMinUnit
             }
 
             DiskSensors {
@@ -190,6 +198,7 @@ PlasmoidItem {
                 tempUnit: metricConfig.tempUnit
                 networkUnit: metricConfig.networkUnit
                 diskLabels: metricConfig.diskLabels
+                padNumbers: metricConfig.isMetricPadded("disk/usage", "disk")
             }
 
             FanSensors {
@@ -199,6 +208,7 @@ PlasmoidItem {
                 fanUnit: metricConfig.fanUnit
                 fanLabels: metricConfig.fanLabels
                 fanMaxRpm: metricConfig.fanMaxRpm
+                padNumbers: metricConfig.isMetricPadded("fan", "fan")
             }
 
             UptimeSensors {
@@ -459,6 +469,18 @@ PlasmoidItem {
                 root._updatePopupGroups();
             }
         }
+        function onPaddedMetricsChanged() {
+            root._updateCompactItems();
+            if (root.expanded) {
+                root._updatePopupGroups();
+            }
+        }
+        function onNetDownMinUnitChanged() {
+            root._updateCompactItems();
+            if (root.expanded) {
+                root._updatePopupGroups();
+            }
+        }
         function onOrderedKeysChanged() {
             if (root.expanded) {
                 root._updatePopupGroups();
@@ -485,6 +507,7 @@ PlasmoidItem {
         separatorOpacity: root.separatorOpacity
         separatorStyle: root.separatorStyle
         enableNumberPadding: root.enableNumberPadding
+        paddedMetrics: root.paddedMetrics
         showSeparators: root.showSeparators
         onToggleExpanded: root.expanded = !root.expanded
 

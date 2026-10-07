@@ -24,7 +24,26 @@ KCM.SimpleKCM {
     property bool cfg_showSeparators: true
     property string cfg_separatorStyle: "line"
     property bool cfg_enableNumberPadding: false
+    property string cfg_paddedMetrics: ""
+    property string cfg_netDownMinUnit: "auto"
     property bool cfg_swapDynamicUnits: true
+
+    function isMetricPadded(id) {
+        if (!cfg_paddedMetrics) return false;
+        var list = cfg_paddedMetrics.split(",").map(function(s){ return s.trim(); });
+        return list.indexOf(id) !== -1;
+    }
+
+    function setMetricPadded(id, active) {
+        var list = cfg_paddedMetrics ? cfg_paddedMetrics.split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; }) : [];
+        var idx = list.indexOf(id);
+        if (active && idx === -1) {
+            list.push(id);
+        } else if (!active && idx !== -1) {
+            list.splice(idx, 1);
+        }
+        cfg_paddedMetrics = list.join(",");
+    }
 
     readonly property bool iconsEnabled: cfg_displayMode === "icons" || cfg_displayMode === "icons+text"
     readonly property bool textEnabled: cfg_displayMode === "text" || cfg_displayMode === "icons+text"
@@ -91,7 +110,7 @@ KCM.SimpleKCM {
                                 Label {
                                     id: versionLabel
                                     anchors.centerIn: parent
-                                    text: "v0.3.4"
+                                    text: "v0.3.6"
                                     font.pointSize: Kirigami.Theme.smallFont.pointSize - 1
                                     font.weight: Font.Bold
                                     color: Kirigami.Theme.highlightColor
@@ -977,13 +996,143 @@ KCM.SimpleKCM {
                         onToggled: cfg_swapDynamicUnits = checked
                     }
 
-                    CheckBox {
-                        id: enableNumberPaddingCheck
-                        text: i18n("Alinear números con espacios de relleno (Padding fijo)")
-                        checked: cfg_enableNumberPadding
-                        onToggled: cfg_enableNumberPadding = checked
-                        ToolTip.text: i18n("Desactivar para eliminar huecos vacíos antes del número (ej: '0.0G' en SWAP sin espacios previos).")
-                        ToolTip.visible: hovered
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Kirigami.Units.mediumSpacing
+
+                        Label {
+                            text: i18n("Descarga de red - Unidad mínima:")
+                        }
+
+                        ComboBox {
+                            id: netDownMinUnitCombo
+                            model: [
+                                { text: i18n("Automático (Bytes / KB / MB)"), value: "auto" },
+                                { text: i18n("Forzar mínimo KB (descartar Bytes: ej. 0.0 KB)"), value: "KB" },
+                                { text: i18n("Forzar mínimo MB (descartar Bytes y KB: ej. 0.00 MB)"), value: "MB" }
+                            ]
+                            textRole: "text"
+                            valueRole: "value"
+                            currentIndex: {
+                                for (var i = 0; i < model.length; i++) {
+                                    if (model[i].value === cfg_netDownMinUnit) return i;
+                                }
+                                return 0;
+                            }
+                            onActivated: {
+                                cfg_netDownMinUnit = model[currentIndex].value;
+                            }
+                        }
+                    }
+
+                    Kirigami.Separator { Layout.fillWidth: true }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Kirigami.Units.mediumSpacing
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 2
+                            Label {
+                                text: i18n("Relleno de espacios en blanco (Padding numérico individual):")
+                                font.weight: Font.DemiBold
+                            }
+                            Label {
+                                text: i18n("Selecciona individualmente qué parámetros alinean números con espacios delante para ancho fijo:")
+                                font: Kirigami.Theme.smallFont
+                                opacity: 0.75
+                            }
+                        }
+
+                        Button {
+                            text: i18n("Marcar todos")
+                            icon.name: "checkbox"
+                            onClicked: {
+                                cfg_paddedMetrics = "cpu,ram,swap,temp,gpu,bat,net/down,net/up,disk,fan,uptime";
+                            }
+                        }
+
+                        Button {
+                            text: i18n("Desmarcar todos")
+                            icon.name: "edit-clear"
+                            onClicked: {
+                                cfg_paddedMetrics = "";
+                            }
+                        }
+                    }
+
+                    GridLayout {
+                        columns: 3
+                        rowSpacing: Kirigami.Units.smallSpacing
+                        columnSpacing: Kirigami.Units.largeSpacing
+                        Layout.fillWidth: true
+
+                        CheckBox {
+                            text: i18n("CPU (uso, núcleos)")
+                            checked: isMetricPadded("cpu")
+                            onToggled: setMetricPadded("cpu", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("RAM (porcentaje)")
+                            checked: isMetricPadded("ram")
+                            onToggled: setMetricPadded("ram", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("SWAP (porcentaje, uso)")
+                            checked: isMetricPadded("swap")
+                            onToggled: setMetricPadded("swap", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("Temperatura")
+                            checked: isMetricPadded("temp")
+                            onToggled: setMetricPadded("temp", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("GPU (uso)")
+                            checked: isMetricPadded("gpu")
+                            onToggled: setMetricPadded("gpu", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("Batería (porcentaje)")
+                            checked: isMetricPadded("bat")
+                            onToggled: setMetricPadded("bat", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("Red Descarga (↓)")
+                            checked: isMetricPadded("net/down")
+                            onToggled: setMetricPadded("net/down", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("Red Subida (↑)")
+                            checked: isMetricPadded("net/up")
+                            onToggled: setMetricPadded("net/up", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("Disco (tasa, uso)")
+                            checked: isMetricPadded("disk")
+                            onToggled: setMetricPadded("disk", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("Ventiladores (RPM)")
+                            checked: isMetricPadded("fan")
+                            onToggled: setMetricPadded("fan", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("Tiempo encendido (Uptime)")
+                            checked: isMetricPadded("uptime")
+                            onToggled: setMetricPadded("uptime", checked)
+                        }
                     }
                 }
             }
@@ -1046,7 +1195,7 @@ KCM.SimpleKCM {
                                 Label {
                                     id: aboutVersionLabel
                                     anchors.centerIn: parent
-                                    text: "v0.3.5"
+                                    text: "v0.3.6"
                                     font.pointSize: Kirigami.Theme.smallFont.pointSize - 1
                                     font.weight: Font.Bold
                                     color: Kirigami.Theme.highlightColor

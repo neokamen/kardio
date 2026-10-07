@@ -135,6 +135,8 @@ QtObject {
         separatorOpacity:         0.4,
         separatorStyle:           "line",
         enableNumberPadding:      false,
+        paddedMetrics:            "",
+        netDownMinUnit:           "auto",
         swapDynamicUnits:         true
     })
 
@@ -250,9 +252,13 @@ QtObject {
         property real   separatorOpacity:         0.4
         property string separatorStyle:           "line"
         property bool   enableNumberPadding:      false
+        property string paddedMetrics:            ""
+        property string netDownMinUnit:           "auto"
         property bool   swapDynamicUnits:         true
 
         onPinnedMetricsChanged: root._saveActiveConfigKey("pinnedMetrics", pinnedMetrics)
+        onPaddedMetricsChanged: root._saveActiveConfigKey("paddedMetrics", paddedMetrics)
+        onNetDownMinUnitChanged: root._saveActiveConfigKey("netDownMinUnit", netDownMinUnit)
         onGpuLabelsChanged:     root._saveActiveConfigKey("gpuLabels", gpuLabels)
         onGpuSelectionChanged:  root._saveActiveConfigKey("gpuSelection", gpuSelection)
         onDiskLabelsChanged:    root._saveActiveConfigKey("diskLabels", diskLabels)

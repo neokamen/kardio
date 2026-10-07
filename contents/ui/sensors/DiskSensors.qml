@@ -12,16 +12,17 @@
         property string tempUnit: "C"
         property string networkUnit: "bytes"
         property string diskLabels: ""
+        property bool padNumbers: false
 
-        readonly property string diskReadValue:  Utils.formatRate(diskReadSensor.status  === Sensors.Sensor.Ready ? diskReadSensor.value  : NaN, networkUnit)
-        readonly property string diskWriteValue: Utils.formatRate(diskWriteSensor.status === Sensors.Sensor.Ready ? diskWriteSensor.value : NaN, networkUnit)
+        readonly property string diskReadValue:  Utils.formatRate(diskReadSensor.status  === Sensors.Sensor.Ready ? diskReadSensor.value  : NaN, networkUnit, root.padNumbers)
+        readonly property string diskWriteValue: Utils.formatRate(diskWriteSensor.status === Sensors.Sensor.Ready ? diskWriteSensor.value : NaN, networkUnit, root.padNumbers)
 
         readonly property real   diskUsedPercentRaw: (diskUsedPercentSensor.status === Sensors.Sensor.Ready && diskUsedPercentSensor.value != null) ? Number(diskUsedPercentSensor.value) : NaN
-        readonly property string diskUsedPercentValue: isNaN(diskUsedPercentRaw) ? "" : Math.round(diskUsedPercentRaw) + "%"
+        readonly property string diskUsedPercentValue: isNaN(diskUsedPercentRaw) ? "" : (padNumbers ? Math.round(diskUsedPercentRaw).toString().padStart(3) + "%" : Math.round(diskUsedPercentRaw) + "%")
 
         readonly property real   diskUsedRaw: (diskUsedSensor.status === Sensors.Sensor.Ready && diskUsedSensor.value != null) ? Number(diskUsedSensor.value) : NaN
         readonly property real   diskTotalRaw: (diskTotalSensor.status === Sensors.Sensor.Ready && diskTotalSensor.value != null) ? Number(diskTotalSensor.value) : NaN
-        readonly property string diskSpaceValue: (!isNaN(diskUsedRaw) && !isNaN(diskTotalRaw) && diskTotalRaw > 0) ? (Utils.formatBytes(diskUsedRaw) + "/" + Utils.formatBytes(diskTotalRaw) + "G") : ""
+        readonly property string diskSpaceValue: (!isNaN(diskUsedRaw) && !isNaN(diskTotalRaw) && diskTotalRaw > 0) ? (Utils.formatBytes(diskUsedRaw) + "/" + Utils.formatBytes(diskTotalRaw) + "GB") : ""
 
         readonly property var discoveredDisks: _discovered
         property var _discovered: []

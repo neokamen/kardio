@@ -357,6 +357,12 @@
         <entry name="enableNumberPadding" type="Bool">
             <default>false</default>
         </entry>
+        <entry name="paddedMetrics" type="String">
+            <default></default>
+        </entry>
+        <entry name="netDownMinUnit" type="String">
+            <default>auto</default>
+        </entry>
         <entry name="swapDynamicUnits" type="Bool">
             <default>true</default>
         </entry>

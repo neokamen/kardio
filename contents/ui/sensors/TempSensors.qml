@@ -8,6 +8,7 @@ Item {
     property var discovery: null
     property int updateInterval: 2000
     property string tempUnit: "C"
+    property bool padNumbers: false
 
     // System temperature: auto-detect chipset sensor, fallback to CPU average
     property string _systemSensorId: ""
@@ -19,7 +20,8 @@ Item {
 
     readonly property string tempValue: {
         if (isNaN(tempNumericValue)) return "--";
-        return Utils.formatTemp(tempNumericValue, tempUnit);
+        var res = Utils.formatTemp(tempNumericValue, tempUnit);
+        return padNumbers ? res.padStart(5) : res;
     }
 
     // Fallback is active when no chipset sensor was found and we use CPU average

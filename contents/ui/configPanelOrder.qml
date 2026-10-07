@@ -212,7 +212,7 @@ KCM.SimpleKCM {
                 previewVal = subKey === "usage" ? "18%" : (subKey === "freq" ? "3.20 GHz" : (subKey === "temp" ? "52°C" : "1.20"));
             }
         } else if (group === "ram") {
-            previewVal = subKey === "percentage" ? "42%" : (subKey === "used" ? "6.8/16G" : "45°C");
+            previewVal = subKey === "percentage" ? "42%" : (subKey === "used" ? "6.8/16GB" : "45°C");
             if (subKey === "temp") {
                 icon = "temperature-symbolic";
                 displayName = i18n("RAM Temp");
@@ -272,7 +272,7 @@ KCM.SimpleKCM {
             } else if (subKey === "usage") {
                 previewVal = "28%";
             } else if (subKey === "vram") {
-                previewVal = "1.8/8G";
+                previewVal = "1.8/8GB";
             } else {
                 previewVal = "1500 MHz";
             }

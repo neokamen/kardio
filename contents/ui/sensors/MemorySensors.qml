@@ -19,7 +19,7 @@ Item {
     readonly property string ramValue: {
         if (isNaN(ramPercentage))
             return "...";
-        return Utils.formatMemoryBytes(ramUsedSensor.value, dynamicUnits) + "/" + Utils.formatBytes(ramTotalSensor.value) + "G";
+        return Utils.formatMemoryBytes(ramUsedSensor.value, dynamicUnits) + "/" + Utils.formatBytes(ramTotalSensor.value) + "GB";
     }
 
     readonly property string ramPercentValue: {

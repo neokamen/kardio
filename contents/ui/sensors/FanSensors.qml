@@ -10,6 +10,7 @@ Item {
     property string fanUnit: "rpm" // "rpm" or "percent"
     property string fanLabels: ""
     property int fanMaxRpm: 2000
+    property bool padNumbers: false
 
     readonly property var discoveredFans: _discovered
     property var _discovered: []
@@ -114,9 +115,11 @@ Item {
             var estimated = isNaN(max) || max <= 0;
             if (estimated) max = (fanMaxRpm > 0 ? fanMaxRpm : 2000);
             if (max <= 0) max = 2000;
-            return { str: Math.min(100, Math.round((v / max) * 100)) + "%", estimated: estimated };
+            var pct = Math.min(100, Math.round((v / max) * 100));
+            return { str: (padNumbers ? pct.toString().padStart(3) + "%" : pct + "%"), estimated: estimated };
         }
-        return { str: Math.round(v) + " RPM", estimated: false };
+        var rpm = Math.round(v);
+        return { str: (padNumbers ? rpm.toString().padStart(4) + " RPM" : rpm + " RPM"), estimated: false };
     }
 
     function aggregate() {

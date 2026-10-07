@@ -16,6 +16,7 @@ Item {
 
     // Temperature unit: "C" (default) or "F"
     property string tempUnit: "C"
+    property bool padNumbers: false
 
     // Global GPU sub-metric visibility e.g. "usage,vram,temp" or "usage,temp"
     property string gpuSubMetrics: MetricDefinitions.GROUPS.gpu.defaultSubMetrics
@@ -249,10 +250,10 @@ Item {
             var pVal   = showP  ? _modelValue("gpu/" + g + "/power")          : NaN;
             var vltVal = showVlt ? _modelValue(voltageSensor)                 : NaN;
 
-            var uStr = !isNaN(uVal) ? Math.round(uVal).toString().padStart(3) + "%" : "";
+            var uStr = !isNaN(uVal) ? (padNumbers ? Math.round(uVal).toString().padStart(3) + "%" : Math.round(uVal).toString() + "%") : "";
             var vStr = "";
             if (!isNaN(vuVal) && !isNaN(vtVal) && vtVal > 0 && vuVal >= 0)
-                vStr = Utils.formatBytes(vuVal) + "/" + Utils.formatBytes(vtVal) + "G";
+                vStr = Utils.formatBytes(vuVal) + "/" + Utils.formatBytes(vtVal) + "GB";
             // tVal === 0 is ksystemstats' null sentinel for iGPU (no hwmon node)
             var tStr = (!isNaN(tVal) && tVal > 0) ? Utils.formatTemp(tVal, tempUnit) : "";
             var hsStr = (!isNaN(hsVal) && hsVal > 0) ? Utils.formatTemp(hsVal, tempUnit) : "";
@@ -296,10 +297,10 @@ Item {
         _dataList = newList;
 
         _usageNum = usageCount > 0 ? totalUsage / usageCount : NaN;
-        _usageStr = usageCount > 0 ? Math.round(_usageNum).toString().padStart(3) + "%" : "";
+        _usageStr = usageCount > 0 ? (padNumbers ? Math.round(_usageNum).toString().padStart(3) + "%" : Math.round(_usageNum).toString() + "%") : "";
         
         _vramStr  = (hasVram && totalVramTotal > 0)
-                    ? Utils.formatBytes(totalVramUsed) + "/" + Utils.formatBytes(totalVramTotal) + "G" : "";
+                    ? Utils.formatBytes(totalVramUsed) + "/" + Utils.formatBytes(totalVramTotal) + "GB" : "";
         _tempNum  = !isNaN(maxTemp) ? maxTemp : NaN;
         _tempStr  = !isNaN(maxTemp) ? Utils.formatTemp(maxTemp, tempUnit) : "";
         _hotspotNum = !isNaN(maxHotspot) ? maxHotspot : NaN;

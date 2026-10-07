@@ -114,6 +114,10 @@ Item {
         }
     }
 
+    property bool padDownNumbers: false
+    property bool padUpNumbers: false
+    property string netDownMinUnit: "auto"
+
     // Traffic sensors
 
     // Raw numeric rates (bytes/s).
@@ -123,12 +127,12 @@ Item {
 
     readonly property string netDownValue: {
         if (netDownSensor.status !== Sensors.Sensor.Ready) return "...";
-        return Utils.formatRate(netDownSensor.value, networkUnit);
+        return Utils.formatRate(netDownSensor.value, networkUnit, root.padDownNumbers, root.netDownMinUnit);
     }
 
     readonly property string netUpValue: {
         if (netUpSensor.status !== Sensors.Sensor.Ready) return "...";
-        return Utils.formatRate(netUpSensor.value, networkUnit);
+        return Utils.formatRate(netUpSensor.value, networkUnit, root.padUpNumbers, "auto");
     }
 
     Sensors.Sensor {

@@ -22,6 +22,7 @@ Item {
     required property real separatorOpacity
     property string separatorStyle: "line"
     property bool enableNumberPadding: false
+    property string paddedMetrics: ""
     required property bool showSeparators
     required property string backgroundType
     required property bool isPlanar
@@ -78,9 +79,21 @@ Item {
         readonly property real separatorOpacity: compactRoot.separatorOpacity
         readonly property string separatorStyle: compactRoot.separatorStyle
         readonly property bool enableNumberPadding: compactRoot.enableNumberPadding
+        readonly property string paddedMetrics: compactRoot.paddedMetrics
         readonly property bool showSeparators: compactRoot.showSeparators
         readonly property bool isVertical: compactRoot.isVertical
         readonly property bool customFont: compactRoot.customFont
+
+        function isItemPadded(key) {
+            if (!compactRow.paddedMetrics || compactRow.paddedMetrics === "") {
+                return compactRow.enableNumberPadding;
+            }
+            if (!key) return false;
+            var list = compactRow.paddedMetrics.split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+            if (list.indexOf(key) !== -1) return true;
+            var group = key.indexOf("/") !== -1 ? key.split("/")[0] : (key.indexOf(":") !== -1 ? key.split(":")[0] : key);
+            return list.indexOf(group) !== -1;
+        }
 
         // Defers isMask+color on Kirigami.Icon items until after the Plasma startup
         // window-attachment sequence (ShellCorona::addOutput) completes. This prevents
@@ -182,7 +195,7 @@ Item {
                     // (Layout.preferredWidth has no effect here). Width only
                     // ever grows within the session to avoid reflow when a
                     // fluctuating value crosses a digit-count boundary.
-                    width: compactRow.enableNumberPadding
+                    width: compactRow.isItemPadded(modelData.key || segRoot.parentKey)
                         ? compactRow._stickyWidth(
                             segRoot.parentKey + ":" + (modelData.key !== undefined ? modelData.key : index),
                             implicitWidth)
@@ -278,7 +291,7 @@ Item {
                 color: modelData.color || compactRow.baseTextColor
                 horizontalAlignment: Text.AlignRight
                 Layout.alignment: Qt.AlignVCenter
-                Layout.preferredWidth: compactRow.enableNumberPadding ? compactRow._stickyWidth(modelData.key || ("idx:" + index), implicitWidth) : implicitWidth
+                Layout.preferredWidth: compactRow.isItemPadded(modelData.key) ? compactRow._stickyWidth(modelData.key || ("idx:" + index), implicitWidth) : implicitWidth
             }
 
             SegmentsRow {

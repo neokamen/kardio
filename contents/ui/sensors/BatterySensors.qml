@@ -8,6 +8,7 @@ Item {
     property var discovery: null
     property int updateInterval: 2000
     property string batteryDevice: "auto"
+    property bool padNumbers: false
 
     property string discoveredBatId: ""
 
@@ -63,7 +64,7 @@ Item {
     readonly property string batHealthSensorId: _resolvedBase ? ("power/" + _resolvedBase + "/health") : ""
 
     readonly property real   batNumericValue:  (batChargeSensor.status === Sensors.Sensor.Ready && batChargeSensor.value != null) ? Number(batChargeSensor.value) : NaN
-    readonly property string batValue:         isNaN(batNumericValue) ? "" : Math.round(batNumericValue) + "%"
+    readonly property string batValue:         isNaN(batNumericValue) ? "" : (padNumbers ? Math.round(batNumericValue).toString().padStart(3) + "%" : Math.round(batNumericValue) + "%")
 
     readonly property real   batRateNumericValue: (batRateSensor.status === Sensors.Sensor.Ready && batRateSensor.value != null) ? Number(batRateSensor.value) : NaN
     readonly property string powerValue: {
