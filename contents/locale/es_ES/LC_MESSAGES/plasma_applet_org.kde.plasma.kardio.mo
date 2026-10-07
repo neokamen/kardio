@@ -1,0 +1,1 @@
+../../es/LC_MESSAGES/plasma_applet_org.kde.plasma.kardio.mo

@@ -1,0 +1,1 @@
+../../en/LC_MESSAGES/Kardio.mo

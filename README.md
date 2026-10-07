@@ -22,9 +22,17 @@ Built with love for Linux power users, Kardio gives you real-time insight into y
   - **System**: Uptime and chipset/motherboard sensors.
 - **Customizable Compact & Expanded Views**:
   - Compact panel widget: Display icons, text, or both. Customize font, sizes, spacing, opacity, and delimiters.
-  - Expandable popup: Clean categorized breakdown with per-metric pinning.
-- **Profiles**: Switch between gaming, coding, or minimalist layouts on the fly (shortcut: `Meta+Shift+K`).
-- **Alerts & Thresholds**: Color indicators for warning and critical thresholds per sensor.
+  - Expandable popup: Clean categorized breakdown with per-metric pinning and live hardware scanner.
+  - Individual whitespace alignment / padding per sensor for fixed-width, jitter-free readouts.
+  - Network unit options: configurable minimum unit (Auto, force KB, force MB) for download and upload.
+  - Dynamic memory units (MB up to 1024 MB, then GB) with group-level sequence sorting.
+  - Individual icon toggles and customizable symbolic icons per sensor.
+- **Profiles & Presets**: Switch between custom setups on the fly or create new presets directly from the widget (shortcut: `Meta+Shift+K`).
+- **Alerts & Thresholds**: Color indicators for warning and critical thresholds per sensor with built-in thermal spectrum simulator.
+- **Internationalization (i18n)**:
+  - Full native multi-language support: **English**, **Català**, and **Español**.
+  - Automatic system language detection (`LANG` / `LC_MESSAGES`).
+  - Automatic fallback to **English** for any other system language.
 
 ---
 

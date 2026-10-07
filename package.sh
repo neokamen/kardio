@@ -7,7 +7,7 @@ FILENAME="${PLASMOID_NAME}-v${VERSION}.plasmoid"
 
 echo "[STATUS] Packaging $PLASMOID_NAME version $VERSION..."
 
-zip -r "$FILENAME" \
+zip -ry "$FILENAME" \
     metadata.json \
     org.kde.plasma.kardio.svg \
     kardio-banner.svg \
