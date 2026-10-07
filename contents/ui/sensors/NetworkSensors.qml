@@ -117,6 +117,7 @@ Item {
     property bool padDownNumbers: false
     property bool padUpNumbers: false
     property string netDownMinUnit: "auto"
+    property string netMinUnit: "auto"
 
     // Traffic sensors
 
@@ -127,12 +128,14 @@ Item {
 
     readonly property string netDownValue: {
         if (netDownSensor.status !== Sensors.Sensor.Ready) return "...";
-        return Utils.formatRate(netDownSensor.value, networkUnit, root.padDownNumbers, root.netDownMinUnit);
+        var unitMode = (root.netMinUnit && root.netMinUnit !== "auto") ? root.netMinUnit : root.netDownMinUnit;
+        return Utils.formatRate(netDownSensor.value, networkUnit, root.padDownNumbers, unitMode);
     }
 
     readonly property string netUpValue: {
         if (netUpSensor.status !== Sensors.Sensor.Ready) return "...";
-        return Utils.formatRate(netUpSensor.value, networkUnit, root.padUpNumbers, "auto");
+        var unitMode = (root.netMinUnit && root.netMinUnit !== "auto") ? root.netMinUnit : root.netDownMinUnit;
+        return Utils.formatRate(netUpSensor.value, networkUnit, root.padUpNumbers, unitMode);
     }
 
     Sensors.Sensor {

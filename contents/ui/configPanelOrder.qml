@@ -471,7 +471,8 @@ KCM.SimpleKCM {
                 }
 
                 // Orientation switch pills
-                RowLayout {
+                Flow {
+                    Layout.fillWidth: true
                     spacing: Kirigami.Units.smallSpacing
 
                     QQC2.Button {
@@ -621,51 +622,61 @@ KCM.SimpleKCM {
         Kirigami.Card {
             Layout.fillWidth: true
 
-            header: RowLayout {
+            header: ColumnLayout {
                 spacing: Kirigami.Units.smallSpacing
 
-                Kirigami.Icon {
-                    source: "edit-list-order"
-                    implicitWidth: 20; implicitHeight: 20
-                    color: Kirigami.Theme.highlightColor
-                }
-
-                Kirigami.Heading {
-                    text: i18n("Secuencia y Posición en el Panel")
-                    level: 3
+                RowLayout {
                     Layout.fillWidth: true
+                    spacing: Kirigami.Units.smallSpacing
+
+                    Kirigami.Icon {
+                        source: "edit-list-order"
+                        implicitWidth: 20; implicitHeight: 20
+                        color: Kirigami.Theme.highlightColor
+                    }
+
+                    Kirigami.Heading {
+                        text: i18n("Secuencia y Posición en el Panel")
+                        level: 3
+                        Layout.fillWidth: true
+                    }
                 }
 
-                QQC2.Button {
-                    icon.name: "view-refresh"
-                    text: i18n("Actualizar")
-                    QQC2.ToolTip.text: i18n("Recarga métricas y secuencia desde la configuración actual o cambios al vuelo")
-                    QQC2.ToolTip.visible: hovered
-                    onClicked: panelOrderPage.reloadFromConfiguration()
-                }
+                Flow {
+                    Layout.fillWidth: true
+                    spacing: Kirigami.Units.smallSpacing
 
-                // Batch reordering tools
-                QQC2.Button {
-                    icon.name: "view-sort-ascending"
-                    text: i18n("Jerarquía Lógica")
-                    QQC2.ToolTip.text: i18n("Auto-organiza por orden óptimo: CPU ➔ GPU ➔ RAM ➔ Discos ➔ Red ➔ Sistema")
-                    QQC2.ToolTip.visible: hovered
-                    onClicked: panelOrderPage.autoOrganizeByHierarchy()
-                }
+                    QQC2.Button {
+                        icon.name: "view-refresh"
+                        text: i18n("Actualizar")
+                        QQC2.ToolTip.text: i18n("Recarga métricas y secuencia desde la configuración actual o cambios al vuelo")
+                        QQC2.ToolTip.visible: hovered
+                        onClicked: panelOrderPage.reloadFromConfiguration()
+                    }
 
-                QQC2.Button {
-                    icon.name: "reverse"
-                    text: i18n("Invertir")
-                    QQC2.ToolTip.text: i18n("Invierte la secuencia de izquierda a derecha")
-                    QQC2.ToolTip.visible: hovered
-                    onClicked: panelOrderPage.reverseOrder()
-                }
+                    // Batch reordering tools
+                    QQC2.Button {
+                        icon.name: "view-sort-ascending"
+                        text: i18n("Jerarquía Lógica")
+                        QQC2.ToolTip.text: i18n("Auto-organiza por orden óptimo: CPU ➔ GPU ➔ RAM ➔ Discos ➔ Red ➔ Sistema")
+                        QQC2.ToolTip.visible: hovered
+                        onClicked: panelOrderPage.autoOrganizeByHierarchy()
+                    }
 
-                QQC2.Button {
-                    icon.name: "edit-clear"
-                    text: i18n("Vaciar")
-                    enabled: panelOrderPage.currentList.length > 0
-                    onClicked: panelOrderPage.cfg_pinnedMetrics = ""
+                    QQC2.Button {
+                        icon.name: "reverse"
+                        text: i18n("Invertir")
+                        QQC2.ToolTip.text: i18n("Invierte la secuencia de izquierda a derecha")
+                        QQC2.ToolTip.visible: hovered
+                        onClicked: panelOrderPage.reverseOrder()
+                    }
+
+                    QQC2.Button {
+                        icon.name: "edit-clear"
+                        text: i18n("Vaciar")
+                        enabled: panelOrderPage.currentList.length > 0
+                        onClicked: panelOrderPage.cfg_pinnedMetrics = ""
+                    }
                 }
             }
 
@@ -743,13 +754,14 @@ KCM.SimpleKCM {
                                     }
                                 }
 
-                                RowLayout {
+                                Row {
                                     id: chipInnerRow
                                     anchors.centerIn: parent
                                     spacing: 8
 
                                     // Drag Handle Grip Icon
                                     Kirigami.Icon {
+                                        anchors.verticalCenter: parent.verticalCenter
                                         source: "handle-sort"
                                         implicitWidth: 14; implicitHeight: 14
                                         opacity: 0.55
@@ -760,6 +772,7 @@ KCM.SimpleKCM {
 
                                     // Position Badge
                                     Rectangle {
+                                        anchors.verticalCenter: parent.verticalCenter
                                         implicitWidth: 22; implicitHeight: 22
                                         radius: 11
                                         color: chipWrapper.info.color
@@ -775,6 +788,7 @@ KCM.SimpleKCM {
 
                                     // Metric Icon
                                     Kirigami.Icon {
+                                        anchors.verticalCenter: parent.verticalCenter
                                         source: panelOrderPage.resolveIcon(chipWrapper.info.icon)
                                         implicitWidth: 16; implicitHeight: 16
                                         color: chipWrapper.info.color
@@ -783,6 +797,7 @@ KCM.SimpleKCM {
 
                                     // Label & Preview
                                     ColumnLayout {
+                                        anchors.verticalCenter: parent.verticalCenter
                                         spacing: 0
                                         QQC2.Label {
                                             text: chipWrapper.info.label
@@ -799,7 +814,8 @@ KCM.SimpleKCM {
                                     }
 
                                     // Fine-tuned movement arrows (mover al detalle)
-                                    RowLayout {
+                                    Row {
+                                        anchors.verticalCenter: parent.verticalCenter
                                         spacing: 2
                                         QQC2.ToolButton {
                                             icon.name: "go-previous"
@@ -822,6 +838,7 @@ KCM.SimpleKCM {
 
                                     // Individual Icon Toggle Action
                                     QQC2.ToolButton {
+                                        anchors.verticalCenter: parent.verticalCenter
                                         icon.name: panelOrderPage.isMetricIconActive(chipWrapper.modelData) ? "visibility" : "hint"
                                         implicitWidth: 22; implicitHeight: 22
                                         opacity: panelOrderPage.isMetricIconActive(chipWrapper.modelData) ? 0.9 : 0.4
@@ -834,6 +851,7 @@ KCM.SimpleKCM {
 
                                     // Remove action
                                     QQC2.ToolButton {
+                                        anchors.verticalCenter: parent.verticalCenter
                                         icon.name: "dialog-close"
                                         implicitWidth: 24; implicitHeight: 24
                                         onClicked: panelOrderPage.removeItem(chipWrapper.index)
@@ -965,7 +983,8 @@ KCM.SimpleKCM {
                 }
 
                 // Category Tabs
-                RowLayout {
+                Flow {
+                    Layout.fillWidth: true
                     spacing: 6
 
                     QQC2.Button {
@@ -1062,8 +1081,10 @@ KCM.SimpleKCM {
                                         }
 
                                         visible: matchesSearch
-                                        implicitWidth: itemCardRow.implicitWidth + 20
+                                        implicitWidth: itemCardRow.implicitWidth + 24
                                         implicitHeight: 38
+                                        width: implicitWidth
+                                        height: implicitHeight
                                         radius: 6
 
                                         color: isSelected
@@ -1077,18 +1098,20 @@ KCM.SimpleKCM {
                                         HoverHandler { id: itemHover }
                                         TapHandler { onTapped: panelOrderPage.toggleItem(itemCard.modelData.id) }
 
-                                        RowLayout {
+                                        Row {
                                             id: itemCardRow
                                             anchors.centerIn: parent
                                             spacing: 8
 
                                             Kirigami.Icon {
+                                                anchors.verticalCenter: parent.verticalCenter
                                                 source: panelOrderPage.resolveIcon(itemCard.modelData.icon)
                                                 implicitWidth: 15; implicitHeight: 15
                                                 color: isSelected ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor
                                             }
 
                                             QQC2.Label {
+                                                anchors.verticalCenter: parent.verticalCenter
                                                 text: itemCard.modelData.label
                                                 font.bold: isSelected
                                                 font.pixelSize: Kirigami.Theme.smallFont.pixelSize

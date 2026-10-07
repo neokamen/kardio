@@ -42,6 +42,7 @@ PlasmoidItem {
     property bool enableNumberPadding: Boolean(profileManager.activeConfig.enableNumberPadding)
     property string paddedMetrics:     profileManager.activeConfig.paddedMetrics || ""
     property string netDownMinUnit:    profileManager.activeConfig.netDownMinUnit || "auto"
+    property string netMinUnit:        profileManager.activeConfig.netMinUnit || profileManager.activeConfig.netDownMinUnit || "auto"
     property bool swapDynamicUnits:    (profileManager.activeConfig.swapDynamicUnits !== undefined) ? Boolean(profileManager.activeConfig.swapDynamicUnits) : true
 
     Plasmoid.backgroundHints: PlasmaCore.Types.DefaultBackground | PlasmaCore.Types.ConfigurableBackground
@@ -187,6 +188,7 @@ PlasmoidItem {
                 tempUnit: metricConfig.tempUnit
                 padDownNumbers: metricConfig.isMetricPadded("net/down", "net")
                 padUpNumbers: metricConfig.isMetricPadded("net/up", "net")
+                netMinUnit: metricConfig.netMinUnit
                 netDownMinUnit: metricConfig.netDownMinUnit
             }
 

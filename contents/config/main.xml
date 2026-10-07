@@ -363,6 +363,9 @@
         <entry name="netDownMinUnit" type="String">
             <default>auto</default>
         </entry>
+        <entry name="netMinUnit" type="String">
+            <default>auto</default>
+        </entry>
         <entry name="swapDynamicUnits" type="Bool">
             <default>true</default>
         </entry>

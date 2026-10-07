@@ -28,8 +28,18 @@ ConfigModel {
         source: "configColors.qml"
     }
     ConfigCategory {
+        name: i18n("Iconos")
+        icon: "preferences-desktop-icons"
+        source: "configIcons.qml"
+    }
+    ConfigCategory {
         name: i18n("Perfiles")
         icon: "user-identity"
         source: "configProfiles.qml"
+    }
+    ConfigCategory {
+        name: i18n("Acerca de")
+        icon: "help-about"
+        source: "configAbout.qml"
     }
 }

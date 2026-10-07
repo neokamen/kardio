@@ -26,6 +26,7 @@ KCM.SimpleKCM {
     property bool cfg_enableNumberPadding: false
     property string cfg_paddedMetrics: ""
     property string cfg_netDownMinUnit: "auto"
+    property string cfg_netMinUnit: "auto"
     property bool cfg_swapDynamicUnits: true
 
     function isMetricPadded(id) {
@@ -110,7 +111,7 @@ KCM.SimpleKCM {
                                 Label {
                                     id: versionLabel
                                     anchors.centerIn: parent
-                                    text: "v0.3.6"
+                                    text: "v0.4.0"
                                     font.pointSize: Kirigami.Theme.smallFont.pointSize - 1
                                     font.weight: Font.Bold
                                     color: Kirigami.Theme.highlightColor
@@ -495,10 +496,12 @@ KCM.SimpleKCM {
 
                 // Layout Selector Pills
                 ColumnLayout {
+                    Layout.fillWidth: true
                     spacing: Kirigami.Units.smallSpacing
                     Label { text: i18n("Orientación de lectura del panel:"); font.weight: Font.DemiBold }
 
-                    RowLayout {
+                    Flow {
+                        Layout.fillWidth: true
                         spacing: Kirigami.Units.mediumSpacing
                         Button {
                             icon.name: "distribute-horizontal"
@@ -517,10 +520,12 @@ KCM.SimpleKCM {
 
                 // Desktop Surface Style
                 ColumnLayout {
+                    Layout.fillWidth: true
                     spacing: Kirigami.Units.smallSpacing
                     Label { text: i18n("Estilo de fondo en Escritorio (Modo Widget Libre):"); font.weight: Font.DemiBold }
 
-                    RowLayout {
+                    Flow {
+                        Layout.fillWidth: true
                         spacing: Kirigami.Units.smallSpacing
                         Button {
                             text: i18n("Plasma Theme")
@@ -840,8 +845,10 @@ KCM.SimpleKCM {
                             delegate: Rectangle {
                                 id: styleChip
                                 required property var modelData
-                                implicitWidth: styleChipRow.implicitWidth + 24
-                                implicitHeight: 34
+                                width: styleChipRow.implicitWidth + 24
+                                height: 34
+                                implicitWidth: width
+                                implicitHeight: height
                                 radius: 6
                                 color: cfg_separatorStyle === modelData.key
                                        ? Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.18)
@@ -853,12 +860,13 @@ KCM.SimpleKCM {
                                     onTapped: cfg_separatorStyle = styleChip.modelData.key
                                 }
 
-                                RowLayout {
+                                Row {
                                     id: styleChipRow
                                     anchors.centerIn: parent
                                     spacing: 8
 
                                     SeparatorItem {
+                                        anchors.verticalCenter: parent.verticalCenter
                                         style: styleChip.modelData.key
                                         color: cfg_separatorStyle === styleChip.modelData.key ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor
                                         separatorOpacity: 1.0
@@ -866,6 +874,7 @@ KCM.SimpleKCM {
                                     }
 
                                     Label {
+                                        anchors.verticalCenter: parent.verticalCenter
                                         text: styleChip.modelData.name
                                         font.bold: cfg_separatorStyle === styleChip.modelData.key
                                         font.pixelSize: Kirigami.Theme.smallFont.pixelSize
@@ -1001,11 +1010,11 @@ KCM.SimpleKCM {
                         spacing: Kirigami.Units.mediumSpacing
 
                         Label {
-                            text: i18n("Descarga de red - Unidad mínima:")
+                            text: i18n("Red (Descarga y Subida) - Unidad mínima:")
                         }
 
                         ComboBox {
-                            id: netDownMinUnitCombo
+                            id: netMinUnitCombo
                             model: [
                                 { text: i18n("Automático (Bytes / KB / MB)"), value: "auto" },
                                 { text: i18n("Forzar mínimo KB (descartar Bytes: ej. 0.0 KB)"), value: "KB" },
@@ -1014,12 +1023,14 @@ KCM.SimpleKCM {
                             textRole: "text"
                             valueRole: "value"
                             currentIndex: {
+                                var val = (cfg_netMinUnit && cfg_netMinUnit !== "auto") ? cfg_netMinUnit : cfg_netDownMinUnit;
                                 for (var i = 0; i < model.length; i++) {
-                                    if (model[i].value === cfg_netDownMinUnit) return i;
+                                    if (model[i].value === val) return i;
                                 }
                                 return 0;
                             }
                             onActivated: {
+                                cfg_netMinUnit = model[currentIndex].value;
                                 cfg_netDownMinUnit = model[currentIndex].value;
                             }
                         }
@@ -1027,43 +1038,47 @@ KCM.SimpleKCM {
 
                     Kirigami.Separator { Layout.fillWidth: true }
 
-                    RowLayout {
+                    ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: Kirigami.Units.mediumSpacing
+                        spacing: Kirigami.Units.smallSpacing
 
-                        ColumnLayout {
+                        Label {
+                            text: i18n("Relleno de espacios en blanco (Padding numérico individual):")
+                            font.weight: Font.DemiBold
+                        }
+
+                        Label {
+                            text: i18n("Selecciona individualmente qué parámetros alinean números con espacios delante para ancho fijo:")
+                            font: Kirigami.Theme.smallFont
+                            opacity: 0.75
+                            wrapMode: Text.WordWrap
                             Layout.fillWidth: true
-                            spacing: 2
-                            Label {
-                                text: i18n("Relleno de espacios en blanco (Padding numérico individual):")
-                                font.weight: Font.DemiBold
-                            }
-                            Label {
-                                text: i18n("Selecciona individualmente qué parámetros alinean números con espacios delante para ancho fijo:")
-                                font: Kirigami.Theme.smallFont
-                                opacity: 0.75
-                            }
                         }
 
-                        Button {
-                            text: i18n("Marcar todos")
-                            icon.name: "checkbox"
-                            onClicked: {
-                                cfg_paddedMetrics = "cpu,ram,swap,temp,gpu,bat,net/down,net/up,disk,fan,uptime";
-                            }
-                        }
+                        Flow {
+                            Layout.fillWidth: true
+                            spacing: Kirigami.Units.smallSpacing
 
-                        Button {
-                            text: i18n("Desmarcar todos")
-                            icon.name: "edit-clear"
-                            onClicked: {
-                                cfg_paddedMetrics = "";
+                            Button {
+                                text: i18n("Marcar todos")
+                                icon.name: "checkbox"
+                                onClicked: {
+                                    cfg_paddedMetrics = "cpu,ram,swap,temp,gpu,bat,net/down,net/up,disk,fan,uptime";
+                                }
+                            }
+
+                            Button {
+                                text: i18n("Desmarcar todos")
+                                icon.name: "edit-clear"
+                                onClicked: {
+                                    cfg_paddedMetrics = "";
+                                }
                             }
                         }
                     }
 
                     GridLayout {
-                        columns: 3
+                        columns: width > 550 ? 3 : 2
                         rowSpacing: Kirigami.Units.smallSpacing
                         columnSpacing: Kirigami.Units.largeSpacing
                         Layout.fillWidth: true
@@ -1132,104 +1147,6 @@ KCM.SimpleKCM {
                             text: i18n("Tiempo encendido (Uptime)")
                             checked: isMetricPadded("uptime")
                             onToggled: setMetricPadded("uptime", checked)
-                        }
-                    }
-                }
-            }
-        }
-
-        // ═══════════════════════════════════════════════════════════════════
-        // 6. ACERCA DE KARDIO (ABOUT)
-        // ═══════════════════════════════════════════════════════════════════
-        Kirigami.Card {
-            Layout.fillWidth: true
-            header: Kirigami.Heading {
-                text: i18n("Acerca de Kardio")
-                level: 3
-            }
-
-            contentItem: ColumnLayout {
-                spacing: Kirigami.Units.mediumSpacing
-
-                // Banner
-                Rectangle {
-                    Layout.fillWidth: true
-                    implicitHeight: 120
-                    radius: 8
-                    clip: true
-                    color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.05)
-                    border.color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.25)
-                    border.width: 1
-
-                    Image {
-                        anchors.fill: parent
-                        source: Qt.resolvedUrl("../icons/kardio-banner.svg")
-                        fillMode: Image.PreserveAspectFit
-                        smooth: true
-                        mipmap: true
-                        cache: false
-                    }
-                }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: Kirigami.Units.largeSpacing
-
-                    ColumnLayout {
-                        spacing: 4
-                        Layout.fillWidth: true
-
-                        RowLayout {
-                            spacing: 8
-                            Label {
-                                text: "Kardio"
-                                font.bold: true
-                                font.pointSize: Kirigami.Theme.defaultFont.pointSize + 2
-                                color: Kirigami.Theme.textColor
-                            }
-                            Rectangle {
-                                radius: 4
-                                color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.2)
-                                implicitWidth: aboutVersionLabel.implicitWidth + 10
-                                implicitHeight: aboutVersionLabel.implicitHeight + 4
-                                Label {
-                                    id: aboutVersionLabel
-                                    anchors.centerIn: parent
-                                    text: "v0.3.6"
-                                    font.pointSize: Kirigami.Theme.smallFont.pointSize - 1
-                                    font.weight: Font.Bold
-                                    color: Kirigami.Theme.highlightColor
-                                }
-                            }
-                        }
-
-                        Label {
-                            text: i18n("The Next-Gen KDE Plasma Telemetry Monitor")
-                            font: Kirigami.Theme.smallFont
-                            opacity: 0.8
-                        }
-
-                        Label {
-                            text: i18n("Autor: AlexMC \"neokamen\"")
-                            font.weight: Font.DemiBold
-                            color: Kirigami.Theme.textColor
-                        }
-
-                        Label {
-                            text: i18n("Licencia: GPL-3.0-or-later")
-                            font: Kirigami.Theme.smallFont
-                            opacity: 0.7
-                        }
-                    }
-
-                    ColumnLayout {
-                        spacing: 8
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-
-                        Button {
-                            icon.name: "globe"
-                            text: i18n("Código fuente en GitHub")
-                            onClicked: Qt.openUrlExternally("https://github.com/neokamen/kardio")
                         }
                     }
                 }

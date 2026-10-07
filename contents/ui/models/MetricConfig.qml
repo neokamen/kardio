@@ -315,6 +315,7 @@ QtObject {
     readonly property string diskSubMetrics:      (target && target[propertyPrefix + "diskSubMetrics"])     || "read,write"
     readonly property string paddedMetrics:       (target && target[propertyPrefix + "paddedMetrics"] !== undefined) ? target[propertyPrefix + "paddedMetrics"] : ""
     readonly property string netDownMinUnit:      (target && target[propertyPrefix + "netDownMinUnit"] !== undefined) ? target[propertyPrefix + "netDownMinUnit"] : "auto"
+    readonly property string netMinUnit:          (target && target[propertyPrefix + "netMinUnit"] !== undefined && target[propertyPrefix + "netMinUnit"] !== "") ? target[propertyPrefix + "netMinUnit"] : netDownMinUnit
 
     function isMetricPadded(id, group) {
         if (!paddedMetrics || paddedMetrics === "") return false;
