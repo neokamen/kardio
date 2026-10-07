@@ -37,9 +37,4 @@ ConfigModel {
         icon: "user-identity"
         source: "configProfiles.qml"
     }
-    ConfigCategory {
-        name: i18n("Acerca de")
-        icon: "help-about"
-        source: "configAbout.qml"
-    }
 }

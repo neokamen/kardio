@@ -425,45 +425,56 @@ KCM.SimpleKCM {
         // ═══════════════════════════════════════════════════════════════════
         // 1. KARDIO VIRTUAL DOCK SIMULATOR (SIMULADOR DE BARRA PLASMA)
         // ═══════════════════════════════════════════════════════════════════
-        Kirigami.Card {
+        Rectangle {
             Layout.fillWidth: true
+            implicitHeight: simCol.implicitHeight + (Kirigami.Units.largeSpacing * 2)
+            radius: Kirigami.Units.smallSpacing * 1.5
+            color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.03)
+            border.color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.15)
+            border.width: 1
 
-            header: RowLayout {
-                spacing: Kirigami.Units.smallSpacing
+            ColumnLayout {
+                id: simCol
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: Kirigami.Units.largeSpacing
+                spacing: Kirigami.Units.mediumSpacing
 
-                Kirigami.Icon {
-                    source: "video-display"
-                    implicitWidth: 20; implicitHeight: 20
-                    color: Kirigami.Theme.highlightColor
-                }
-
-                Kirigami.Heading {
-                    text: i18n("Simulador del Panel Plasma (Previsualización en Vivo)")
-                    level: 3
+                RowLayout {
                     Layout.fillWidth: true
-                }
+                    spacing: Kirigami.Units.smallSpacing
 
-                Rectangle {
-                    radius: 10
-                    implicitHeight: 22
-                    implicitWidth: countBadgeLabel.implicitWidth + 14
-                    color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.15)
-                    border.color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.4)
-                    border.width: 1
-
-                    QQC2.Label {
-                        id: countBadgeLabel
-                        anchors.centerIn: parent
-                        text: i18n("%1 métricas activas", panelOrderPage.currentList.length)
-                        font.bold: true
-                        font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                    Kirigami.Icon {
+                        source: "video-display"
+                        implicitWidth: 20; implicitHeight: 20
                         color: Kirigami.Theme.highlightColor
                     }
-                }
-            }
 
-            contentItem: ColumnLayout {
-                spacing: Kirigami.Units.mediumSpacing
+                    Kirigami.Heading {
+                        text: i18n("Simulador del Panel Plasma (Previsualización en Vivo)")
+                        level: 3
+                        Layout.fillWidth: true
+                    }
+
+                    Rectangle {
+                        radius: 10
+                        implicitHeight: 22
+                        implicitWidth: countBadgeLabel.implicitWidth + 14
+                        color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.15)
+                        border.color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.4)
+                        border.width: 1
+
+                        QQC2.Label {
+                            id: countBadgeLabel
+                            anchors.centerIn: parent
+                            text: i18n("%1 métricas activas", panelOrderPage.currentList.length)
+                            font.bold: true
+                            font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                            color: Kirigami.Theme.highlightColor
+                        }
+                    }
+                }
 
                 QQC2.Label {
                     text: i18n("Así es exactamente como se renderiza Kardio en tu panel de KDE. Puedes previsualizarlo en orientación horizontal o vertical:")
@@ -471,11 +482,14 @@ KCM.SimpleKCM {
                 }
 
                 // Orientation switch pills
-                Flow {
+                GridLayout {
                     Layout.fillWidth: true
-                    spacing: Kirigami.Units.smallSpacing
+                    columns: width > 500 ? 2 : 1
+                    columnSpacing: Kirigami.Units.smallSpacing
+                    rowSpacing: Kirigami.Units.smallSpacing
 
                     QQC2.Button {
+                        Layout.fillWidth: true
                         text: i18n("⬌ Vista Horizontal (Panel Superior/Inferior)")
                         icon.name: "view-list-icons"
                         highlighted: panelOrderPage.previewOrientation === "horizontal"
@@ -483,6 +497,7 @@ KCM.SimpleKCM {
                     }
 
                     QQC2.Button {
+                        Layout.fillWidth: true
                         text: i18n("⬍ Vista Vertical (Panel Lateral)")
                         icon.name: "view-list-details"
                         highlighted: panelOrderPage.previewOrientation === "vertical"
@@ -619,11 +634,21 @@ KCM.SimpleKCM {
         // ═══════════════════════════════════════════════════════════════════
         // 2. INTERACTIVE SEQUENCE DECK (BANDEJA DE ORDENACIÓN VISUAL)
         // ═══════════════════════════════════════════════════════════════════
-        Kirigami.Card {
+        Rectangle {
             Layout.fillWidth: true
+            implicitHeight: seqCol.implicitHeight + (Kirigami.Units.largeSpacing * 2)
+            radius: Kirigami.Units.smallSpacing * 1.5
+            color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.03)
+            border.color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.15)
+            border.width: 1
 
-            header: ColumnLayout {
-                spacing: Kirigami.Units.smallSpacing
+            ColumnLayout {
+                id: seqCol
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: Kirigami.Units.largeSpacing
+                spacing: Kirigami.Units.mediumSpacing
 
                 RowLayout {
                     Layout.fillWidth: true
@@ -642,11 +667,14 @@ KCM.SimpleKCM {
                     }
                 }
 
-                Flow {
+                GridLayout {
                     Layout.fillWidth: true
-                    spacing: Kirigami.Units.smallSpacing
+                    columns: width > 580 ? 4 : 2
+                    columnSpacing: Kirigami.Units.smallSpacing
+                    rowSpacing: Kirigami.Units.smallSpacing
 
                     QQC2.Button {
+                        Layout.fillWidth: true
                         icon.name: "view-refresh"
                         text: i18n("Actualizar")
                         QQC2.ToolTip.text: i18n("Recarga métricas y secuencia desde la configuración actual o cambios al vuelo")
@@ -656,6 +684,7 @@ KCM.SimpleKCM {
 
                     // Batch reordering tools
                     QQC2.Button {
+                        Layout.fillWidth: true
                         icon.name: "view-sort-ascending"
                         text: i18n("Jerarquía Lógica")
                         QQC2.ToolTip.text: i18n("Auto-organiza por orden óptimo: CPU ➔ GPU ➔ RAM ➔ Discos ➔ Red ➔ Sistema")
@@ -664,6 +693,7 @@ KCM.SimpleKCM {
                     }
 
                     QQC2.Button {
+                        Layout.fillWidth: true
                         icon.name: "reverse"
                         text: i18n("Invertir")
                         QQC2.ToolTip.text: i18n("Invierte la secuencia de izquierda a derecha")
@@ -672,16 +702,13 @@ KCM.SimpleKCM {
                     }
 
                     QQC2.Button {
+                        Layout.fillWidth: true
                         icon.name: "edit-clear"
                         text: i18n("Vaciar")
                         enabled: panelOrderPage.currentList.length > 0
                         onClicked: panelOrderPage.cfg_pinnedMetrics = ""
                     }
                 }
-            }
-
-            contentItem: ColumnLayout {
-                spacing: Kirigami.Units.mediumSpacing
 
                 QQC2.Label {
                     text: i18n("Arrastra directamente cualquier casilla para reordenar su posición en el panel:")
@@ -692,6 +719,7 @@ KCM.SimpleKCM {
                 Flow {
                     id: sequenceFlow
                     Layout.fillWidth: true
+                    width: parent.width
                     spacing: Kirigami.Units.smallSpacing
 
                     Repeater {
@@ -869,27 +897,40 @@ KCM.SimpleKCM {
         // ═══════════════════════════════════════════════════════════════════
         // 3. STUDIO THEMATIC PRESETS (PLANTILLAS EN 1-CLICK)
         // ═══════════════════════════════════════════════════════════════════
-        Kirigami.Card {
+        Rectangle {
             Layout.fillWidth: true
+            implicitHeight: presetsCol.implicitHeight + (Kirigami.Units.largeSpacing * 2)
+            radius: Kirigami.Units.smallSpacing * 1.5
+            color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.03)
+            border.color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.15)
+            border.width: 1
 
-            header: Kirigami.Heading {
-                text: i18n("Plantillas Rápidas de Panel")
-                level: 3
-            }
+            ColumnLayout {
+                id: presetsCol
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: Kirigami.Units.largeSpacing
+                spacing: Kirigami.Units.mediumSpacing
 
-            contentItem: ColumnLayout {
-                spacing: Kirigami.Units.smallSpacing
+                Kirigami.Heading {
+                    text: i18n("Plantillas Rápidas de Panel")
+                    level: 3
+                }
 
                 QQC2.Label {
                     text: i18n("Configura tu barra con un solo clic según tu actividad:")
                     opacity: 0.75
                 }
 
-                Flow {
+                GridLayout {
                     Layout.fillWidth: true
-                    spacing: Kirigami.Units.smallSpacing
+                    columns: width > 700 ? 5 : (width > 460 ? 3 : 2)
+                    columnSpacing: Kirigami.Units.smallSpacing
+                    rowSpacing: Kirigami.Units.smallSpacing
 
                     QQC2.Button {
+                        Layout.fillWidth: true
                         text: i18n("🚀 Gaming Beast")
                         icon.name: "games-config-options"
                         onClicked: {
@@ -899,6 +940,7 @@ KCM.SimpleKCM {
                     }
 
                     QQC2.Button {
+                        Layout.fillWidth: true
                         text: i18n("❄️ Vigilancia Térmica Extrema")
                         icon.name: "preferences-system-hardware"
                         onClicked: {
@@ -908,6 +950,7 @@ KCM.SimpleKCM {
                     }
 
                     QQC2.Button {
+                        Layout.fillWidth: true
                         text: i18n("🌐 Red y Almacenamiento")
                         icon.name: "network-workgroup"
                         onClicked: {
@@ -917,6 +960,7 @@ KCM.SimpleKCM {
                     }
 
                     QQC2.Button {
+                        Layout.fillWidth: true
                         text: i18n("🍃 Modo Minimalista")
                         icon.name: "view-restore"
                         onClicked: {
@@ -925,6 +969,7 @@ KCM.SimpleKCM {
                     }
 
                     QQC2.Button {
+                        Layout.fillWidth: true
                         text: i18n("Restablecer Estándar")
                         icon.name: "edit-undo"
                         onClicked: {
@@ -938,27 +983,38 @@ KCM.SimpleKCM {
         // ═══════════════════════════════════════════════════════════════════
         // 4. SENSOR CATALOG & BUILDER (EL CATÁLOGO VISUAL DE SENSORES)
         // ═══════════════════════════════════════════════════════════════════
-        Kirigami.Card {
+        Rectangle {
             Layout.fillWidth: true
+            implicitHeight: catalogCol.implicitHeight + (Kirigami.Units.largeSpacing * 2)
+            radius: Kirigami.Units.smallSpacing * 1.5
+            color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.03)
+            border.color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.15)
+            border.width: 1
 
-            header: RowLayout {
-                spacing: Kirigami.Units.smallSpacing
-
-                Kirigami.Icon {
-                    source: "view-list-details"
-                    implicitWidth: 20; implicitHeight: 20
-                    color: Kirigami.Theme.highlightColor
-                }
-
-                Kirigami.Heading {
-                    text: i18n("Catálogo de Sensores Disponibles")
-                    level: 3
-                    Layout.fillWidth: true
-                }
-            }
-
-            contentItem: ColumnLayout {
+            ColumnLayout {
+                id: catalogCol
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: Kirigami.Units.largeSpacing
                 spacing: Kirigami.Units.mediumSpacing
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Kirigami.Units.smallSpacing
+
+                    Kirigami.Icon {
+                        source: "view-list-details"
+                        implicitWidth: 20; implicitHeight: 20
+                        color: Kirigami.Theme.highlightColor
+                    }
+
+                    Kirigami.Heading {
+                        text: i18n("Catálogo de Sensores Disponibles")
+                        level: 3
+                        Layout.fillWidth: true
+                    }
+                }
 
                 // Search Bar & Filter Chips
                 RowLayout {
@@ -983,46 +1039,55 @@ KCM.SimpleKCM {
                 }
 
                 // Category Tabs
-                Flow {
+                GridLayout {
                     Layout.fillWidth: true
-                    spacing: 6
+                    columns: width > 650 ? 7 : (width > 400 ? 4 : 2)
+                    columnSpacing: Kirigami.Units.smallSpacing
+                    rowSpacing: Kirigami.Units.smallSpacing
 
                     QQC2.Button {
+                        Layout.fillWidth: true
                         text: i18n("Todos")
                         highlighted: panelOrderPage.activeCatalogCategory === "all"
                         onClicked: panelOrderPage.activeCatalogCategory = "all"
                     }
                     QQC2.Button {
+                        Layout.fillWidth: true
                         text: "CPU"
                         icon.name: "cpu-symbolic"
                         highlighted: panelOrderPage.activeCatalogCategory === "cpu"
                         onClicked: panelOrderPage.activeCatalogCategory = "cpu"
                     }
                     QQC2.Button {
+                        Layout.fillWidth: true
                         text: "GPU"
                         icon.name: "gpu-symbolic"
                         highlighted: panelOrderPage.activeCatalogCategory === "gpu"
                         onClicked: panelOrderPage.activeCatalogCategory = "gpu"
                     }
                     QQC2.Button {
+                        Layout.fillWidth: true
                         text: "RAM"
                         icon.name: "memory-symbolic"
                         highlighted: panelOrderPage.activeCatalogCategory === "ram"
                         onClicked: panelOrderPage.activeCatalogCategory = "ram"
                     }
                     QQC2.Button {
+                        Layout.fillWidth: true
                         text: i18n("Discos")
                         icon.name: "storage-symbolic"
                         highlighted: panelOrderPage.activeCatalogCategory === "disk"
                         onClicked: panelOrderPage.activeCatalogCategory = "disk"
                     }
                     QQC2.Button {
+                        Layout.fillWidth: true
                         text: i18n("Red")
                         icon.name: "network-symbolic"
                         highlighted: panelOrderPage.activeCatalogCategory === "net"
                         onClicked: panelOrderPage.activeCatalogCategory = "net"
                     }
                     QQC2.Button {
+                        Layout.fillWidth: true
                         text: i18n("Sistema")
                         icon.name: "system-symbolic"
                         highlighted: panelOrderPage.activeCatalogCategory === "system"
@@ -1064,6 +1129,7 @@ KCM.SimpleKCM {
 
                             Flow {
                                 Layout.fillWidth: true
+                                width: parent.width
                                 spacing: 8
 
                                 Repeater {

@@ -67,7 +67,9 @@ KCM.SimpleKCM {
 
             ColumnLayout {
                 id: heroCol
-                anchors.fill: parent
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
                 anchors.margins: Kirigami.Units.largeSpacing
                 spacing: Kirigami.Units.mediumSpacing
 
@@ -283,15 +285,26 @@ KCM.SimpleKCM {
         // ═══════════════════════════════════════════════════════════════════
         // 2. VISUAL DISPLAY MODE STUDIO
         // ═══════════════════════════════════════════════════════════════════
-        Kirigami.Card {
+        Rectangle {
             Layout.fillWidth: true
-            header: Kirigami.Heading {
-                text: i18n("Modo de Visualización en Panel")
-                level: 3
-            }
+            implicitHeight: displayModeCol.implicitHeight + (Kirigami.Units.largeSpacing * 2)
+            radius: Kirigami.Units.smallSpacing * 1.5
+            color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.03)
+            border.color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.15)
+            border.width: 1
 
-            contentItem: ColumnLayout {
+            ColumnLayout {
+                id: displayModeCol
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: Kirigami.Units.largeSpacing
                 spacing: Kirigami.Units.mediumSpacing
+
+                Kirigami.Heading {
+                    text: i18n("Modo de Visualización en Panel")
+                    level: 3
+                }
 
                 Label {
                     text: i18n("Elige cómo se presentan las métricas ancladas en la barra o panel de Plasma:")
@@ -301,7 +314,7 @@ KCM.SimpleKCM {
                 }
 
                 GridLayout {
-                    columns: 2
+                    columns: width > 520 ? 2 : 1
                     Layout.fillWidth: true
                     columnSpacing: Kirigami.Units.mediumSpacing
                     rowSpacing: Kirigami.Units.mediumSpacing
@@ -309,7 +322,7 @@ KCM.SimpleKCM {
                     // Option: Icons + Text (Hybrid)
                     Rectangle {
                         Layout.fillWidth: true
-                        implicitHeight: 68
+                        implicitHeight: Math.max(72, tileRow1.implicitHeight + (Kirigami.Units.mediumSpacing * 2))
                         radius: Kirigami.Units.smallSpacing
                         color: cfg_displayMode === "icons+text"
                                ? Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.15)
@@ -320,7 +333,10 @@ KCM.SimpleKCM {
                         TapHandler { onTapped: cfg_displayMode = "icons+text" }
 
                         RowLayout {
-                            anchors.fill: parent
+                            id: tileRow1
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
                             anchors.margins: Kirigami.Units.mediumSpacing
                             spacing: Kirigami.Units.mediumSpacing
 
@@ -352,7 +368,7 @@ KCM.SimpleKCM {
                     // Option: Text Only
                     Rectangle {
                         Layout.fillWidth: true
-                        implicitHeight: 68
+                        implicitHeight: Math.max(72, tileRow2.implicitHeight + (Kirigami.Units.mediumSpacing * 2))
                         radius: Kirigami.Units.smallSpacing
                         color: cfg_displayMode === "text"
                                ? Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.15)
@@ -363,7 +379,10 @@ KCM.SimpleKCM {
                         TapHandler { onTapped: cfg_displayMode = "text" }
 
                         RowLayout {
-                            anchors.fill: parent
+                            id: tileRow2
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
                             anchors.margins: Kirigami.Units.mediumSpacing
                             spacing: Kirigami.Units.mediumSpacing
 
@@ -395,7 +414,7 @@ KCM.SimpleKCM {
                     // Option: Icons Only
                     Rectangle {
                         Layout.fillWidth: true
-                        implicitHeight: 68
+                        implicitHeight: Math.max(72, tileRow3.implicitHeight + (Kirigami.Units.mediumSpacing * 2))
                         radius: Kirigami.Units.smallSpacing
                         color: cfg_displayMode === "icons"
                                ? Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.15)
@@ -406,7 +425,10 @@ KCM.SimpleKCM {
                         TapHandler { onTapped: cfg_displayMode = "icons" }
 
                         RowLayout {
-                            anchors.fill: parent
+                            id: tileRow3
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
                             anchors.margins: Kirigami.Units.mediumSpacing
                             spacing: Kirigami.Units.mediumSpacing
 
@@ -438,7 +460,7 @@ KCM.SimpleKCM {
                     // Option: None
                     Rectangle {
                         Layout.fillWidth: true
-                        implicitHeight: 68
+                        implicitHeight: Math.max(72, tileRow4.implicitHeight + (Kirigami.Units.mediumSpacing * 2))
                         radius: Kirigami.Units.smallSpacing
                         color: cfg_displayMode === "none"
                                ? Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.15)
@@ -449,7 +471,10 @@ KCM.SimpleKCM {
                         TapHandler { onTapped: cfg_displayMode = "none" }
 
                         RowLayout {
-                            anchors.fill: parent
+                            id: tileRow4
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
                             anchors.margins: Kirigami.Units.mediumSpacing
                             spacing: Kirigami.Units.mediumSpacing
 
@@ -484,15 +509,26 @@ KCM.SimpleKCM {
         // ═══════════════════════════════════════════════════════════════════
         // 3. LAYOUT & DESKTOP SURFACE CARDS
         // ═══════════════════════════════════════════════════════════════════
-        Kirigami.Card {
+        Rectangle {
             Layout.fillWidth: true
-            header: Kirigami.Heading {
-                text: i18n("Orientación y Fondo de Superficie")
-                level: 3
-            }
+            implicitHeight: surfaceCol.implicitHeight + (Kirigami.Units.largeSpacing * 2)
+            radius: Kirigami.Units.smallSpacing * 1.5
+            color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.03)
+            border.color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.15)
+            border.width: 1
 
-            contentItem: ColumnLayout {
+            ColumnLayout {
+                id: surfaceCol
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: Kirigami.Units.largeSpacing
                 spacing: Kirigami.Units.largeSpacing
+
+                Kirigami.Heading {
+                    text: i18n("Orientación y Fondo de Superficie")
+                    level: 3
+                }
 
                 // Layout Selector Pills
                 ColumnLayout {
@@ -500,16 +536,21 @@ KCM.SimpleKCM {
                     spacing: Kirigami.Units.smallSpacing
                     Label { text: i18n("Orientación de lectura del panel:"); font.weight: Font.DemiBold }
 
-                    Flow {
+                    GridLayout {
                         Layout.fillWidth: true
-                        spacing: Kirigami.Units.mediumSpacing
+                        columns: width > 460 ? 2 : 1
+                        columnSpacing: Kirigami.Units.smallSpacing
+                        rowSpacing: Kirigami.Units.smallSpacing
+
                         Button {
+                            Layout.fillWidth: true
                             icon.name: "distribute-horizontal"
                             text: i18n("Horizontal (Barra superior / inferior)")
                             highlighted: cfg_layoutType === "horizontal"
                             onClicked: cfg_layoutType = "horizontal"
                         }
                         Button {
+                            Layout.fillWidth: true
                             icon.name: "distribute-vertical"
                             text: i18n("Vertical (Dock lateral)")
                             highlighted: cfg_layoutType === "vertical"
@@ -524,25 +565,32 @@ KCM.SimpleKCM {
                     spacing: Kirigami.Units.smallSpacing
                     Label { text: i18n("Estilo de fondo en Escritorio (Modo Widget Libre):"); font.weight: Font.DemiBold }
 
-                    Flow {
+                    GridLayout {
                         Layout.fillWidth: true
-                        spacing: Kirigami.Units.smallSpacing
+                        columns: width > 540 ? 4 : 2
+                        columnSpacing: Kirigami.Units.smallSpacing
+                        rowSpacing: Kirigami.Units.smallSpacing
+
                         Button {
+                            Layout.fillWidth: true
                             text: i18n("Plasma Theme")
                             highlighted: cfg_backgroundType === "default"
                             onClicked: cfg_backgroundType = "default"
                         }
                         Button {
+                            Layout.fillWidth: true
                             text: i18n("🧊 Translúcido")
                             highlighted: cfg_backgroundType === "translucent"
                             onClicked: cfg_backgroundType = "translucent"
                         }
                         Button {
+                            Layout.fillWidth: true
                             text: i18n("🌘 Sombra Sutil")
                             highlighted: cfg_backgroundType === "shadow"
                             onClicked: cfg_backgroundType = "shadow"
                         }
                         Button {
+                            Layout.fillWidth: true
                             text: i18n("🪟 Transparente Puro")
                             highlighted: cfg_backgroundType === "transparent"
                             onClicked: cfg_backgroundType = "transparent"
@@ -555,15 +603,26 @@ KCM.SimpleKCM {
         // ═══════════════════════════════════════════════════════════════════
         // 4. TYPOGRAPHY & PROPORTIONS STUDIO
         // ═══════════════════════════════════════════════════════════════════
-        Kirigami.Card {
+        Rectangle {
             Layout.fillWidth: true
-            header: Kirigami.Heading {
-                text: i18n("Estudio Tipográfico y Escala")
-                level: 3
-            }
+            implicitHeight: typoCol.implicitHeight + (Kirigami.Units.largeSpacing * 2)
+            radius: Kirigami.Units.smallSpacing * 1.5
+            color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.03)
+            border.color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.15)
+            border.width: 1
 
-            contentItem: ColumnLayout {
+            ColumnLayout {
+                id: typoCol
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: Kirigami.Units.largeSpacing
                 spacing: Kirigami.Units.mediumSpacing
+
+                Kirigami.Heading {
+                    text: i18n("Estudio Tipográfico y Escala")
+                    level: 3
+                }
 
                 // Font Search and Selection with System Dropdown
                 RowLayout {
@@ -825,9 +884,11 @@ KCM.SimpleKCM {
                         font.weight: Font.DemiBold
                     }
 
-                    Flow {
+                    GridLayout {
                         Layout.fillWidth: true
-                        spacing: Kirigami.Units.smallSpacing
+                        columns: width > 650 ? 5 : (width > 440 ? 3 : 2)
+                        rowSpacing: Kirigami.Units.smallSpacing
+                        columnSpacing: Kirigami.Units.smallSpacing
 
                         Repeater {
                             model: [
@@ -845,10 +906,8 @@ KCM.SimpleKCM {
                             delegate: Rectangle {
                                 id: styleChip
                                 required property var modelData
-                                width: styleChipRow.implicitWidth + 24
-                                height: 34
-                                implicitWidth: width
-                                implicitHeight: height
+                                Layout.fillWidth: true
+                                implicitHeight: 36
                                 radius: 6
                                 color: cfg_separatorStyle === modelData.key
                                        ? Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.18)
@@ -861,9 +920,8 @@ KCM.SimpleKCM {
                                 }
 
                                 Row {
-                                    id: styleChipRow
                                     anchors.centerIn: parent
-                                    spacing: 8
+                                    spacing: 6
 
                                     SeparatorItem {
                                         anchors.verticalCenter: parent.verticalCenter
@@ -891,15 +949,26 @@ KCM.SimpleKCM {
         // ═══════════════════════════════════════════════════════════════════
         // 5. UNITS & TELEMETRY ENGINE INTERVAL
         // ═══════════════════════════════════════════════════════════════════
-        Kirigami.Card {
+        Rectangle {
             Layout.fillWidth: true
-            header: Kirigami.Heading {
-                text: i18n("Motor de Muestreo y Preferencias de Unidades")
-                level: 3
-            }
+            implicitHeight: unitsCol.implicitHeight + (Kirigami.Units.largeSpacing * 2)
+            radius: Kirigami.Units.smallSpacing * 1.5
+            color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.03)
+            border.color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.15)
+            border.width: 1
 
-            contentItem: ColumnLayout {
+            ColumnLayout {
+                id: unitsCol
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: Kirigami.Units.largeSpacing
                 spacing: Kirigami.Units.mediumSpacing
+
+                Kirigami.Heading {
+                    text: i18n("Motor de Muestreo y Preferencias de Unidades")
+                    level: 3
+                }
 
                 RowLayout {
                     Layout.fillWidth: true
@@ -928,9 +997,11 @@ KCM.SimpleKCM {
                     }
                 }
 
-                RowLayout {
+                GridLayout {
                     Layout.fillWidth: true
-                    spacing: Kirigami.Units.largeSpacing
+                    columns: width > 600 ? 3 : 1
+                    columnSpacing: Kirigami.Units.largeSpacing
+                    rowSpacing: Kirigami.Units.smallSpacing
 
                     ColumnLayout {
                         Layout.fillWidth: true
@@ -1055,8 +1126,7 @@ KCM.SimpleKCM {
                             Layout.fillWidth: true
                         }
 
-                        Flow {
-                            Layout.fillWidth: true
+                        RowLayout {
                             spacing: Kirigami.Units.smallSpacing
 
                             Button {
@@ -1078,7 +1148,7 @@ KCM.SimpleKCM {
                     }
 
                     GridLayout {
-                        columns: width > 550 ? 3 : 2
+                        columns: width > 600 ? 3 : (width > 380 ? 2 : 1)
                         rowSpacing: Kirigami.Units.smallSpacing
                         columnSpacing: Kirigami.Units.largeSpacing
                         Layout.fillWidth: true
