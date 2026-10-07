@@ -255,7 +255,10 @@ function _resolveSegmentLabel(metric) {
     if (metric.group === "ram" && metric.subKey === "temp") return "";
     if (metric.subKey === "hotspot") return "HS";
     if (metric.subKey === "vramTemp") return "VRAM";
-    if (metric.subKey === "memFreq") return "MEM";
+    if (metric.subKey === "freq" || metric.subKey === "coreFrequency") return "CLK";
+    if (metric.subKey === "memFreq" || metric.subKey === "memoryFrequency") return "MEM";
+    if (metric.subKey === "power" && metric.group === "gpu") return "PWR";
+    if (metric.subKey === "voltage" && metric.group === "gpu") return "VOLT";
     if (metric.group === "fan" || metric.subKey === "core") return metric.subLabel || "";
     return "";
 }
@@ -271,6 +274,9 @@ function _resolveSegmentIcon(metric, disabledList) {
     }
     if (metric.subKey === "hotspot" || metric.subKey === "vramTemp" || (metric.group === "ram" && metric.subKey === "temp")) {
         return "temperature-symbolic";
+    }
+    if (metric.subKey === "voltage" || (metric.subKey === "power" && metric.group === "gpu")) {
+        return "voltage-symbolic";
     }
     if (metric.subKey === "down" || metric.subKey === "up" || metric.subKey === "totalDown" || metric.subKey === "totalUp"
         || metric.subKey === "read" || metric.subKey === "write" || metric.subKey === "signal") {

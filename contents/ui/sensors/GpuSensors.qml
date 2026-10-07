@@ -1,5 +1,6 @@
 import QtQuick
 import org.kde.ksysguard.sensors as Sensors
+import org.kde.plasma.plasma5support as P5Support
 import "../models/MetricDefinitions.js" as MetricDefinitions
 
 Item {
@@ -33,11 +34,19 @@ Item {
     readonly property real gpuTempNumber:  _tempNum
     readonly property real gpuHotspotNumber: _hotspotNum
     readonly property real gpuVramTempNumber: _vramTempNum
+    readonly property real gpuFreqNumber: _freqNum
+    readonly property real gpuMemFreqNumber: _memFreqNum
+    readonly property real gpuPowerNumber: _powerNum
+    readonly property real gpuVoltageNumber: _voltageNum
     readonly property string gpuValue:     _usageStr
     readonly property string gpuRamValue:  _vramStr
     readonly property string gpuTempValue: _tempStr
     readonly property string gpuHotspotValue: _hotspotStr
     readonly property string gpuVramTempValue: _vramTempStr
+    readonly property string gpuFreqValue: _freqStr
+    readonly property string gpuMemFreqValue: _memFreqStr
+    readonly property string gpuPowerValue: _powerStr
+    readonly property string gpuVoltageValue: _voltageStr
     readonly property string gpuDisplayValue:
         [_usageStr, _vramStr, _tempStr].filter(function(v){return v;}).join(" ")
     readonly property bool hasGpuData:      gpuDisplayValue.length > 0
@@ -55,11 +64,19 @@ Item {
     property real _tempNum:  NaN
     property real _hotspotNum: NaN
     property real _vramTempNum: NaN
+    property real _freqNum: NaN
+    property real _memFreqNum: NaN
+    property real _powerNum: NaN
+    property real _voltageNum: NaN
     property string _usageStr: ""
     property string _vramStr:  ""
     property string _tempStr:  ""
     property string _hotspotStr: ""
     property string _vramTempStr: ""
+    property string _freqStr: ""
+    property string _memFreqStr: ""
+    property string _powerStr: ""
+    property string _voltageStr: ""
 
     // -------------------------------------------------------------------------
     // Step 1: Discover available GPUs via HardwareDiscovery
@@ -190,6 +207,54 @@ Item {
     }
 
     // -------------------------------------------------------------------------
+    // Step 3b: Direct Sysfs/Hwmon collector fallback (when ksystemstats returns 0 / missing)
+    // -------------------------------------------------------------------------
+
+    property var _sysfsGpuData: ({})
+    property int _sysfsTick: 0
+
+    readonly property string _scriptPath: {
+        var base = Qt.resolvedUrl("../../scripts/gpu_sysfs.py").toString();
+        return base.replace(/^file:\/\//, "");
+    }
+
+    Timer {
+        id: sysfsGpuTimer
+        interval: Math.max(1000, root.updateInterval)
+        running: true
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: {
+            if (sysfsGpuLoader.item && root._scriptPath) {
+                root._sysfsTick++;
+                var cmd = "python3 " + root._scriptPath + " #" + root._sysfsTick;
+                sysfsGpuLoader.item.connectSource(cmd);
+            }
+        }
+    }
+
+    Loader {
+        id: sysfsGpuLoader
+        active: true
+        sourceComponent: P5Support.DataSource {
+            engine: "executable"
+            connectedSources: []
+            onNewData: function(sourceName, data) {
+                if (data && data["stdout"]) {
+                    try {
+                        var parsed = JSON.parse(data["stdout"]);
+                        if (parsed && typeof parsed === "object") {
+                            root._sysfsGpuData = parsed;
+                            root.aggregate();
+                        }
+                    } catch(e) {}
+                }
+                disconnectSource(sourceName);
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // Step 4: Aggregate values — label resolution: custom label > default name > "GPU N"
     // -------------------------------------------------------------------------
 
@@ -212,6 +277,10 @@ Item {
         var maxTemp = NaN;
         var maxHotspot = NaN;
         var maxVramTemp = NaN;
+        var maxFreq = NaN;
+        var maxMemFreq = NaN;
+        var totalPower = 0;
+        var maxVoltage = NaN;
 
         for (var i = 0; i < ids.length; i++) {
             var g = ids[i];
@@ -249,6 +318,16 @@ Item {
             var mfVal  = showMF ? _modelValue(memFreqSensor)                  : NaN;
             var pVal   = showP  ? _modelValue("gpu/" + g + "/power")          : NaN;
             var vltVal = showVlt ? _modelValue(voltageSensor)                 : NaN;
+
+            // Direct Sysfs fallback when ksystemstats returns 0, NaN, or is missing
+            var sysInfo = root._sysfsGpuData[g] || {};
+            if ((isNaN(fVal) || fVal <= 0) && sysInfo.freq) fVal = sysInfo.freq;
+            if ((isNaN(mfVal) || mfVal <= 0) && sysInfo.memFreq) mfVal = sysInfo.memFreq;
+            if ((isNaN(pVal) || pVal <= 0) && sysInfo.power) pVal = sysInfo.power;
+            if ((isNaN(vltVal) || vltVal <= 0) && sysInfo.voltage) vltVal = sysInfo.voltage;
+            if ((isNaN(hsVal) || hsVal <= 0) && sysInfo.hotspot) hsVal = sysInfo.hotspot;
+            if ((isNaN(vt2Val) || vt2Val <= 0) && sysInfo.vramTemp) vt2Val = sysInfo.vramTemp;
+            if ((isNaN(tVal) || tVal <= 0) && sysInfo.temp) tVal = sysInfo.temp;
 
             var uStr = !isNaN(uVal) ? (padNumbers ? Math.round(uVal).toString().padStart(3) + "%" : Math.round(uVal).toString() + "%") : "";
             var vStr = "";
@@ -292,6 +371,10 @@ Item {
             if (!isNaN(tVal) && tVal > 0 && (isNaN(maxTemp) || tVal > maxTemp)) maxTemp = tVal;
             if (!isNaN(hsVal) && hsVal > 0 && (isNaN(maxHotspot) || hsVal > maxHotspot)) maxHotspot = hsVal;
             if (!isNaN(vt2Val) && vt2Val > 0 && (isNaN(maxVramTemp) || vt2Val > maxVramTemp)) maxVramTemp = vt2Val;
+            if (!isNaN(fVal) && fVal > 0 && (isNaN(maxFreq) || fVal > maxFreq)) maxFreq = fVal;
+            if (!isNaN(mfVal) && mfVal > 0 && (isNaN(maxMemFreq) || mfVal > maxMemFreq)) maxMemFreq = mfVal;
+            if (!isNaN(pVal) && pVal > 0) totalPower += pVal;
+            if (!isNaN(vltVal) && vltVal > 0 && (isNaN(maxVoltage) || vltVal > maxVoltage)) maxVoltage = vltVal;
         }
 
         _dataList = newList;
@@ -307,6 +390,15 @@ Item {
         _hotspotStr = !isNaN(maxHotspot) ? Utils.formatTemp(maxHotspot, tempUnit) : "";
         _vramTempNum = !isNaN(maxVramTemp) ? maxVramTemp : NaN;
         _vramTempStr = !isNaN(maxVramTemp) ? Utils.formatTemp(maxVramTemp, tempUnit) : "";
+
+        _freqNum = !isNaN(maxFreq) ? maxFreq : NaN;
+        _freqStr = !isNaN(maxFreq) ? (maxFreq >= 1000 ? (maxFreq / 1000).toFixed(2) + " GHz" : Math.round(maxFreq) + " MHz") : "";
+        _memFreqNum = !isNaN(maxMemFreq) ? maxMemFreq : NaN;
+        _memFreqStr = !isNaN(maxMemFreq) ? (maxMemFreq >= 1000 ? (maxMemFreq / 1000).toFixed(2) + " GHz" : Math.round(maxMemFreq) + " MHz") : "";
+        _powerNum = totalPower > 0 ? totalPower : NaN;
+        _powerStr = totalPower > 0 ? totalPower.toFixed(1) + "W" : "";
+        _voltageNum = !isNaN(maxVoltage) ? maxVoltage : NaN;
+        _voltageStr = !isNaN(maxVoltage) ? ((maxVoltage > 50 ? (maxVoltage / 1000).toFixed(2) : maxVoltage.toFixed(2)) + " V") : "";
     }
 
     // Re-aggregate when sub-metrics, labels, selection, or unit change
