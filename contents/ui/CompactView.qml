@@ -86,48 +86,146 @@ Item {
         readonly property bool isVertical: compactRoot.isVertical
         readonly property bool customFont: compactRoot.customFont
 
-        function isItemPadded(key) {
+        function isItemPadded(itemOrKey, parentKey) {
             if (!compactRow.paddedMetrics || compactRow.paddedMetrics === "") {
                 return compactRow.enableNumberPadding;
             }
-            if (!key) return false;
+            if (!itemOrKey) return false;
             var list = compactRow.paddedMetrics.split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+            var key = typeof itemOrKey === "object" ? (itemOrKey.id || itemOrKey.key || "") : itemOrKey;
             if (list.indexOf(key) !== -1) return true;
-            var group = key.indexOf("/") !== -1 ? key.split("/")[0] : (key.indexOf(":") !== -1 ? key.split(":")[0] : key);
+            var group = typeof itemOrKey === "object" ? (itemOrKey.group || "") : "";
+            if (!group) {
+                group = key.indexOf("/") !== -1 ? key.split("/")[0] : (key.indexOf(":") !== -1 ? key.split(":")[0] : key);
+            }
+            if (parentKey && !group) {
+                group = parentKey.split(":")[0].split("/")[0];
+            }
             return list.indexOf(group) !== -1;
         }
 
-        function isItemSmallSuffix(key) {
+        function isItemSmallSuffix(itemOrKey, parentKey) {
             if (!compactRow.smallSuffixMetrics || compactRow.smallSuffixMetrics === "") {
                 return false;
             }
-            if (!key) return false;
+            if (!itemOrKey) return false;
             var list = compactRow.smallSuffixMetrics.split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
-            if (list.indexOf(key) !== -1) return true;
-            var group = key.indexOf("/") !== -1 ? key.split("/")[0] : (key.indexOf(":") !== -1 ? key.split(":")[0] : key);
-            return list.indexOf(group) !== -1;
+            if (list.length === 0) return false;
+
+            var idStr = "";
+            var keyStr = "";
+            var subKeyStr = "";
+            var groupStr = "";
+
+            if (typeof itemOrKey === "object" && itemOrKey !== null) {
+                idStr = itemOrKey.id || "";
+                keyStr = itemOrKey.key || "";
+                subKeyStr = itemOrKey.subKey || "";
+                groupStr = itemOrKey.group || "";
+            } else if (typeof itemOrKey === "string") {
+                keyStr = itemOrKey;
+                idStr = itemOrKey;
+            }
+
+            if (!subKeyStr && keyStr) {
+                if (keyStr.indexOf("/") !== -1) {
+                    subKeyStr = keyStr.split("/")[1];
+                    if (!groupStr) groupStr = keyStr.split("/")[0].split(":")[0];
+                } else if (keyStr.indexOf(":") !== -1) {
+                    groupStr = keyStr.split(":")[0];
+                } else {
+                    subKeyStr = keyStr;
+                }
+            }
+            if (!subKeyStr && idStr && idStr.indexOf("/") !== -1) {
+                subKeyStr = idStr.split("/")[1];
+            }
+            if (!groupStr && idStr && idStr.indexOf("/") !== -1) {
+                groupStr = idStr.split("/")[0].split(":")[0];
+            }
+            if (!groupStr && parentKey) {
+                groupStr = parentKey.split(":")[0].split("/")[0];
+            }
+
+            // Test possible combinations against list
+            if (idStr && list.indexOf(idStr) !== -1) return true;
+            if (groupStr && subKeyStr && list.indexOf(groupStr + "/" + subKeyStr) !== -1) return true;
+            if (groupStr && keyStr && list.indexOf(groupStr + "/" + keyStr) !== -1) return true;
+            if (subKeyStr && list.indexOf(subKeyStr) !== -1) return true;
+            if (groupStr && list.indexOf(groupStr) !== -1) return true;
+            if (keyStr && list.indexOf(keyStr) !== -1) return true;
+
+            // Pattern fallback matching
+            if (groupStr === "fan" && list.indexOf("fan") !== -1) return true;
+            if (groupStr === "gpu" && subKeyStr === "freq" && list.indexOf("gpu/freq") !== -1) return true;
+            if (groupStr === "gpu" && subKeyStr === "hotspot" && list.indexOf("gpu/hotspot") !== -1) return true;
+            if (groupStr === "gpu" && subKeyStr === "vramTemp" && list.indexOf("gpu/vramTemp") !== -1) return true;
+            if (groupStr === "gpu" && subKeyStr === "temp" && list.indexOf("gpu/temp") !== -1) return true;
+            if (groupStr === "cpu" && subKeyStr === "freq" && list.indexOf("cpu/freq") !== -1) return true;
+            if (groupStr === "cpu" && subKeyStr === "power" && list.indexOf("cpu/power") !== -1) return true;
+            if (groupStr === "cpu" && subKeyStr === "temp" && list.indexOf("cpu/temp") !== -1) return true;
+            if (groupStr === "cpu" && subKeyStr === "voltage" && list.indexOf("cpu/voltage") !== -1) return true;
+
+            return false;
         }
 
-        function splitValueAndSuffix(valueStr, key) {
+        function splitValueAndSuffix(valueStr, itemOrKey, parentKey) {
             if (!valueStr || typeof valueStr !== "string") {
                 return { main: valueStr || "", suffix: "" };
             }
             var str = valueStr.trim();
             if (!str) return { main: "", suffix: "" };
 
-            if (key && (key.indexOf("hotspot") !== -1 || key === "gpu.hotspot")) {
+            var idStr = "";
+            var keyStr = "";
+            var subKeyStr = "";
+            var groupStr = "";
+
+            if (typeof itemOrKey === "object" && itemOrKey !== null) {
+                idStr = itemOrKey.id || "";
+                keyStr = itemOrKey.key || "";
+                subKeyStr = itemOrKey.subKey || "";
+                groupStr = itemOrKey.group || "";
+            } else if (typeof itemOrKey === "string") {
+                keyStr = itemOrKey;
+                idStr = itemOrKey;
+            }
+
+            if (!subKeyStr && keyStr) {
+                if (keyStr.indexOf("/") !== -1) {
+                    subKeyStr = keyStr.split("/")[1];
+                    if (!groupStr) groupStr = keyStr.split("/")[0].split(":")[0];
+                } else if (keyStr.indexOf(":") !== -1) {
+                    groupStr = keyStr.split(":")[0];
+                } else {
+                    subKeyStr = keyStr;
+                }
+            }
+            if (!subKeyStr && idStr && idStr.indexOf("/") !== -1) {
+                subKeyStr = idStr.split("/")[1];
+            }
+            if (!groupStr && idStr && idStr.indexOf("/") !== -1) {
+                groupStr = idStr.split("/")[0].split(":")[0];
+            }
+            if (!groupStr && parentKey) {
+                groupStr = parentKey.split(":")[0].split("/")[0];
+            }
+
+            // Dedicated MangoHud indicators
+            if (subKeyStr === "hotspot" || keyStr.indexOf("hotspot") !== -1 || idStr.indexOf("hotspot") !== -1) {
                 return { main: str, suffix: "Jnc" };
             }
-            if (key && (key.indexOf("vramTemp") !== -1 || key === "gpu.vramTemp")) {
+            if (subKeyStr === "vramTemp" || keyStr.indexOf("vramTemp") !== -1 || idStr.indexOf("vramTemp") !== -1) {
                 return { main: str, suffix: "Mem" };
             }
-            if (key && (key.indexOf("ram.temp") !== -1 || key === "ram/temp")) {
+            if ((subKeyStr === "temp" && (groupStr === "ram" || idStr.indexOf("ram") !== -1)) || keyStr.indexOf("ram.temp") !== -1 || idStr === "ram/temp") {
                 return { main: str, suffix: "DDR" };
             }
 
-            var m = str.match(/^([\d.,/]+(?:\s*°[CF])?)\s*([A-Za-z/%]+(?:[A-Za-z0-9/._-]+)*)$/);
-            if (m) {
-                return { main: m[1].trim(), suffix: m[2].trim() };
+            // Extract numeric part with optional arrow prefix, and trailing unit / symbol
+            var match = str.match(/^([↓↑]?\s*[\d.,/]+)\s*([°][CF]?|[A-Za-z/%]+(?:[A-Za-z0-9/._-]+)*)$/);
+            if (match) {
+                return { main: match[1].trim(), suffix: match[2].trim() };
             }
 
             var lastSpace = str.lastIndexOf(" ");
@@ -235,10 +333,11 @@ Item {
                     id: segValRow
                     spacing: 1
                     anchors.verticalCenter: parent.verticalCenter
-                    readonly property var parsed: compactRow.splitValueAndSuffix(modelData.value, modelData.key || segRoot.parentKey)
-                    readonly property bool hasSuffix: compactRow.isItemSmallSuffix(modelData.key || segRoot.parentKey) && parsed.suffix.length > 0
+                    readonly property var parsed: compactRow.splitValueAndSuffix(modelData.value, modelData, segRoot.parentKey)
+                    readonly property bool hasSuffix: compactRow.isItemSmallSuffix(modelData, segRoot.parentKey) && parsed.suffix.length > 0
 
                     PlasmaComponents.Label {
+                        id: segMainLbl
                         text: segValRow.hasSuffix ? segValRow.parsed.main : (modelData.value || "")
                         font.pixelSize: compactRow.customFont ? compactRow.effectiveFontSize : -1
                         font.family: compactRow.fontFamily
@@ -246,7 +345,7 @@ Item {
                         color: modelData.color
                         horizontalAlignment: Text.AlignRight
                         anchors.verticalCenter: parent.verticalCenter
-                        width: compactRow.isItemPadded(modelData.key || segRoot.parentKey)
+                        width: compactRow.isItemPadded(modelData, segRoot.parentKey)
                             ? compactRow._stickyWidth(
                                 segRoot.parentKey + ":" + (modelData.key !== undefined ? modelData.key : index),
                                 implicitWidth)
@@ -254,15 +353,17 @@ Item {
                     }
 
                     PlasmaComponents.Label {
+                        id: segSuffixLbl
                         visible: segValRow.hasSuffix
                         text: segValRow.parsed.suffix
-                        font.pixelSize: Math.max(7, Math.round((compactRow.customFont ? compactRow.effectiveFontSize : Kirigami.Theme.defaultFont.pixelSize) * 0.70))
+                        font.pixelSize: Math.max(7, Math.round((compactRow.customFont ? compactRow.effectiveFontSize : Kirigami.Theme.defaultFont.pixelSize) * 0.62))
                         font.family: compactRow.fontFamily
                         font.bold: false
+                        font.capitalization: Font.MixedCase
                         color: modelData.color
                         opacity: 0.85
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: Math.max(1, Math.round((compactRow.customFont ? compactRow.effectiveFontSize : Kirigami.Theme.defaultFont.pixelSize) * 0.22))
+                        anchors.top: segMainLbl.top
+                        anchors.topMargin: Math.max(0, Math.round((compactRow.customFont ? compactRow.effectiveFontSize : Kirigami.Theme.defaultFont.pixelSize) * 0.08))
                     }
                 }
             }
@@ -350,11 +451,12 @@ Item {
                 visible: !modelData.segments
                 spacing: 1
                 Layout.alignment: Qt.AlignVCenter
-                readonly property var parsed: compactRow.splitValueAndSuffix(modelData.value, modelData.key)
-                readonly property bool hasSuffix: compactRow.isItemSmallSuffix(modelData.key) && parsed.suffix.length > 0
-                Layout.preferredWidth: compactRow.isItemPadded(modelData.key) ? compactRow._stickyWidth(modelData.key || ("idx:" + index), implicitWidth) : implicitWidth
+                readonly property var parsed: compactRow.splitValueAndSuffix(modelData.value, modelData)
+                readonly property bool hasSuffix: compactRow.isItemSmallSuffix(modelData) && parsed.suffix.length > 0
+                Layout.preferredWidth: compactRow.isItemPadded(modelData) ? compactRow._stickyWidth(modelData.key || ("idx:" + index), implicitWidth) : implicitWidth
 
                 PlasmaComponents.Label {
+                    id: mainValLbl
                     text: mainValRow.hasSuffix ? mainValRow.parsed.main : (modelData.value || "")
                     font.pixelSize: compactRow.customFont ? compactRow.effectiveFontSize : -1
                     font.family: compactRow.fontFamily
@@ -365,15 +467,17 @@ Item {
                 }
 
                 PlasmaComponents.Label {
+                    id: mainSuffixLbl
                     visible: mainValRow.hasSuffix
                     text: mainValRow.parsed.suffix
-                    font.pixelSize: Math.max(7, Math.round((compactRow.customFont ? compactRow.effectiveFontSize : Kirigami.Theme.defaultFont.pixelSize) * 0.70))
+                    font.pixelSize: Math.max(7, Math.round((compactRow.customFont ? compactRow.effectiveFontSize : Kirigami.Theme.defaultFont.pixelSize) * 0.62))
                     font.family: compactRow.fontFamily
                     font.bold: false
+                    font.capitalization: Font.MixedCase
                     color: modelData.color || compactRow.baseTextColor
                     opacity: 0.85
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: Math.max(1, Math.round((compactRow.customFont ? compactRow.effectiveFontSize : Kirigami.Theme.defaultFont.pixelSize) * 0.22))
+                    anchors.top: mainValLbl.top
+                    anchors.topMargin: Math.max(0, Math.round((compactRow.customFont ? compactRow.effectiveFontSize : Kirigami.Theme.defaultFont.pixelSize) * 0.08))
                 }
             }
 
@@ -418,11 +522,12 @@ Item {
                         visible: !modelData.segments
                         spacing: 1
                         Layout.alignment: Qt.AlignHCenter
-                        readonly property var parsed: compactRow.splitValueAndSuffix(modelData.value, modelData.key)
-                        readonly property bool hasSuffix: compactRow.isItemSmallSuffix(modelData.key) && parsed.suffix.length > 0
-                        Layout.preferredWidth: compactRow.enableNumberPadding ? compactRow._stickyWidth(modelData.key || ("idx:" + index), implicitWidth) : implicitWidth
+                        readonly property var parsed: compactRow.splitValueAndSuffix(modelData.value, modelData)
+                        readonly property bool hasSuffix: compactRow.isItemSmallSuffix(modelData) && parsed.suffix.length > 0
+                        Layout.preferredWidth: compactRow.isItemPadded(modelData) ? compactRow._stickyWidth(modelData.key || ("idx:" + index), implicitWidth) : implicitWidth
 
                         PlasmaComponents.Label {
+                            id: vertMainLbl
                             text: vertValRow.hasSuffix ? vertValRow.parsed.main : (modelData.value || "")
                             font.pixelSize: compactRow.customFont ? compactRow.effectiveFontSize : -1
                             font.family: compactRow.fontFamily
@@ -433,15 +538,17 @@ Item {
                         }
 
                         PlasmaComponents.Label {
+                            id: vertSuffixLbl
                             visible: vertValRow.hasSuffix
                             text: vertValRow.parsed.suffix
-                            font.pixelSize: Math.max(7, Math.round((compactRow.customFont ? compactRow.effectiveFontSize : Kirigami.Theme.defaultFont.pixelSize) * 0.70))
+                            font.pixelSize: Math.max(7, Math.round((compactRow.customFont ? compactRow.effectiveFontSize : Kirigami.Theme.defaultFont.pixelSize) * 0.62))
                             font.family: compactRow.fontFamily
                             font.bold: false
+                            font.capitalization: Font.MixedCase
                             color: modelData.color || compactRow.baseTextColor
                             opacity: 0.85
-                            anchors.bottom: parent.bottom
-                            anchors.bottomMargin: Math.max(1, Math.round((compactRow.customFont ? compactRow.effectiveFontSize : Kirigami.Theme.defaultFont.pixelSize) * 0.22))
+                            anchors.top: vertMainLbl.top
+                            anchors.topMargin: Math.max(0, Math.round((compactRow.customFont ? compactRow.effectiveFontSize : Kirigami.Theme.defaultFont.pixelSize) * 0.08))
                         }
                     }
 

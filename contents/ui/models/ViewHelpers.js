@@ -358,9 +358,12 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
             if (!existingItem.segments) {
                 var firstSegIcon = existingItem._firstSubIcon || "";
                 var firstSegDisabled = _isIndicatorDisabled(existingItem._firstMetric || {}, disabledList);
+                var firstMetric = existingItem._firstMetric || {};
                 existingItem.segments = [
                     {
                         id: existingItem.id,
+                        group: existingItem.group || firstMetric.group || "",
+                        subKey: existingItem.subKey || firstMetric.subKey || "",
                         value: existingItem.value,
                         color: existingItem.color,
                         label: existingItem._firstSubLabel || "",
@@ -383,6 +386,8 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
             var segDisabled = _isIndicatorDisabled(metric, disabledList);
             existingItem.segments.push({
                 id: metric.id,
+                group: metric.group || "",
+                subKey: metric.subKey || "",
                 value: metric.displayValue,
                 color: metric.color,
                 label: _resolveSegmentLabel(metric, disabledList),
@@ -418,6 +423,8 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
 
             var newItem = {
                 id: metric.id,
+                group: metric.group || "",
+                subKey: metric.subKey || "",
                 icon: itemIcon,
                 label: singleLabel + ":",
                 value: metric.displayValue,
@@ -479,13 +486,18 @@ function syncCompactValues(existingItems, newItems) {
                 var eSeg = existing.segments[s];
                 var iSeg = incoming.segments[s];
                 if (!eSeg || !iSeg) return false;
-                if (eSeg.key !== iSeg.key || eSeg.label !== iSeg.label || eSeg.icon !== iSeg.icon || Boolean(eSeg.isIconDisabled) !== Boolean(iSeg.isIconDisabled)) {
+                if (eSeg.id !== iSeg.id || eSeg.key !== iSeg.key || eSeg.label !== iSeg.label || eSeg.icon !== iSeg.icon || Boolean(eSeg.isIconDisabled) !== Boolean(iSeg.isIconDisabled)) {
                     return false;
                 }
+                if (eSeg.group !== iSeg.group) eSeg.group = iSeg.group;
+                if (eSeg.subKey !== iSeg.subKey) eSeg.subKey = iSeg.subKey;
                 if (eSeg.value !== iSeg.value) eSeg.value = iSeg.value;
                 if (eSeg.color !== iSeg.color) eSeg.color = iSeg.color;
             }
         } else {
+            if (existing.id !== incoming.id) existing.id = incoming.id;
+            if (existing.group !== incoming.group) existing.group = incoming.group;
+            if (existing.subKey !== incoming.subKey) existing.subKey = incoming.subKey;
             if (existing.value !== incoming.value) existing.value = incoming.value;
             if (existing.color !== incoming.color) existing.color = incoming.color;
         }

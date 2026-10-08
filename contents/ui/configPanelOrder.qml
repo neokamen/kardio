@@ -21,6 +21,7 @@ KCM.SimpleKCM {
     property string cfg_fanLabel: "FAN"
     property string cfg_batLabel: "BAT"
     property string cfg_disabledIcons: ""
+    property bool cfg_showBlockLeadingIcon: true
 
     HardwareDiscovery {
         id: discovery
@@ -100,6 +101,9 @@ KCM.SimpleKCM {
             if (Plasmoid.configuration.disabledIcons !== undefined) {
                 cfg_disabledIcons = Plasmoid.configuration.disabledIcons;
             }
+            if (Plasmoid.configuration.showBlockLeadingIcon !== undefined) {
+                cfg_showBlockLeadingIcon = Plasmoid.configuration.showBlockLeadingIcon;
+            }
         }
     }
 
@@ -131,6 +135,9 @@ KCM.SimpleKCM {
             panelOrderPage.reloadFromConfiguration();
         }
         function onDisabledIconsChanged() {
+            panelOrderPage.reloadFromConfiguration();
+        }
+        function onShowBlockLeadingIconChanged() {
             panelOrderPage.reloadFromConfiguration();
         }
     }
@@ -549,7 +556,7 @@ KCM.SimpleKCM {
                                     property var info: panelOrderPage.describeMetric(simItemH.modelData)
 
                                     Kirigami.Icon {
-                                        visible: panelOrderPage.isMetricIconActive(simItemH.modelData)
+                                        visible: panelOrderPage.cfg_showBlockLeadingIcon && panelOrderPage.isMetricIconActive(simItemH.modelData)
                                         source: panelOrderPage.resolveIcon(simItemH.info.icon)
                                         implicitWidth: 15; implicitHeight: 15
                                         color: simItemH.info.color
@@ -607,7 +614,7 @@ KCM.SimpleKCM {
                                     property var info: panelOrderPage.describeMetric(simItemV.modelData)
 
                                     Kirigami.Icon {
-                                        visible: panelOrderPage.isMetricIconActive(simItemV.modelData)
+                                        visible: panelOrderPage.cfg_showBlockLeadingIcon && panelOrderPage.isMetricIconActive(simItemV.modelData)
                                         source: panelOrderPage.resolveIcon(simItemV.info.icon)
                                         implicitWidth: 16; implicitHeight: 16
                                         color: simItemV.info.color
@@ -633,7 +640,80 @@ KCM.SimpleKCM {
         }
 
         // ═══════════════════════════════════════════════════════════════════
-        // 2. INTERACTIVE SEQUENCE DECK (BANDEJA DE ORDENACIÓN VISUAL)
+        // 2. INTERRUPTOR MAESTRO: ICONO DELANTERO TEMÁTICO DE BLOQUE
+        // ═══════════════════════════════════════════════════════════════════
+        Rectangle {
+            Layout.fillWidth: true
+            implicitHeight: blockIconCol.implicitHeight + (Kirigami.Units.largeSpacing * 2)
+            radius: Kirigami.Units.smallSpacing * 1.5
+            color: panelOrderPage.cfg_showBlockLeadingIcon
+                ? Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.08)
+                : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.04)
+            border.color: panelOrderPage.cfg_showBlockLeadingIcon
+                ? Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.35)
+                : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.15)
+            border.width: 1
+
+            ColumnLayout {
+                id: blockIconCol
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: Kirigami.Units.largeSpacing
+                spacing: Kirigami.Units.smallSpacing
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Kirigami.Units.mediumSpacing
+
+                    Kirigami.Icon {
+                        source: "preferences-desktop-icons"
+                        implicitWidth: 26; implicitHeight: 26
+                        color: Kirigami.Theme.highlightColor
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 2
+
+                        Kirigami.Heading {
+                            text: i18n("Icono Delantero Temático de Bloque")
+                            level: 3
+                            Layout.fillWidth: true
+                        }
+
+                        QQC2.Label {
+                            text: i18n("Control maestro para mostrar u ocultar el icono temático frontal al frente de cada bloque (ej. CPU, GPU, Red, RAM, Discos).")
+                            font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                            opacity: 0.75
+                            wrapMode: Text.WordWrap
+                            Layout.fillWidth: true
+                        }
+                    }
+
+                    QQC2.Switch {
+                        id: blockLeadingIconSwitch
+                        checked: panelOrderPage.cfg_showBlockLeadingIcon
+                        onToggled: panelOrderPage.cfg_showBlockLeadingIcon = checked
+                        text: checked ? i18n("Activado") : i18n("Desactivado")
+                    }
+                }
+
+                QQC2.Label {
+                    text: panelOrderPage.cfg_showBlockLeadingIcon
+                        ? i18n("✓ Cada bloque temático muestra su icono delantero decorativo. Si desactivas un icono individual en la secuencia de abajo con el botón del ojo o en la pestaña Iconos, prevalecerá su personalización.")
+                        : i18n("✗ Todos los bloques agrupados ocultan su icono delantero. Los valores numéricos y flechas de subida/bajada se mostrarán directamente sin icono frontal decorativo.")
+                    font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                    font.italic: true
+                    color: panelOrderPage.cfg_showBlockLeadingIcon ? Kirigami.Theme.highlightColor : Kirigami.Theme.disabledTextColor
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                }
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // 3. INTERACTIVE SEQUENCE DECK (BANDEJA DE ORDENACIÓN VISUAL)
         // ═══════════════════════════════════════════════════════════════════
         Rectangle {
             Layout.fillWidth: true

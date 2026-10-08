@@ -257,6 +257,9 @@ PlasmoidItem {
 
     // Compact item components
     component CompactSegment: QtObject {
+        property string id: ""
+        property string group: ""
+        property string subKey: ""
         property string value: ""
         property color color: "transparent"
         property string label: ""
@@ -266,6 +269,9 @@ PlasmoidItem {
     }
 
     component CompactItem: QtObject {
+        property string id: ""
+        property string group: ""
+        property string subKey: ""
         property var icon: ""
         property string label: ""
         property string value: ""
@@ -290,6 +296,9 @@ PlasmoidItem {
             for (var s = 0; s < raw.segments.length; s++) {
                 var rawSeg = raw.segments[s];
                 var segObj = compactSegComp.createObject(root, {
+                    id: rawSeg.id || "",
+                    group: rawSeg.group || "",
+                    subKey: rawSeg.subKey || "",
                     value: rawSeg.value || "",
                     color: rawSeg.color || "transparent",
                     label: rawSeg.label || "",
@@ -301,6 +310,9 @@ PlasmoidItem {
             }
         }
         return compactItemComp.createObject(root, {
+            id: raw.id || "",
+            group: raw.group || "",
+            subKey: raw.subKey || "",
             icon: raw.icon || "",
             label: raw.label || "",
             value: raw.value || "",
