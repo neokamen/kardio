@@ -253,13 +253,20 @@ function _isIndicatorDisabled(metric, disabledList) {
     if (!disabledList || disabledList.length === 0 || !metric) return false;
     var id = metric.id || "";
     if (id && disabledList.indexOf(id) !== -1) return true;
-    if (metric.group && disabledList.indexOf(metric.group) !== -1) return true;
     if (metric.subKey && disabledList.indexOf(metric.group + "/" + metric.subKey) !== -1) return true;
     if (id.indexOf(":") !== -1 && id.indexOf("/") !== -1) {
         var norm = metric.group + "/" + metric.subKey;
         if (disabledList.indexOf(norm) !== -1) return true;
     }
     return false;
+}
+
+function _isBlockLeadingIconEnabled(group, showBlockLeadingIcon, disabledBlockList) {
+    if (!showBlockLeadingIcon) return false;
+    if (!disabledBlockList || disabledBlockList.length === 0) return true;
+    if (disabledBlockList.indexOf(group) !== -1) return false;
+    if (group === "ram" && disabledBlockList.indexOf("memory") !== -1) return false;
+    return true;
 }
 
 function _resolveSegmentLabel(metric, disabledList) {
@@ -308,7 +315,7 @@ function _getPinnedIndex(pinnedList, metricId) {
     return 999;
 }
 
-function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIcons, showBlockLeadingIcon) {
+function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIcons, showBlockLeadingIcon, disabledBlockIcons) {
     if (!metricsList || metricsList.length === 0 || !pinnedList || pinnedList.length === 0) return [];
     if (mergeSameFamily === undefined) mergeSameFamily = true;
     if (showBlockLeadingIcon === undefined) showBlockLeadingIcon = true;
@@ -316,6 +323,11 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
     var disabledList = [];
     if (disabledIcons) {
         disabledList = String(disabledIcons).split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+    }
+
+    var disabledBlockList = [];
+    if (disabledBlockIcons) {
+        disabledBlockList = String(disabledBlockIcons).split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
     }
 
     var metricMap = {};
@@ -375,8 +387,8 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
                 existingItem.value = null;
                 existingItem.label = existingItem._groupBaseLabel + ":";
 
-                // Retain or configure block leading icon according to showBlockLeadingIcon
-                if (showBlockLeadingIcon && disabledList.indexOf(metric.group) === -1) {
+                // Retain or configure block leading icon according to showBlockLeadingIcon and disabledBlockList
+                if (_isBlockLeadingIconEnabled(metric.group, showBlockLeadingIcon, disabledBlockList)) {
                     existingItem.icon = existingItem._groupIcon || metric.groupIcon || "";
                 } else {
                     existingItem.icon = "";
@@ -403,9 +415,9 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
                 return idxA - idxB;
             });
             if (groupKey === "ram") {
-                if (showBlockLeadingIcon && hasRamPinned && disabledList.indexOf("ram") === -1 && disabledList.indexOf("memory") === -1) {
+                if (_isBlockLeadingIconEnabled("ram", showBlockLeadingIcon, disabledBlockList) && hasRamPinned) {
                     existingItem.icon = existingItem._groupIcon || "memory-symbolic";
-                } else if (!showBlockLeadingIcon || disabledList.indexOf("ram") !== -1 || disabledList.indexOf("memory") !== -1) {
+                } else {
                     existingItem.icon = "";
                 }
             }
@@ -416,10 +428,13 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
             var isItemIconDis = _isIndicatorDisabled(metric, disabledList);
             if (isItemIconDis) {
                 itemIcon = "";
+            } else if (metric.icon === metric.groupIcon && !_isBlockLeadingIconEnabled(metric.group, showBlockLeadingIcon, disabledBlockList)) {
+                // If it's the generic group leading icon and the block theme is disabled, omit it
+                itemIcon = "";
             }
             var initialSegIcon = _resolveSegmentIcon(metric, disabledList);
             var groupIcon = metric.groupIcon || "";
-            if (disabledList.indexOf(metric.group) !== -1 || !showBlockLeadingIcon) {
+            if (!_isBlockLeadingIconEnabled(metric.group, showBlockLeadingIcon, disabledBlockList)) {
                 groupIcon = "";
             }
 

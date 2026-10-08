@@ -89,6 +89,7 @@ QtObject {
         netDownIcon:              "network-download-symbolic",
         netUpIcon:                "network-upload-symbolic",
         disabledIcons:            "",
+        disabledBlockIcons:       "",
         diskIcon:                 "storage-symbolic",
         fanIcon:                  "fan-symbolic",
         uptimeIcon:               "system-symbolic",
@@ -211,6 +212,7 @@ QtObject {
         property string netDownIcon:              "network-download-symbolic"
         property string netUpIcon:                "network-upload-symbolic"
         property string disabledIcons:            ""
+        property string disabledBlockIcons:       ""
         property string diskIcon:                 "storage-symbolic"
         property string fanIcon:                  "fan-symbolic"
         property string uptimeIcon:               "system-symbolic"

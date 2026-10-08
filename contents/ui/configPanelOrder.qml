@@ -21,6 +21,7 @@ KCM.SimpleKCM {
     property string cfg_fanLabel: "FAN"
     property string cfg_batLabel: "BAT"
     property string cfg_disabledIcons: ""
+    property string cfg_disabledBlockIcons: ""
     property bool cfg_showBlockLeadingIcon: true
 
     HardwareDiscovery {
@@ -101,6 +102,9 @@ KCM.SimpleKCM {
             if (Plasmoid.configuration.disabledIcons !== undefined) {
                 cfg_disabledIcons = Plasmoid.configuration.disabledIcons;
             }
+            if (Plasmoid.configuration.disabledBlockIcons !== undefined) {
+                cfg_disabledBlockIcons = Plasmoid.configuration.disabledBlockIcons;
+            }
             if (Plasmoid.configuration.showBlockLeadingIcon !== undefined) {
                 cfg_showBlockLeadingIcon = Plasmoid.configuration.showBlockLeadingIcon;
             }
@@ -111,18 +115,29 @@ KCM.SimpleKCM {
         if (!id) return true;
         if (!cfg_disabledIcons) return true;
         var list = cfg_disabledIcons.split(",").map(function(s){ return s.trim(); });
-        var colonIdx = id.indexOf(":");
-        var slashIdx = id.indexOf("/");
-        var grp = colonIdx !== -1 ? id.substring(0, colonIdx) : (slashIdx !== -1 ? id.substring(0, slashIdx) : id);
-        return list.indexOf(id) === -1 && list.indexOf(grp) === -1;
+        if (list.indexOf(id) !== -1) return false;
+        if (id.indexOf(":") !== -1 && id.indexOf("/") !== -1) {
+            var parts = id.split("/");
+            var norm = parts[0].split(":")[0] + "/" + parts[1];
+            if (list.indexOf(norm) !== -1) return false;
+        }
+        return true;
     }
 
     function toggleMetricIcon(id) {
         if (!id) return;
         var list = cfg_disabledIcons ? cfg_disabledIcons.split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; }) : [];
+        var norm = "";
+        if (id.indexOf(":") !== -1 && id.indexOf("/") !== -1) {
+            var parts = id.split("/");
+            norm = parts[0].split(":")[0] + "/" + parts[1];
+        }
+
         var idx = list.indexOf(id);
-        if (idx !== -1) {
-            list.splice(idx, 1);
+        var normIdx = norm ? list.indexOf(norm) : -1;
+
+        if (idx !== -1 || normIdx !== -1) {
+            list = list.filter(function(x) { return x !== id && x !== norm; });
         } else {
             list.push(id);
         }
@@ -132,13 +147,39 @@ KCM.SimpleKCM {
     function setMetricIconActive(id, active) {
         if (!id) return;
         var list = cfg_disabledIcons ? cfg_disabledIcons.split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; }) : [];
-        var idx = list.indexOf(id);
+        var norm = "";
+        if (id.indexOf(":") !== -1 && id.indexOf("/") !== -1) {
+            var parts = id.split("/");
+            norm = parts[0].split(":")[0] + "/" + parts[1];
+        }
+        if (active) {
+            list = list.filter(function(x) { return x !== id && x !== norm; });
+        } else {
+            if (list.indexOf(id) === -1) {
+                list.push(id);
+            }
+        }
+        cfg_disabledIcons = list.join(",");
+    }
+
+    function isBlockThemeActive(themeId) {
+        if (!themeId) return true;
+        if (!cfg_showBlockLeadingIcon) return false;
+        if (!cfg_disabledBlockIcons) return true;
+        var list = cfg_disabledBlockIcons.split(",").map(function(s){ return s.trim(); });
+        return list.indexOf(themeId) === -1;
+    }
+
+    function setBlockThemeActive(themeId, active) {
+        if (!themeId) return;
+        var list = cfg_disabledBlockIcons ? cfg_disabledBlockIcons.split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; }) : [];
+        var idx = list.indexOf(themeId);
         if (!active && idx === -1) {
-            list.push(id);
+            list.push(themeId);
         } else if (active && idx !== -1) {
             list.splice(idx, 1);
         }
-        cfg_disabledIcons = list.join(",");
+        cfg_disabledBlockIcons = list.join(",");
     }
 
     readonly property var blockThemes: [
@@ -159,6 +200,9 @@ KCM.SimpleKCM {
             panelOrderPage.reloadFromConfiguration();
         }
         function onDisabledIconsChanged() {
+            panelOrderPage.reloadFromConfiguration();
+        }
+        function onDisabledBlockIconsChanged() {
             panelOrderPage.reloadFromConfiguration();
         }
         function onShowBlockLeadingIconChanged() {
@@ -275,6 +319,13 @@ KCM.SimpleKCM {
         } else if (group === "disk") {
             if (devId) {
                 displayName = panelOrderPage.getDiskDisplayName(devId) + " " + subLabel;
+            }
+            if (subKey === "read") {
+                icon = "network-download-symbolic";
+            } else if (subKey === "write") {
+                icon = "network-upload-symbolic";
+            } else if (subKey === "temp") {
+                icon = "temperature-symbolic";
             }
             previewVal = subKey === "read" ? "↓ 42MB" : (subKey === "write" ? "↑ 18MB" : (subKey === "usage" ? "38%" : "42°C"));
         } else if (group === "fan") {
@@ -580,7 +631,7 @@ KCM.SimpleKCM {
                                     property var info: panelOrderPage.describeMetric(simItemH.modelData)
 
                                     Kirigami.Icon {
-                                        visible: panelOrderPage.cfg_showBlockLeadingIcon && panelOrderPage.isMetricIconActive(simItemH.modelData)
+                                        visible: panelOrderPage.isMetricIconActive(simItemH.modelData)
                                         source: panelOrderPage.resolveIcon(simItemH.info.icon)
                                         implicitWidth: 15; implicitHeight: 15
                                         color: simItemH.info.color
@@ -638,7 +689,7 @@ KCM.SimpleKCM {
                                     property var info: panelOrderPage.describeMetric(simItemV.modelData)
 
                                     Kirigami.Icon {
-                                        visible: panelOrderPage.cfg_showBlockLeadingIcon && panelOrderPage.isMetricIconActive(simItemV.modelData)
+                                        visible: panelOrderPage.isMetricIconActive(simItemV.modelData)
                                         source: panelOrderPage.resolveIcon(simItemV.info.icon)
                                         implicitWidth: 16; implicitHeight: 16
                                         color: simItemV.info.color
@@ -718,10 +769,8 @@ KCM.SimpleKCM {
                             text: i18n("Activar todos")
                             icon.name: "checkbox"
                             onClicked: {
-                                var list = panelOrderPage.cfg_disabledIcons ? panelOrderPage.cfg_disabledIcons.split(",") : [];
-                                var themes = ["cpu", "gpu", "ram", "disk", "net", "fan", "bat", "temp", "uptime"];
-                                list = list.filter(function(x) { return themes.indexOf(x.trim()) === -1; });
-                                panelOrderPage.cfg_disabledIcons = list.join(",");
+                                panelOrderPage.cfg_showBlockLeadingIcon = true;
+                                panelOrderPage.cfg_disabledBlockIcons = "";
                             }
                         }
 
@@ -729,12 +778,7 @@ KCM.SimpleKCM {
                             text: i18n("Ocultar todos")
                             icon.name: "edit-clear"
                             onClicked: {
-                                var list = panelOrderPage.cfg_disabledIcons ? panelOrderPage.cfg_disabledIcons.split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; }) : [];
-                                var themes = ["cpu", "gpu", "ram", "disk", "net", "fan", "bat", "temp", "uptime"];
-                                for (var t = 0; t < themes.length; t++) {
-                                    if (list.indexOf(themes[t]) === -1) list.push(themes[t]);
-                                }
-                                panelOrderPage.cfg_disabledIcons = list.join(",");
+                                panelOrderPage.cfg_disabledBlockIcons = "cpu,gpu,ram,disk,net,fan,bat,temp,uptime";
                             }
                         }
                     }
@@ -754,7 +798,7 @@ KCM.SimpleKCM {
                             Layout.fillWidth: true
                             implicitHeight: 40
                             radius: 6
-                            readonly property bool isActive: panelOrderPage.isMetricIconActive(themeTile.modelData.id)
+                            readonly property bool isActive: panelOrderPage.isBlockThemeActive(themeTile.modelData.id)
                             color: isActive
                                 ? Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.12)
                                 : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.04)
@@ -786,14 +830,14 @@ KCM.SimpleKCM {
 
                                 QQC2.Switch {
                                     checked: themeTile.isActive
-                                    onToggled: panelOrderPage.setMetricIconActive(themeTile.modelData.id, checked)
+                                    onToggled: panelOrderPage.setBlockThemeActive(themeTile.modelData.id, checked)
                                 }
                             }
 
                             MouseArea {
                                 anchors.fill: parent
                                 cursorShape: Qt.PointingHandCursor
-                                onClicked: panelOrderPage.setMetricIconActive(themeTile.modelData.id, !themeTile.isActive)
+                                onClicked: panelOrderPage.setBlockThemeActive(themeTile.modelData.id, !themeTile.isActive)
                             }
                         }
                     }

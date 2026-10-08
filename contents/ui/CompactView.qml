@@ -432,7 +432,9 @@ Item {
                         return typeof src === "string" ? [src] : src;
                     }
                     delegate: Kirigami.Icon {
-                        source: compactRow.resolveIcon(modelData)
+                        id: hIconDel
+                        required property var modelData
+                        source: compactRow.resolveIcon(hIconDel.modelData)
                         isMask: compactRow._themeReady
                         color: compactRow._themeReady ? compactRow.iconColor : Qt.rgba(0, 0, 0, 0)
                         width: compactRow.iconSize
@@ -585,7 +587,9 @@ Item {
                                 return typeof src === "string" ? [src] : src;
                             }
                             delegate: Kirigami.Icon {
-                                source: compactRow.resolveIcon(modelData)
+                                id: vIconDel
+                                required property var modelData
+                                source: compactRow.resolveIcon(vIconDel.modelData)
                                 isMask: compactRow._themeReady
                                 color: compactRow._themeReady ? compactRow.iconColor : Qt.rgba(0, 0, 0, 0)
                                 width:  Math.round(compactRow.iconSize * 0.85)

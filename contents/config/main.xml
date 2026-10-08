@@ -210,6 +210,9 @@
         <entry name="disabledIcons" type="String">
             <default></default>
         </entry>
+        <entry name="disabledBlockIcons" type="String">
+            <default></default>
+        </entry>
 
         <!-- Font -->
         <entry name="fontFamily" type="String">

@@ -43,6 +43,8 @@ PlasmoidItem {
     property string paddedMetrics:     profileManager.activeConfig.paddedMetrics || ""
     property string smallSuffixMetrics: profileManager.activeConfig.smallSuffixMetrics || ""
     property bool showBlockLeadingIcon: (profileManager.activeConfig.showBlockLeadingIcon !== undefined) ? Boolean(profileManager.activeConfig.showBlockLeadingIcon) : true
+    property string disabledBlockIcons: profileManager.activeConfig.disabledBlockIcons || ""
+    onDisabledBlockIconsChanged: _updateCompactItems()
     property string netDownMinUnit:    profileManager.activeConfig.netDownMinUnit || "auto"
     property string netMinUnit:        profileManager.activeConfig.netMinUnit || profileManager.activeConfig.netDownMinUnit || "auto"
     property bool swapDynamicUnits:    (profileManager.activeConfig.swapDynamicUnits !== undefined) ? Boolean(profileManager.activeConfig.swapDynamicUnits) : true
@@ -329,7 +331,7 @@ PlasmoidItem {
     }
 
     function _updateCompactItems() {
-        var rawItems = ViewHelpers.buildCompactItems(metricStore.metrics, metricConfig.pinnedList, root.mergeFamilyMetrics, metricConfig.disabledIcons, root.showBlockLeadingIcon);
+        var rawItems = ViewHelpers.buildCompactItems(metricStore.metrics, metricConfig.pinnedList, root.mergeFamilyMetrics, metricConfig.disabledIcons, root.showBlockLeadingIcon, root.disabledBlockIcons);
         if (ViewHelpers.syncCompactValues(root._compactItems, rawItems)) {
             return;
         }

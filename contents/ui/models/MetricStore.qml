@@ -109,6 +109,7 @@ Item {
         var defIcon = def.icon ? cfg.resolveIcon(def.icon) : (def.iconOverrideKey ? cfg[def.iconOverrideKey] : cfg.getGroupIcon(group));
         if (defId === "gpu.temp" && cfg && cfg.gpuTempIcon) defIcon = cfg.resolveIcon(cfg.gpuTempIcon);
         if (defId === "cpu.temp" && cfg && cfg.cpuTempIcon) defIcon = cfg.resolveIcon(cfg.cpuTempIcon);
+        if (defId === "disk.temp" && cfg) defIcon = cfg.resolveIcon("temperature-symbolic");
         var rawIcon = overrides.icon !== undefined ? overrides.icon : defIcon;
         var finalIcon = isIconAllowed ? rawIcon : "";
 
@@ -568,24 +569,30 @@ Item {
                         displayValue: dd.write,
                         status: "ready"
                     }));
-                    if (dd.temp) {
+                    var dtVal = (dd.temp && dd.temp.length > 0) ? dd.temp : (!isNaN(dd.tempNumber) && dd.tempNumber > 0 ? Utils.formatTemp(dd.tempNumber, cfg ? cfg.tempUnit : "C") : "");
+                    if (dtVal.length > 0 || !isNaN(dd.tempNumber)) {
+                        var dtId = Defs.buildInstanceId("disk", dd.id, "temp");
+                        var dtIconAllowed = cfg ? cfg.isIconEnabled(dtId, "disk") : true;
                         list.push(_createMetric("disk.temp", {
                             deviceId: dd.id, deviceName: dName,
                             label: dName, groupLabel: dName,
                             subLabel: dName,
+                            icon: dtIconAllowed ? (cfg ? cfg.resolveIcon("temperature-symbolic") : "temperature-symbolic") : "",
                             value: dd.tempNumber,
-                            displayValue: dd.temp,
-                            status: !isNaN(dd.tempNumber) ? "ready" : "unavailable"
+                            displayValue: dtVal || "...",
+                            status: (!isNaN(dd.tempNumber) && dd.tempNumber > 0) ? "ready" : "loading"
                         }));
                         if (!hasGenericDiskTemp) {
+                            var genDtAllowed = cfg ? cfg.isIconEnabled("disk/temp", "disk") : true;
                             list.push(_createMetric("disk.temp", {
                                 id: "disk/temp",
                                 deviceId: "", deviceName: dName,
                                 label: cfg.diskLabel + " Temp", groupLabel: cfg.diskLabel,
                                 subLabel: "Temp",
+                                icon: genDtAllowed ? (cfg ? cfg.resolveIcon("temperature-symbolic") : "temperature-symbolic") : "",
                                 value: dd.tempNumber,
-                                displayValue: dd.temp,
-                                status: !isNaN(dd.tempNumber) ? "ready" : "unavailable"
+                                displayValue: dtVal || "...",
+                                status: (!isNaN(dd.tempNumber) && dd.tempNumber > 0) ? "ready" : "loading"
                             }));
                             hasGenericDiskTemp = true;
                         }
