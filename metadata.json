@@ -3,8 +3,8 @@
     "Id": "org.kde.plasma.kardio",
     "Name": "Kardio",
     "Description": "Kardio - the plasma monitor",
-    "Description[ca]": "Kardio - el monitor de telemetria per al Plasma",
-    "Description[es]": "Kardio - el monitor de telemetría para Plasma",
+    "Description[ca]": "Kardio - the plasma monitor",
+    "Description[es]": "Kardio - the plasma monitor",
     "Icon": "org.kde.plasma.kardio",
     "Category": "System Information",
     "Authors": [
@@ -13,7 +13,7 @@
         "Email": "neokamen@local"
       }
     ],
-    "Version": "0.4.5",
+    "Version": "0.4.6",
     "Website": "https://github.com/neokamen/kardio",
     "License": "GPL-3.0"
   },

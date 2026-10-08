@@ -22,6 +22,7 @@ KCM.SimpleKCM {
     property string cfg_fanUnit: "rpm"
     property bool cfg_mergeFamilyMetrics: true
     property bool cfg_showSeparators: true
+    property bool cfg_showBlockLeadingIcon: true
     property string cfg_separatorStyle: "line"
     property bool cfg_enableNumberPadding: false
     property string cfg_paddedMetrics: ""
@@ -131,7 +132,7 @@ KCM.SimpleKCM {
                                 Label {
                                     id: versionLabel
                                     anchors.centerIn: parent
-                                    text: "v0.4.5"
+                                    text: "v0.4.6"
                                     font.pointSize: Kirigami.Theme.smallFont.pointSize - 1
                                     font.weight: Font.Bold
                                     color: Kirigami.Theme.highlightColor
@@ -873,7 +874,8 @@ KCM.SimpleKCM {
                 }
 
                 // Toggles for grouping & separators
-                RowLayout {
+                Flow {
+                    Layout.fillWidth: true
                     spacing: Kirigami.Units.largeSpacing
 
                     Switch {
@@ -888,6 +890,13 @@ KCM.SimpleKCM {
                         text: i18n("Agrupar métricas del mismo hardware en un solo bloque")
                         checked: cfg_mergeFamilyMetrics
                         onToggled: cfg_mergeFamilyMetrics = checked
+                    }
+
+                    Switch {
+                        id: showBlockLeadingIconSwitch
+                        text: i18n("Mostrar icono temático delantero de cada bloque")
+                        checked: cfg_showBlockLeadingIcon
+                        onToggled: cfg_showBlockLeadingIcon = checked
                     }
                 }
 

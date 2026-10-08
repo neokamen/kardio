@@ -124,22 +124,59 @@ KCM.SimpleKCM {
             visible: true
         }
 
-        // Configuración Global de Bloques
-        RowLayout {
-            Kirigami.FormData.label: i18n("Icono delantero de bloque:")
-            spacing: Kirigami.Units.smallSpacing
+        // Tarjeta destacada: Interruptor Maestro de Iconos
+        Kirigami.Card {
+            Layout.fillWidth: true
+            header: RowLayout {
+                spacing: Kirigami.Units.mediumSpacing
+                Rectangle {
+                    width: 32; height: 32; radius: 6
+                    color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.2)
+                    Kirigami.Icon {
+                        anchors.centerIn: parent
+                        source: "preferences-desktop-icons"
+                        width: 18; height: 18
+                        color: Kirigami.Theme.highlightColor
+                    }
+                }
+                ColumnLayout {
+                    spacing: 2
+                    Layout.fillWidth: true
+                    Label {
+                        text: i18n("Interruptor Maestro de Icono Delantero de Bloque")
+                        font.weight: Font.Bold
+                    }
+                    Label {
+                        text: i18n("Muestra u oculta el icono temático al frente de cada bloque (ej. CPU, Red, GPU, RAM, Discos)")
+                        font: Kirigami.Theme.smallFont
+                        opacity: 0.75
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                    }
+                }
+                Switch {
+                    id: blockLeadingSwitch
+                    checked: iconsPage.cfg_showBlockLeadingIcon
+                    onToggled: iconsPage.cfg_showBlockLeadingIcon = checked
+                }
+            }
 
-            Switch {
-                id: blockLeadingSwitch
-                checked: iconsPage.cfg_showBlockLeadingIcon
-                onToggled: iconsPage.cfg_showBlockLeadingIcon = checked
-            }
-            Label {
-                text: i18n("Mostrar icono temático delantero en cada bloque (ej. CPU, Red, GPU, RAM, Discos)")
-                wrapMode: Text.WordWrap
-                Layout.fillWidth: true
-                opacity: blockLeadingSwitch.checked ? 1.0 : 0.6
-            }
+            actions: [
+                Kirigami.Action {
+                    text: i18n("Desactivar todos los iconos")
+                    icon.name: "view-hidden"
+                    onTriggered: {
+                        iconsPage.cfg_disabledIcons = "cpu,ram,swap,temp,gpu,bat,power,net,net/down,net/up,disk,disk/temp,gpu/temp,cpu/temp,fan,uptime";
+                    }
+                },
+                Kirigami.Action {
+                    text: i18n("Activar todos los iconos")
+                    icon.name: "view-visible"
+                    onTriggered: {
+                        iconsPage.cfg_disabledIcons = "";
+                    }
+                }
+            ]
         }
 
         Kirigami.Separator {
