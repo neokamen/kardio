@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import os, glob, struct, json, subprocess, shutil
 
-def collect_gpu():
+def collect_telemetry():
+    result = {}
     gpus = {}
     cards = sorted(glob.glob("/sys/class/drm/card[0-9]"))
     
+    # 1. GPU COLLECTION
     for idx, card in enumerate(cards):
         dev = os.path.join(card, "device")
         if not os.path.exists(dev):
@@ -16,9 +18,8 @@ def collect_gpu():
         sclk = 0
         mclk = 0
         
-        # 1. Hwmon search
+        # Hwmon search
         for hw in glob.glob(os.path.join(dev, "hwmon", "hwmon*")):
-            # SCLK frequency (freq1_input is in Hz)
             freq_f = os.path.join(hw, "freq1_input")
             if os.path.exists(freq_f):
                 try:
@@ -27,7 +28,6 @@ def collect_gpu():
                         sclk = round(f_val / 1000000.0)
                 except Exception: pass
                 
-            # Power in watts (power1_average/input is in microWatts)
             for pf in [os.path.join(hw, "power1_average"), os.path.join(hw, "power1_input")]:
                 if os.path.exists(pf):
                     try:
@@ -37,7 +37,6 @@ def collect_gpu():
                             break
                     except Exception: pass
                     
-            # Voltage in Volts (in0_input is in mV)
             in0_f = os.path.join(hw, "in0_input")
             if os.path.exists(in0_f):
                 try:
@@ -46,7 +45,6 @@ def collect_gpu():
                         data["voltage"] = round(v_val, 2)
                 except Exception: pass
                 
-            # Temperatures (temp*_input is in millidegrees C)
             for tf in glob.glob(os.path.join(hw, "temp*_input")):
                 lf = tf.replace("_input", "_label")
                 lbl = open(lf).read().strip().lower() if os.path.exists(lf) else ""
@@ -61,7 +59,6 @@ def collect_gpu():
                             data["temp"] = round(t_val, 1)
                 except Exception: pass
                 
-            # Fan RPM
             for fan_f in glob.glob(os.path.join(hw, "fan*_input")):
                 try:
                     fan_val = int(open(fan_f).read().strip())
@@ -70,7 +67,7 @@ def collect_gpu():
                         break
                 except Exception: pass
 
-        # 2. AMD DPM clocks (pp_dpm_sclk / pp_dpm_mclk)
+        # AMD DPM clocks
         if sclk <= 0 and os.path.exists(os.path.join(dev, "pp_dpm_sclk")):
             try:
                 for line in open(os.path.join(dev, "pp_dpm_sclk")):
@@ -93,7 +90,7 @@ def collect_gpu():
                             break
             except Exception: pass
 
-        # 3. AMD gpu_metrics binary parsing
+        # AMD gpu_metrics binary parsing
         gm_f = os.path.join(dev, "gpu_metrics")
         if os.path.exists(gm_f):
             try:
@@ -102,7 +99,6 @@ def collect_gpu():
                 if len(buf) >= 70:
                     struct_size, fmt_rev, cnt_rev = struct.unpack_from("<HBB", buf, 0)
                     if fmt_rev == 2:  # APUs: Phoenix / Rembrandt / VanGogh
-                        tgfx = struct.unpack_from("<H", buf, 4)[0] / 100.0
                         tsoc = struct.unpack_from("<H", buf, 6)[0] / 100.0
                         if 0 < tsoc < 140 and not data.get("hotspot"):
                             data["hotspot"] = round(tsoc, 1)
@@ -113,7 +109,6 @@ def collect_gpu():
                             uclk = struct.unpack_from("<H", buf, 68)[0]
                             if uclk > 0: mclk = uclk
                     elif fmt_rev == 1:  # dGPUs: RDNA1 / RDNA2 / RDNA3
-                        tedge = struct.unpack_from("<H", buf, 4)[0] / 100.0
                         thot = struct.unpack_from("<H", buf, 6)[0] / 100.0
                         tmem = struct.unpack_from("<H", buf, 8)[0] / 100.0
                         if 0 < thot < 140 and not data.get("hotspot"):
@@ -128,7 +123,7 @@ def collect_gpu():
                             if uclk > 0: mclk = uclk
             except Exception: pass
 
-        # 4. Intel frequency (gt_cur_freq_mhz)
+        # Intel frequency
         for gt_f in glob.glob(os.path.join(card, "gt_cur_freq_mhz")) + glob.glob(os.path.join(card, "gt", "gt*", "rps_cur_freq_mhz")):
             if sclk <= 0 and os.path.exists(gt_f):
                 try:
@@ -143,7 +138,7 @@ def collect_gpu():
             
         gpus[gid] = data
 
-    # 5. NVIDIA fallback via nvidia-smi if no DRM cards or missing metrics
+    # NVIDIA fallback via nvidia-smi
     if shutil.which("nvidia-smi"):
         try:
             res = subprocess.run(
@@ -169,7 +164,146 @@ def collect_gpu():
                             except: pass
         except Exception: pass
 
-    print(json.dumps(gpus))
+    # 2. CPU TELEMETRY
+    cpu = {}
+    c_freqs = []
+    for f in sorted(glob.glob("/sys/devices/system/cpu/cpu[0-9]*/cpufreq/scaling_cur_freq")):
+        try:
+            val = int(open(f).read().strip())
+            c_freqs.append(round(val / 1000.0))
+        except Exception: pass
+    if c_freqs:
+        cpu["freq"] = round(sum(c_freqs) / len(c_freqs))
+        cpu["peakFreq"] = max(c_freqs)
+        cpu["cores"] = c_freqs
+
+    # 3. HWMON SCAN (CPU Temp, Power, Voltage, Fans, Disks, RAM)
+    disks = {}
+    ram_temps = []
+    fans = {}
+    
+    for hw in glob.glob("/sys/class/hwmon/hwmon*"):
+        name = open(f"{hw}/name").read().strip().lower() if os.path.exists(f"{hw}/name") else ""
+        
+        # CPU hardware monitor (k10temp, coretemp, zenpower, etc.)
+        if any(k in name for k in ["k10temp", "coretemp", "zenpower", "acpitz", "cpu"]):
+            for tf in glob.glob(f"{hw}/temp*_input"):
+                try:
+                    t = int(open(tf).read().strip()) / 1000.0
+                    if 0 < t < 125 and "temp" not in cpu:
+                        cpu["temp"] = round(t, 1)
+                except Exception: pass
+            for pf in glob.glob(f"{hw}/power*_input") + glob.glob(f"{hw}/power*_average"):
+                try:
+                    p = int(open(pf).read().strip()) / 1000000.0
+                    if p > 0 and "power" not in cpu:
+                        cpu["power"] = round(p, 1)
+                except Exception: pass
+            for vf in glob.glob(f"{hw}/in*_input"):
+                try:
+                    v = int(open(vf).read().strip()) / 1000.0
+                    if 0.1 < v < 3.5 and "voltage" not in cpu:
+                        cpu["voltage"] = round(v, 3)
+                except Exception: pass
+            for ff in glob.glob(f"{hw}/fan*_input"):
+                try:
+                    f_rpm = int(open(ff).read().strip())
+                    if f_rpm >= 0 and "fan" not in cpu:
+                        cpu["fan"] = f_rpm
+                except Exception: pass
+                
+        # Motherboard generic sensors (e.g. nct6775, it87)
+        elif any(k in name for k in ["nct67", "it87", "w83", "asusec"]):
+            for vf in glob.glob(f"{hw}/in*_input"):
+                lbl_f = vf.replace("_input", "_label")
+                lbl = open(lbl_f).read().strip().lower() if os.path.exists(lbl_f) else ""
+                if "vcore" in lbl or "cpu" in lbl:
+                    try:
+                        v = int(open(vf).read().strip()) / 1000.0
+                        if 0.1 < v < 3.5:
+                            cpu["voltage"] = round(v, 3)
+                    except Exception: pass
+            for ff in glob.glob(f"{hw}/fan*_input"):
+                lbl_f = ff.replace("_input", "_label")
+                lbl = open(lbl_f).read().strip().lower() if os.path.exists(lbl_f) else ""
+                if "cpu" in lbl and "fan" not in cpu:
+                    try:
+                        f_rpm = int(open(ff).read().strip())
+                        if f_rpm >= 0: cpu["fan"] = f_rpm
+                    except Exception: pass
+
+        # Disks (NVMe, SATA drivetemp)
+        if any(k in name for k in ["nvme", "drivetemp"]):
+            t_f = f"{hw}/temp1_input"
+            if os.path.exists(t_f):
+                try:
+                    t_val = round(int(open(t_f).read().strip()) / 1000.0, 1)
+                    if 0 < t_val < 110:
+                        disks[name] = t_val
+                except Exception: pass
+
+        # DDR5 SPD RAM Temp (spd5118)
+        if "spd5118" in name:
+            t_f = f"{hw}/temp1_input"
+            if os.path.exists(t_f):
+                try:
+                    t_val = round(int(open(t_f).read().strip()) / 1000.0, 1)
+                    if 0 < t_val < 110:
+                        ram_temps.append(t_val)
+                except Exception: pass
+
+        # All fan inputs
+        for ff in glob.glob(f"{hw}/fan*_input"):
+            try:
+                f_rpm = int(open(ff).read().strip())
+                if f_rpm >= 0:
+                    lbl_f = ff.replace("_input", "_label")
+                    lbl = open(lbl_f).read().strip() if os.path.exists(lbl_f) else f"{name}_{os.path.basename(ff)}"
+                    fans[lbl] = f_rpm
+            except Exception: pass
+
+    # 4. BATTERIES
+    batteries = {}
+    for b in glob.glob("/sys/class/power_supply/BAT*"):
+        bid = os.path.basename(b)
+        binfo = {}
+        for prop in ["capacity", "status", "voltage_now", "power_now", "current_now"]:
+            fp = f"{b}/{prop}"
+            if os.path.exists(fp):
+                try: binfo[prop] = open(fp).read().strip()
+                except Exception: pass
+        if binfo:
+            bdata = {}
+            if "capacity" in binfo:
+                try: bdata["capacity"] = int(binfo["capacity"])
+                except Exception: pass
+            if "status" in binfo:
+                bdata["status"] = binfo["status"]
+            if "power_now" in binfo:
+                try: bdata["power"] = round(int(binfo["power_now"]) / 1000000.0, 1)
+                except Exception: pass
+            elif "voltage_now" in binfo and "current_now" in binfo:
+                try:
+                    v = int(binfo["voltage_now"]) / 1000000.0
+                    c = int(binfo["current_now"]) / 1000000.0
+                    bdata["power"] = round(v * c, 1)
+                except Exception: pass
+            if "voltage_now" in binfo:
+                try: bdata["voltage"] = round(int(binfo["voltage_now"]) / 1000000.0, 2)
+                except Exception: pass
+            batteries[bid] = bdata
+
+    # Assemble combined output
+    # Populate root with gpu0, gpu1... for backward-compatibility
+    result.update(gpus)
+    result["gpus"] = gpus
+    result["cpu"] = cpu
+    result["disks"] = disks
+    result["ram"] = {"temps": ram_temps}
+    result["fans"] = fans
+    result["batteries"] = batteries
+
+    print(json.dumps(result))
 
 if __name__ == "__main__":
-    collect_gpu()
+    collect_telemetry()

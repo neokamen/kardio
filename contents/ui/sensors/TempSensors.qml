@@ -10,12 +10,17 @@ Item {
     property string tempUnit: "C"
     property bool padNumbers: false
 
+    property var sysfsData: null
+
     // System temperature: auto-detect chipset sensor, fallback to CPU average
     property string _systemSensorId: ""
 
     readonly property real tempNumericValue: {
-        if (sysSensor.status !== Sensors.Sensor.Ready || typeof sysSensor.value !== "number") return NaN;
-        return sysSensor.value;
+        var v = (sysSensor.status === Sensors.Sensor.Ready && typeof sysSensor.value === "number") ? sysSensor.value : NaN;
+        if ((isNaN(v) || v <= 0) && sysfsData && sysfsData.cpu && sysfsData.cpu.temp) {
+            v = sysfsData.cpu.temp;
+        }
+        return v;
     }
 
     readonly property string tempValue: {
@@ -29,8 +34,11 @@ Item {
 
     // Dedicated CPU temperature — always reads the CPU average, independent of system temp
     readonly property real cpuTempNumericValue: {
-        if (cpuTempSensor.status !== Sensors.Sensor.Ready || typeof cpuTempSensor.value !== "number") return NaN;
-        return cpuTempSensor.value;
+        var v = (cpuTempSensor.status === Sensors.Sensor.Ready && typeof cpuTempSensor.value === "number") ? cpuTempSensor.value : NaN;
+        if ((isNaN(v) || v <= 0) && sysfsData && sysfsData.cpu && sysfsData.cpu.temp) {
+            v = sysfsData.cpu.temp;
+        }
+        return v;
     }
 
     readonly property string cpuTempValue: {
@@ -50,14 +58,24 @@ Item {
         updateRateLimit: root.updateInterval
     }
 
-    // DDR5 RAM temperature via SPD5118 (discovered from sensor tree)
+    // DDR5 RAM temperature via SPD5118 (discovered from sensor tree or sysfs)
     property string _ramSensorId: ""
 
-    readonly property bool ramTempExists: _ramSensorId.length > 0
+    readonly property bool ramTempExists: _ramSensorId.length > 0 || (sysfsData && sysfsData.ram && sysfsData.ram.temps && sysfsData.ram.temps.length > 0)
 
     readonly property real ramTempNumericValue: {
-        if (!ramTempExists || ramSensor.status !== Sensors.Sensor.Ready || typeof ramSensor.value !== "number") return NaN;
-        return ramSensor.value;
+        if (_ramSensorId.length > 0 && ramSensor.status === Sensors.Sensor.Ready && typeof ramSensor.value === "number" && !isNaN(ramSensor.value) && ramSensor.value > 0) {
+            return ramSensor.value;
+        }
+        if (sysfsData && sysfsData.ram && sysfsData.ram.temps && sysfsData.ram.temps.length > 0) {
+            var arr = sysfsData.ram.temps;
+            var maxT = -999;
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i] > maxT) maxT = arr[i];
+            }
+            if (maxT > 0) return maxT;
+        }
+        return NaN;
     }
 
     readonly property string ramTempValue: {

@@ -136,6 +136,7 @@ QtObject {
         separatorStyle:           "line",
         enableNumberPadding:      false,
         paddedMetrics:            "",
+        smallSuffixMetrics:       "",
         netDownMinUnit:           "auto",
         netMinUnit:               "auto",
         swapDynamicUnits:         true
@@ -254,12 +255,14 @@ QtObject {
         property string separatorStyle:           "line"
         property bool   enableNumberPadding:      false
         property string paddedMetrics:            ""
+        property string smallSuffixMetrics:       ""
         property string netDownMinUnit:           "auto"
         property string netMinUnit:               "auto"
         property bool   swapDynamicUnits:         true
 
         onPinnedMetricsChanged: root._saveActiveConfigKey("pinnedMetrics", pinnedMetrics)
         onPaddedMetricsChanged: root._saveActiveConfigKey("paddedMetrics", paddedMetrics)
+        onSmallSuffixMetricsChanged: root._saveActiveConfigKey("smallSuffixMetrics", smallSuffixMetrics)
         onNetDownMinUnitChanged: root._saveActiveConfigKey("netDownMinUnit", netDownMinUnit)
         onNetMinUnitChanged:    root._saveActiveConfigKey("netMinUnit", netMinUnit)
         onGpuLabelsChanged:     root._saveActiveConfigKey("gpuLabels", gpuLabels)

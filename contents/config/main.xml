@@ -360,6 +360,9 @@
         <entry name="paddedMetrics" type="String">
             <default></default>
         </entry>
+        <entry name="smallSuffixMetrics" type="String">
+            <default></default>
+        </entry>
         <entry name="netDownMinUnit" type="String">
             <default>auto</default>
         </entry>

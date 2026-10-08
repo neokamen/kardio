@@ -63,10 +63,35 @@ Item {
     readonly property string batRateSensorId:   _resolvedBase ? ("power/" + _resolvedBase + "/chargeRate") : ""
     readonly property string batHealthSensorId: _resolvedBase ? ("power/" + _resolvedBase + "/health") : ""
 
-    readonly property real   batNumericValue:  (batChargeSensor.status === Sensors.Sensor.Ready && batChargeSensor.value != null) ? Number(batChargeSensor.value) : NaN
+    property var sysfsData: null
+
+    readonly property var _sysfsBatInfo: {
+        if (!sysfsData || !sysfsData.batteries) return null;
+        var keys = Object.keys(sysfsData.batteries);
+        return keys.length > 0 ? sysfsData.batteries[keys[0]] : null;
+    }
+
+    readonly property real   batNumericValue: {
+        if (batChargeSensor.status === Sensors.Sensor.Ready && batChargeSensor.value != null && !isNaN(Number(batChargeSensor.value))) {
+            return Number(batChargeSensor.value);
+        }
+        if (_sysfsBatInfo && _sysfsBatInfo.capacity !== undefined) {
+            return Number(_sysfsBatInfo.capacity);
+        }
+        return NaN;
+    }
     readonly property string batValue:         isNaN(batNumericValue) ? "" : (padNumbers ? Math.round(batNumericValue).toString().padStart(3) + "%" : Math.round(batNumericValue) + "%")
 
-    readonly property real   batRateNumericValue: (batRateSensor.status === Sensors.Sensor.Ready && batRateSensor.value != null) ? Number(batRateSensor.value) : NaN
+    readonly property real   batRateNumericValue: {
+        if (batRateSensor.status === Sensors.Sensor.Ready && batRateSensor.value != null && !isNaN(Number(batRateSensor.value))) {
+            return Number(batRateSensor.value);
+        }
+        if (_sysfsBatInfo && _sysfsBatInfo.power !== undefined) {
+            var p = Number(_sysfsBatInfo.power);
+            return (_sysfsBatInfo.status === "Charging" ? p : -p);
+        }
+        return NaN;
+    }
     readonly property string powerValue: {
         if (isNaN(batRateNumericValue)) return "";
         var watts = Math.abs(batRateNumericValue);
@@ -78,10 +103,12 @@ Item {
     readonly property string batHealthValue: isNaN(batHealthNumericValue) ? "" : Math.round(batHealthNumericValue) + "%"
 
     readonly property bool hasBattery: {
-        if (!_resolvedBase || _resolvedBase.length === 0) return false;
-        if (batChargeSensor.status === Sensors.Sensor.Ready && !isNaN(batNumericValue)) return true;
-        if (discoveredBatId && discoveredBatId.length > 0) return true;
-        if (batteryDevice && batteryDevice !== "auto") return true;
+        if (_resolvedBase && _resolvedBase.length > 0) {
+            if (batChargeSensor.status === Sensors.Sensor.Ready && !isNaN(batNumericValue)) return true;
+            if (discoveredBatId && discoveredBatId.length > 0) return true;
+            if (batteryDevice && batteryDevice !== "auto") return true;
+        }
+        if (_sysfsBatInfo !== null) return true;
         return false;
     }
 

@@ -140,9 +140,25 @@ Item {
                            isEstimated: r.estimated });
             parts.push(r.str);
         }
+        if (newList.length === 0 && sysfsData && sysfsData.fans) {
+            var fKeys = Object.keys(sysfsData.fans);
+            for (var fi = 0; fi < fKeys.length; fi++) {
+                var fLbl = fKeys[fi];
+                var fVal = sysfsData.fans[fLbl];
+                if (typeof fVal === "number" && fVal >= 0) {
+                    var rpmStr = (padNumbers ? Math.round(fVal).toString().padStart(4) + " RPM" : Math.round(fVal) + " RPM");
+                    newList.push({ id: "sysfs_fan_" + fi, name: fLbl, value: rpmStr, rpmValue: Math.round(fVal) + " RPM",
+                                   number: fi + 1, valueNumber: fVal, isEstimated: false });
+                    parts.push(rpmStr);
+                }
+            }
+        }
         _fanStr = parts.join(" ");
         _dataList = newList;
     }
+
+    property var sysfsData: null
+    onSysfsDataChanged: aggregate()
 
     onFanUnitChanged: aggregate()
     onFanLabelsChanged: aggregate()

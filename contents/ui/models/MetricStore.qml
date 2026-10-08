@@ -205,6 +205,17 @@ Item {
                 }));
             }
 
+            if (s.cpu.cpuVoltageValue && s.cpu.cpuVoltageValue !== "") {
+                list.push(_createMetric("cpu.voltage", {
+                    value: s.cpu.cpuVoltageRaw,
+                    displayValue: s.cpu.cpuVoltageValue,
+                    label: cfg.cpuLabel,
+                    subLabel: "Voltage",
+                    icon: cfg.resolveIcon("voltage-symbolic"),
+                    status: !isNaN(s.cpu.cpuVoltageRaw) ? "ready" : "loading"
+                }));
+            }
+
             if (s.cpu.cpuLoad1Value && s.cpu.cpuLoad1Value !== "...") {
                 list.push(_createMetric("cpu.load1", {
                     value: s.cpu.cpuLoad1Raw,

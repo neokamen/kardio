@@ -210,6 +210,14 @@ Item {
     // Step 3b: Direct Sysfs/Hwmon collector fallback (when ksystemstats returns 0 / missing)
     // -------------------------------------------------------------------------
 
+    property var sysfsData: null
+    onSysfsDataChanged: {
+        if (sysfsData) {
+            root._sysfsGpuData = sysfsData;
+            root.aggregate();
+        }
+    }
+
     property var _sysfsGpuData: ({})
     property int _sysfsTick: 0
 
@@ -221,9 +229,9 @@ Item {
     Timer {
         id: sysfsGpuTimer
         interval: Math.max(1000, root.updateInterval)
-        running: true
+        running: !root.sysfsData
         repeat: true
-        triggeredOnStart: true
+        triggeredOnStart: !root.sysfsData
         onTriggered: {
             if (sysfsGpuLoader.item && root._scriptPath) {
                 root._sysfsTick++;

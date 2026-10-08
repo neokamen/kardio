@@ -249,7 +249,16 @@ function buildPopupGroups(metricsList, orderedKeys) {
     return categories;
 }
 
-function _resolveSegmentLabel(metric) {
+function _isIndicatorDisabled(metric, disabledList) {
+    if (!disabledList || disabledList.length === 0 || !metric) return false;
+    if (metric.id && disabledList.indexOf(metric.id) !== -1) return true;
+    if (metric.group && disabledList.indexOf(metric.group) !== -1) return true;
+    if (metric.subKey && disabledList.indexOf(metric.group + "/" + metric.subKey) !== -1) return true;
+    return false;
+}
+
+function _resolveSegmentLabel(metric, disabledList) {
+    if (_isIndicatorDisabled(metric, disabledList)) return "";
     if (metric.prefix) return metric.prefix;
     if (metric.group === "swap") return "SWAP";
     if (metric.group === "ram" && metric.subKey === "temp") return "";
@@ -258,17 +267,13 @@ function _resolveSegmentLabel(metric) {
     if (metric.subKey === "freq" || metric.subKey === "coreFrequency") return "CLK";
     if (metric.subKey === "memFreq" || metric.subKey === "memoryFrequency") return "MEM";
     if (metric.subKey === "power" && metric.group === "gpu") return "PWR";
-    if (metric.subKey === "voltage" && metric.group === "gpu") return "VOLT";
+    if (metric.subKey === "voltage") return "VOLT";
     if (metric.group === "fan" || metric.subKey === "core") return metric.subLabel || "";
     return "";
 }
 
 function _resolveSegmentIcon(metric, disabledList) {
-    if (disabledList && disabledList.length > 0) {
-        if (metric.id && disabledList.indexOf(metric.id) !== -1) return "";
-        if (metric.group && disabledList.indexOf(metric.group) !== -1) return "";
-        if (metric.subKey && disabledList.indexOf(metric.group + "/" + metric.subKey) !== -1) return "";
-    }
+    if (_isIndicatorDisabled(metric, disabledList)) return "";
     if (metric.group === "swap") {
         return metric.icon || "swap-symbolic";
     }
@@ -345,6 +350,7 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
             var existingItem = items[groupIndexMap[groupKey]];
             if (!existingItem.segments) {
                 var firstSegIcon = existingItem._firstSubIcon || "";
+                var firstSegDisabled = _isIndicatorDisabled(existingItem._firstMetric || {}, disabledList);
                 existingItem.segments = [
                     {
                         id: existingItem.id,
@@ -352,7 +358,8 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
                         color: existingItem.color,
                         label: existingItem._firstSubLabel || "",
                         icon: firstSegIcon,
-                        key: existingItem._firstSubKey || ""
+                        key: existingItem._firstSubKey || "",
+                        isIconDisabled: firstSegDisabled
                     }
                 ];
                 existingItem.value = null;
@@ -364,13 +371,15 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
                 }
             }
             var segIcon = _resolveSegmentIcon(metric, disabledList);
+            var segDisabled = _isIndicatorDisabled(metric, disabledList);
             existingItem.segments.push({
                 id: metric.id,
                 value: metric.displayValue,
                 color: metric.color,
-                label: _resolveSegmentLabel(metric),
+                label: _resolveSegmentLabel(metric, disabledList),
                 icon: segIcon,
-                key: metric.subKey || metric.id
+                key: metric.subKey || metric.id,
+                isIconDisabled: segDisabled
             });
 
             // Respect user's sequence from pinnedList so segments follow the order configured in pinnedList
@@ -388,7 +397,8 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
             var baseLabel = metric.groupLabel || metric.deviceName || metric.group.toUpperCase();
             var singleLabel = metric.label;
             var itemIcon = metric.groupIcon || metric.icon;
-            if (disabledList.indexOf(metric.id) !== -1 || disabledList.indexOf(metric.group) !== -1) {
+            var isItemIconDis = _isIndicatorDisabled(metric, disabledList);
+            if (isItemIconDis) {
                 itemIcon = "";
             }
             var initialSegIcon = _resolveSegmentIcon(metric, disabledList);
@@ -402,9 +412,11 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
                 key: groupKey,
                 segments: null,
                 _groupBaseLabel: baseLabel,
-                _firstSubLabel: _resolveSegmentLabel(metric),
+                _firstSubLabel: _resolveSegmentLabel(metric, disabledList),
                 _firstSubIcon: initialSegIcon,
-                _firstSubKey: metric.subKey || metric.id
+                _firstSubKey: metric.subKey || metric.id,
+                _firstMetric: metric,
+                isIconDisabled: isItemIconDis
             };
             if (mergeSameFamily) {
                 groupIndexMap[groupKey] = items.length;
@@ -432,6 +444,9 @@ function syncCompactValues(existingItems, newItems) {
         if (Boolean(existing.hideSeparator) !== Boolean(incoming.hideSeparator)) {
             return false;
         }
+        if (Boolean(existing.isIconDisabled) !== Boolean(incoming.isIconDisabled)) {
+            return false;
+        }
         if (JSON.stringify(existing.icon) !== JSON.stringify(incoming.icon)) {
             return false;
         }
@@ -450,7 +465,7 @@ function syncCompactValues(existingItems, newItems) {
                 var eSeg = existing.segments[s];
                 var iSeg = incoming.segments[s];
                 if (!eSeg || !iSeg) return false;
-                if (eSeg.key !== iSeg.key || eSeg.label !== iSeg.label || eSeg.icon !== iSeg.icon) {
+                if (eSeg.key !== iSeg.key || eSeg.label !== iSeg.label || eSeg.icon !== iSeg.icon || Boolean(eSeg.isIconDisabled) !== Boolean(iSeg.isIconDisabled)) {
                     return false;
                 }
                 if (eSeg.value !== iSeg.value) eSeg.value = iSeg.value;

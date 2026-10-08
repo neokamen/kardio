@@ -25,6 +25,7 @@ KCM.SimpleKCM {
     property string cfg_separatorStyle: "line"
     property bool cfg_enableNumberPadding: false
     property string cfg_paddedMetrics: ""
+    property string cfg_smallSuffixMetrics: ""
     property string cfg_netDownMinUnit: "auto"
     property string cfg_netMinUnit: "auto"
     property bool cfg_swapDynamicUnits: true
@@ -44,6 +45,23 @@ KCM.SimpleKCM {
             list.splice(idx, 1);
         }
         cfg_paddedMetrics = list.join(",");
+    }
+
+    function isMetricSmallSuffix(id) {
+        if (!cfg_smallSuffixMetrics) return false;
+        var list = cfg_smallSuffixMetrics.split(",").map(function(s){ return s.trim(); });
+        return list.indexOf(id) !== -1;
+    }
+
+    function setMetricSmallSuffix(id, active) {
+        var list = cfg_smallSuffixMetrics ? cfg_smallSuffixMetrics.split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; }) : [];
+        var idx = list.indexOf(id);
+        if (active && idx === -1) {
+            list.push(id);
+        } else if (!active && idx !== -1) {
+            list.splice(idx, 1);
+        }
+        cfg_smallSuffixMetrics = list.join(",");
     }
 
     readonly property bool iconsEnabled: cfg_displayMode === "icons" || cfg_displayMode === "icons+text"
@@ -113,7 +131,7 @@ KCM.SimpleKCM {
                                 Label {
                                     id: versionLabel
                                     anchors.centerIn: parent
-                                    text: "v0.4.3"
+                                    text: "v0.4.4"
                                     font.pointSize: Kirigami.Theme.smallFont.pointSize - 1
                                     font.weight: Font.Bold
                                     color: Kirigami.Theme.highlightColor
@@ -1217,6 +1235,170 @@ KCM.SimpleKCM {
                             text: i18n("Tiempo encendido (Uptime)")
                             checked: isMetricPadded("uptime")
                             onToggled: setMetricPadded("uptime", checked)
+                        }
+                    }
+
+                    Kirigami.Separator { Layout.fillWidth: true }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: Kirigami.Units.smallSpacing
+
+                        Label {
+                            text: i18n("Estilo MangoHud / Sufijo en letra pequeña individual:")
+                            font.weight: Font.DemiBold
+                        }
+
+                        Label {
+                            text: i18n("Muestra unidades y etiquetas secundarias en formato superíndice pequeño detrás del número (ej. 49°C Jnc, 1435 MHz, 35.5 W, 743 mV, 118 RPM):")
+                            font: Kirigami.Theme.smallFont
+                            opacity: 0.75
+                            wrapMode: Text.WordWrap
+                            Layout.fillWidth: true
+                        }
+
+                        RowLayout {
+                            spacing: Kirigami.Units.smallSpacing
+
+                            Button {
+                                text: i18n("Marcar todos")
+                                icon.name: "checkbox"
+                                onClicked: {
+                                    cfg_smallSuffixMetrics = "gpu/freq,gpu/memFreq,gpu/hotspot,gpu/vramTemp,gpu/temp,gpu/power,gpu/voltage,cpu/freq,cpu/power,cpu/voltage,cpu/temp,fan,bat/power,net/down,net/up,disk/read,disk/write,disk/temp,ram/used,swap/used,ram/temp";
+                                }
+                            }
+
+                            Button {
+                                text: i18n("Desmarcar todos")
+                                icon.name: "edit-clear"
+                                onClicked: {
+                                    cfg_smallSuffixMetrics = "";
+                                }
+                            }
+                        }
+                    }
+
+                    GridLayout {
+                        columns: width > 600 ? 3 : (width > 380 ? 2 : 1)
+                        rowSpacing: Kirigami.Units.smallSpacing
+                        columnSpacing: Kirigami.Units.largeSpacing
+                        Layout.fillWidth: true
+
+                        CheckBox {
+                            text: i18n("GPU Reloj (MHz)")
+                            checked: isMetricSmallSuffix("gpu/freq")
+                            onToggled: setMetricSmallSuffix("gpu/freq", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("GPU VRAM Reloj (MHz)")
+                            checked: isMetricSmallSuffix("gpu/memFreq")
+                            onToggled: setMetricSmallSuffix("gpu/memFreq", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("GPU Hotspot (°C + Jnc)")
+                            checked: isMetricSmallSuffix("gpu/hotspot")
+                            onToggled: setMetricSmallSuffix("gpu/hotspot", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("GPU VRAM Temp (°C + Mem)")
+                            checked: isMetricSmallSuffix("gpu/vramTemp")
+                            onToggled: setMetricSmallSuffix("gpu/vramTemp", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("GPU Temperatura (°C)")
+                            checked: isMetricSmallSuffix("gpu/temp")
+                            onToggled: setMetricSmallSuffix("gpu/temp", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("GPU Potencia (W)")
+                            checked: isMetricSmallSuffix("gpu/power")
+                            onToggled: setMetricSmallSuffix("gpu/power", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("GPU Voltaje (mV / V)")
+                            checked: isMetricSmallSuffix("gpu/voltage")
+                            onToggled: setMetricSmallSuffix("gpu/voltage", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("CPU Frecuencia (MHz / GHz)")
+                            checked: isMetricSmallSuffix("cpu/freq")
+                            onToggled: setMetricSmallSuffix("cpu/freq", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("CPU Potencia (W)")
+                            checked: isMetricSmallSuffix("cpu/power")
+                            onToggled: setMetricSmallSuffix("cpu/power", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("CPU Voltaje (mV / V)")
+                            checked: isMetricSmallSuffix("cpu/voltage")
+                            onToggled: setMetricSmallSuffix("cpu/voltage", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("CPU Temperatura (°C)")
+                            checked: isMetricSmallSuffix("cpu/temp")
+                            onToggled: setMetricSmallSuffix("cpu/temp", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("Ventiladores (RPM)")
+                            checked: isMetricSmallSuffix("fan")
+                            onToggled: setMetricSmallSuffix("fan", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("Batería Consumo (W)")
+                            checked: isMetricSmallSuffix("bat/power")
+                            onToggled: setMetricSmallSuffix("bat/power", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("Red Descarga y Subida (KB/s, MB/s)")
+                            checked: isMetricSmallSuffix("net/down") || isMetricSmallSuffix("net/up")
+                            onToggled: {
+                                setMetricSmallSuffix("net/down", checked);
+                                setMetricSmallSuffix("net/up", checked);
+                            }
+                        }
+
+                        CheckBox {
+                            text: i18n("Disco Lectura / Escritura (MB/s)")
+                            checked: isMetricSmallSuffix("disk/read") || isMetricSmallSuffix("disk/write")
+                            onToggled: {
+                                setMetricSmallSuffix("disk/read", checked);
+                                setMetricSmallSuffix("disk/write", checked);
+                            }
+                        }
+
+                        CheckBox {
+                            text: i18n("Disco Temperatura (°C)")
+                            checked: isMetricSmallSuffix("disk/temp")
+                            onToggled: setMetricSmallSuffix("disk/temp", checked)
+                        }
+
+                        CheckBox {
+                            text: i18n("RAM y SWAP Usado (GB / MB)")
+                            checked: isMetricSmallSuffix("ram/used") || isMetricSmallSuffix("swap/used")
+                            onToggled: {
+                                setMetricSmallSuffix("ram/used", checked);
+                                setMetricSmallSuffix("swap/used", checked);
+                            }
+                        }
+
+                        CheckBox {
+                            text: i18n("RAM Temperatura DDR5 (°C)")
+                            checked: isMetricSmallSuffix("ram/temp")
+                            onToggled: setMetricSmallSuffix("ram/temp", checked)
                         }
                     }
                 }

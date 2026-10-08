@@ -18,6 +18,8 @@ Item {
 
     property bool padNumbers: false
 
+    property var sysfsData: null
+
     readonly property string cpuValue: {
         if (isNaN(cpuNumericValue))
             return "...";
@@ -25,18 +27,27 @@ Item {
         return padNumbers ? str.padStart(3) + "%" : str + "%";
     }
 
-    // Frequency in MHz from KSysGuard
+    // Frequency in MHz from KSysGuard with sysfs fallback
     readonly property string cpuFreqValue: {
-        if (freqSensor.status !== Sensors.Sensor.Ready || freqSensor.value == null)
+        var mhz = (freqSensor.status === Sensors.Sensor.Ready && freqSensor.value != null) ? Number(freqSensor.value) : NaN;
+        if ((isNaN(mhz) || mhz <= 0) && sysfsData && sysfsData.cpu && sysfsData.cpu.freq) {
+            mhz = sysfsData.cpu.freq;
+        }
+        if (isNaN(mhz) || mhz <= 0)
             return "...";
-        var mhz = freqSensor.value;
         if (mhz >= 1000)
             return (mhz / 1000).toFixed(2) + " GHz";
         return Math.round(mhz) + " MHz";
     }
 
-    // Peak Frequency in MHz from KSysGuard
-    readonly property real cpuPeakFreqRaw: (maxFreqSensor.status === Sensors.Sensor.Ready && maxFreqSensor.value != null) ? Number(maxFreqSensor.value) : NaN
+    // Peak Frequency in MHz from KSysGuard with sysfs fallback
+    readonly property real cpuPeakFreqRaw: {
+        var val = (maxFreqSensor.status === Sensors.Sensor.Ready && maxFreqSensor.value != null) ? Number(maxFreqSensor.value) : NaN;
+        if ((isNaN(val) || val <= 0) && sysfsData && sysfsData.cpu && sysfsData.cpu.peakFreq) {
+            val = sysfsData.cpu.peakFreq;
+        }
+        return val;
+    }
     readonly property string cpuPeakFreqValue: {
         if (isNaN(cpuPeakFreqRaw) || cpuPeakFreqRaw <= 0)
             return "...";
@@ -45,10 +56,38 @@ Item {
         return Math.round(cpuPeakFreqRaw) + " MHz";
     }
 
-    // CPU Package Power in Watts
+    // CPU Package Power in Watts with sysfs fallback
     readonly property string cpuPowerSensorId: (discovery && discovery.cpuPowerSensor) ? discovery.cpuPowerSensor : "cpu/all/power"
-    readonly property real cpuPowerRaw: (cpuPowerSensor.status === Sensors.Sensor.Ready && cpuPowerSensor.value != null && Number(cpuPowerSensor.value) > 0) ? Number(cpuPowerSensor.value) : NaN
+    readonly property real cpuPowerRaw: {
+        var p = (cpuPowerSensor.status === Sensors.Sensor.Ready && cpuPowerSensor.value != null && Number(cpuPowerSensor.value) > 0) ? Number(cpuPowerSensor.value) : NaN;
+        if ((isNaN(p) || p <= 0) && sysfsData && sysfsData.cpu && sysfsData.cpu.power) {
+            p = sysfsData.cpu.power;
+        }
+        return p;
+    }
     readonly property string cpuPowerValue: isNaN(cpuPowerRaw) ? "" : cpuPowerRaw.toFixed(1) + " W"
+
+    // CPU Voltage in Volts/mV from sysfs
+    readonly property real cpuVoltageRaw: {
+        if (sysfsData && sysfsData.cpu && sysfsData.cpu.voltage) {
+            return sysfsData.cpu.voltage;
+        }
+        return NaN;
+    }
+    readonly property string cpuVoltageValue: {
+        if (isNaN(cpuVoltageRaw) || cpuVoltageRaw <= 0) return "";
+        if (cpuVoltageRaw < 1.0) return Math.round(cpuVoltageRaw * 1000) + " mV";
+        return cpuVoltageRaw.toFixed(2) + " V";
+    }
+
+    // CPU Fan RPM from sysfs
+    readonly property int cpuFanRaw: {
+        if (sysfsData && sysfsData.cpu && sysfsData.cpu.fan !== undefined) {
+            return sysfsData.cpu.fan;
+        }
+        return -1;
+    }
+    readonly property string cpuFanValue: (cpuFanRaw >= 0) ? (cpuFanRaw + " RPM") : ""
 
     readonly property real cpuLoad1Raw: (load1Sensor.status === Sensors.Sensor.Ready && load1Sensor.value != null) ? Number(load1Sensor.value) : NaN
     readonly property real cpuLoad5Raw: (load5Sensor.status === Sensors.Sensor.Ready && load5Sensor.value != null) ? Number(load5Sensor.value) : NaN

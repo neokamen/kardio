@@ -314,6 +314,7 @@ QtObject {
     readonly property string gpuSubMetrics:       (target && target[propertyPrefix + "gpuSubMetrics"])      || "usage,vram,temp"
     readonly property string diskSubMetrics:      (target && target[propertyPrefix + "diskSubMetrics"])     || "read,write"
     readonly property string paddedMetrics:       (target && target[propertyPrefix + "paddedMetrics"] !== undefined) ? target[propertyPrefix + "paddedMetrics"] : ""
+    readonly property string smallSuffixMetrics:  (target && target[propertyPrefix + "smallSuffixMetrics"] !== undefined) ? target[propertyPrefix + "smallSuffixMetrics"] : ""
     readonly property string netDownMinUnit:      (target && target[propertyPrefix + "netDownMinUnit"] !== undefined) ? target[propertyPrefix + "netDownMinUnit"] : "auto"
     readonly property string netMinUnit:          (target && target[propertyPrefix + "netMinUnit"] !== undefined && target[propertyPrefix + "netMinUnit"] !== "") ? target[propertyPrefix + "netMinUnit"] : netDownMinUnit
 
@@ -325,6 +326,22 @@ QtObject {
         if (id && id.indexOf("/") !== -1) {
             var g = id.split("/")[0];
             if (list.indexOf(g) !== -1) return true;
+        }
+        return false;
+    }
+
+    function isMetricSmallSuffix(id, group) {
+        if (!smallSuffixMetrics || smallSuffixMetrics === "") return false;
+        var list = smallSuffixMetrics.split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+        if (id && list.indexOf(id) !== -1) return true;
+        if (group && list.indexOf(group) !== -1) return true;
+        if (id && id.indexOf("/") !== -1) {
+            var g = id.split("/")[0];
+            if (list.indexOf(g) !== -1) return true;
+        }
+        if (id && id.indexOf(":") !== -1) {
+            var g2 = id.split(":")[0];
+            if (list.indexOf(g2) !== -1) return true;
         }
         return false;
     }

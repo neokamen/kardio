@@ -23,6 +23,7 @@ Item {
     property string separatorStyle: "line"
     property bool enableNumberPadding: false
     property string paddedMetrics: ""
+    property string smallSuffixMetrics: ""
     required property bool showSeparators
     required property string backgroundType
     required property bool isPlanar
@@ -80,6 +81,7 @@ Item {
         readonly property string separatorStyle: compactRoot.separatorStyle
         readonly property bool enableNumberPadding: compactRoot.enableNumberPadding
         readonly property string paddedMetrics: compactRoot.paddedMetrics
+        readonly property string smallSuffixMetrics: compactRoot.smallSuffixMetrics
         readonly property bool showSeparators: compactRoot.showSeparators
         readonly property bool isVertical: compactRoot.isVertical
         readonly property bool customFont: compactRoot.customFont
@@ -93,6 +95,51 @@ Item {
             if (list.indexOf(key) !== -1) return true;
             var group = key.indexOf("/") !== -1 ? key.split("/")[0] : (key.indexOf(":") !== -1 ? key.split(":")[0] : key);
             return list.indexOf(group) !== -1;
+        }
+
+        function isItemSmallSuffix(key) {
+            if (!compactRow.smallSuffixMetrics || compactRow.smallSuffixMetrics === "") {
+                return false;
+            }
+            if (!key) return false;
+            var list = compactRow.smallSuffixMetrics.split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+            if (list.indexOf(key) !== -1) return true;
+            var group = key.indexOf("/") !== -1 ? key.split("/")[0] : (key.indexOf(":") !== -1 ? key.split(":")[0] : key);
+            return list.indexOf(group) !== -1;
+        }
+
+        function splitValueAndSuffix(valueStr, key) {
+            if (!valueStr || typeof valueStr !== "string") {
+                return { main: valueStr || "", suffix: "" };
+            }
+            var str = valueStr.trim();
+            if (!str) return { main: "", suffix: "" };
+
+            if (key && (key.indexOf("hotspot") !== -1 || key === "gpu.hotspot")) {
+                return { main: str, suffix: "Jnc" };
+            }
+            if (key && (key.indexOf("vramTemp") !== -1 || key === "gpu.vramTemp")) {
+                return { main: str, suffix: "Mem" };
+            }
+            if (key && (key.indexOf("ram.temp") !== -1 || key === "ram/temp")) {
+                return { main: str, suffix: "DDR" };
+            }
+
+            var m = str.match(/^([\d.,/]+(?:\s*°[CF])?)\s*([A-Za-z/%]+(?:[A-Za-z0-9/._-]+)*)$/);
+            if (m) {
+                return { main: m[1].trim(), suffix: m[2].trim() };
+            }
+
+            var lastSpace = str.lastIndexOf(" ");
+            if (lastSpace > 0) {
+                var first = str.substring(0, lastSpace).trim();
+                var second = str.substring(lastSpace + 1).trim();
+                if (second.length > 0 && isNaN(Number(second))) {
+                    return { main: first, suffix: second };
+                }
+            }
+
+            return { main: str, suffix: "" };
         }
 
         // Defers isMask+color on Kirigami.Icon items until after the Plasma startup
@@ -174,7 +221,7 @@ Item {
                 }
 
                 PlasmaComponents.Label {
-                    visible: !!modelData.label && (!compactRow.useIcons || !modelData.icon)
+                    visible: !!modelData.label && (compactRow.useText || (compactRow.useIcons && !modelData.icon && !modelData.isIconDisabled))
                     text: modelData.label || ""
                     font.pixelSize: compactRow.customFont ? compactRow.effectiveFontSize : -1
                     font.family: compactRow.fontFamily
@@ -183,23 +230,40 @@ Item {
                     opacity: compactRow.labelOpacity
                     anchors.verticalCenter: parent.verticalCenter
                 }
-                PlasmaComponents.Label {
-                    text: modelData.value
-                    font.pixelSize: compactRow.customFont ? compactRow.effectiveFontSize : -1
-                    font.family: compactRow.fontFamily
-                    font.bold: compactRow.fontBold
-                    color: modelData.color
-                    horizontalAlignment: Text.AlignRight
+
+                Row {
+                    id: segValRow
+                    spacing: 1
                     anchors.verticalCenter: parent.verticalCenter
-                    // Row is a positioner, not a Layout: pad via plain `width`
-                    // (Layout.preferredWidth has no effect here). Width only
-                    // ever grows within the session to avoid reflow when a
-                    // fluctuating value crosses a digit-count boundary.
-                    width: compactRow.isItemPadded(modelData.key || segRoot.parentKey)
-                        ? compactRow._stickyWidth(
-                            segRoot.parentKey + ":" + (modelData.key !== undefined ? modelData.key : index),
-                            implicitWidth)
-                        : implicitWidth
+                    readonly property var parsed: compactRow.splitValueAndSuffix(modelData.value, modelData.key || segRoot.parentKey)
+                    readonly property bool hasSuffix: compactRow.isItemSmallSuffix(modelData.key || segRoot.parentKey) && parsed.suffix.length > 0
+
+                    PlasmaComponents.Label {
+                        text: segValRow.hasSuffix ? segValRow.parsed.main : (modelData.value || "")
+                        font.pixelSize: compactRow.customFont ? compactRow.effectiveFontSize : -1
+                        font.family: compactRow.fontFamily
+                        font.bold: compactRow.fontBold
+                        color: modelData.color
+                        horizontalAlignment: Text.AlignRight
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: compactRow.isItemPadded(modelData.key || segRoot.parentKey)
+                            ? compactRow._stickyWidth(
+                                segRoot.parentKey + ":" + (modelData.key !== undefined ? modelData.key : index),
+                                implicitWidth)
+                            : implicitWidth
+                    }
+
+                    PlasmaComponents.Label {
+                        visible: segValRow.hasSuffix
+                        text: segValRow.parsed.suffix
+                        font.pixelSize: Math.max(7, Math.round((compactRow.customFont ? compactRow.effectiveFontSize : Kirigami.Theme.defaultFont.pixelSize) * 0.70))
+                        font.family: compactRow.fontFamily
+                        font.bold: false
+                        color: modelData.color
+                        opacity: 0.85
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: Math.max(1, Math.round((compactRow.customFont ? compactRow.effectiveFontSize : Kirigami.Theme.defaultFont.pixelSize) * 0.22))
+                    }
                 }
             }
         }
@@ -281,17 +345,36 @@ Item {
                 Layout.alignment: Qt.AlignVCenter
             }
 
-            PlasmaComponents.Label {
-                id: valueLabel
+            Row {
+                id: mainValRow
                 visible: !modelData.segments
-                text: modelData.value || ""
-                font.pixelSize: compactRow.customFont ? compactRow.effectiveFontSize : -1
-                font.family: compactRow.fontFamily
-                font.bold: compactRow.fontBold
-                color: modelData.color || compactRow.baseTextColor
-                horizontalAlignment: Text.AlignRight
+                spacing: 1
                 Layout.alignment: Qt.AlignVCenter
+                readonly property var parsed: compactRow.splitValueAndSuffix(modelData.value, modelData.key)
+                readonly property bool hasSuffix: compactRow.isItemSmallSuffix(modelData.key) && parsed.suffix.length > 0
                 Layout.preferredWidth: compactRow.isItemPadded(modelData.key) ? compactRow._stickyWidth(modelData.key || ("idx:" + index), implicitWidth) : implicitWidth
+
+                PlasmaComponents.Label {
+                    text: mainValRow.hasSuffix ? mainValRow.parsed.main : (modelData.value || "")
+                    font.pixelSize: compactRow.customFont ? compactRow.effectiveFontSize : -1
+                    font.family: compactRow.fontFamily
+                    font.bold: compactRow.fontBold
+                    color: modelData.color || compactRow.baseTextColor
+                    horizontalAlignment: Text.AlignRight
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                PlasmaComponents.Label {
+                    visible: mainValRow.hasSuffix
+                    text: mainValRow.parsed.suffix
+                    font.pixelSize: Math.max(7, Math.round((compactRow.customFont ? compactRow.effectiveFontSize : Kirigami.Theme.defaultFont.pixelSize) * 0.70))
+                    font.family: compactRow.fontFamily
+                    font.bold: false
+                    color: modelData.color || compactRow.baseTextColor
+                    opacity: 0.85
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: Math.max(1, Math.round((compactRow.customFont ? compactRow.effectiveFontSize : Kirigami.Theme.defaultFont.pixelSize) * 0.22))
+                }
             }
 
             SegmentsRow {
@@ -330,15 +413,36 @@ Item {
                     spacing: 0
                     Layout.alignment: Qt.AlignHCenter
 
-                    PlasmaComponents.Label {
+                    Row {
+                        id: vertValRow
                         visible: !modelData.segments
-                        text: modelData.value || ""
-                        font.pixelSize: compactRow.customFont ? compactRow.effectiveFontSize : -1
-                        font.family: compactRow.fontFamily
-                        font.bold: compactRow.fontBold
-                        color: modelData.color || compactRow.baseTextColor
-                        horizontalAlignment: Text.AlignHCenter
+                        spacing: 1
+                        Layout.alignment: Qt.AlignHCenter
+                        readonly property var parsed: compactRow.splitValueAndSuffix(modelData.value, modelData.key)
+                        readonly property bool hasSuffix: compactRow.isItemSmallSuffix(modelData.key) && parsed.suffix.length > 0
                         Layout.preferredWidth: compactRow.enableNumberPadding ? compactRow._stickyWidth(modelData.key || ("idx:" + index), implicitWidth) : implicitWidth
+
+                        PlasmaComponents.Label {
+                            text: vertValRow.hasSuffix ? vertValRow.parsed.main : (modelData.value || "")
+                            font.pixelSize: compactRow.customFont ? compactRow.effectiveFontSize : -1
+                            font.family: compactRow.fontFamily
+                            font.bold: compactRow.fontBold
+                            color: modelData.color || compactRow.baseTextColor
+                            horizontalAlignment: Text.AlignHCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        PlasmaComponents.Label {
+                            visible: vertValRow.hasSuffix
+                            text: vertValRow.parsed.suffix
+                            font.pixelSize: Math.max(7, Math.round((compactRow.customFont ? compactRow.effectiveFontSize : Kirigami.Theme.defaultFont.pixelSize) * 0.70))
+                            font.family: compactRow.fontFamily
+                            font.bold: false
+                            color: modelData.color || compactRow.baseTextColor
+                            opacity: 0.85
+                            anchors.bottom: parent.bottom
+                            anchors.bottomMargin: Math.max(1, Math.round((compactRow.customFont ? compactRow.effectiveFontSize : Kirigami.Theme.defaultFont.pixelSize) * 0.22))
+                        }
                     }
 
                     SegmentsRow {

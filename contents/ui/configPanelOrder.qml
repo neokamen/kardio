@@ -302,6 +302,7 @@ KCM.SimpleKCM {
             { id: "cpu/freq", label: i18n("CPU Frecuencia Media"), icon: "cpu-symbolic", group: "cpu" },
             { id: "cpu/maxFreq", label: i18n("⚡ CPU Frecuencia Pico (Turbo)"), icon: "cpu-symbolic", group: "cpu" },
             { id: "cpu/power", label: i18n("🔌 CPU Consumo (Watts)"), icon: "voltage-symbolic", group: "cpu" },
+            { id: "cpu/voltage", label: i18n("⚡ CPU Voltaje (mV / V)"), icon: "voltage-symbolic", group: "cpu" },
             { id: "cpu/temp", label: i18n("🌡️ CPU Temperatura"), icon: "temperature-symbolic", group: "cpu" },
             { id: "cpu/load1", label: i18n("CPU Carga (1m)"), icon: "cpu-symbolic", group: "cpu" }
         ];

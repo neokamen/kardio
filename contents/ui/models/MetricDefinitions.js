@@ -15,6 +15,7 @@ var GROUPS = {
             { key: "freq",    label: "Frequency" },
             { key: "maxFreq", label: "Peak Frequency" },
             { key: "power",   label: "Package Power" },
+            { key: "voltage", label: "Voltage" },
             { key: "temp",    label: "Temperature" },
             { key: "load1",   label: "Load (1m)" },
             { key: "load5",   label: "Load (5m)" },
@@ -225,6 +226,15 @@ var DEFINITIONS = {
         subKey: "power",
         sensorId: "cpu/all/power",
         label: "Package Power",
+        icon: "voltage-symbolic",
+        thresholdType: "none"
+    },
+    "cpu.voltage": {
+        id: "cpu.voltage",
+        group: "cpu",
+        subKey: "voltage",
+        sensorId: "cpu/all/voltage",
+        label: "Voltage",
         icon: "voltage-symbolic",
         thresholdType: "none"
     },

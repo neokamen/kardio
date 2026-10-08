@@ -13,6 +13,8 @@
         property string networkUnit: "bytes"
         property string diskLabels: ""
         property bool padNumbers: false
+        property var sysfsData: null
+        onSysfsDataChanged: aggregatePerDisk()
 
         readonly property string diskReadValue:  Utils.formatRate(diskReadSensor.status  === Sensors.Sensor.Ready ? diskReadSensor.value  : NaN, networkUnit, root.padNumbers)
         readonly property string diskWriteValue: Utils.formatRate(diskWriteSensor.status === Sensors.Sensor.Ready ? diskWriteSensor.value : NaN, networkUnit, root.padNumbers)
@@ -277,7 +279,12 @@
                 var wStr = !isNaN(wVal) ? Utils.formatRate(wVal, networkUnit).trim() : "...";
                 var tSensorId = _findTempSensorForDisk(d.id);
                 var tVal = tSensorId ? _tempModelValue(tSensorId) : NaN;
-                var tStr = !isNaN(tVal) ? Utils.formatTemp(tVal, tempUnit) : "";
+                if ((isNaN(tVal) || tVal <= 0) && sysfsData && sysfsData.disks) {
+                    if (sysfsData.disks[d.id]) tVal = sysfsData.disks[d.id];
+                    else if (d.id.indexOf("nvme") === 0 && sysfsData.disks["nvme"]) tVal = sysfsData.disks["nvme"];
+                    else if (sysfsData.disks["drivetemp"]) tVal = sysfsData.disks["drivetemp"];
+                }
+                var tStr = (!isNaN(tVal) && tVal > 0) ? Utils.formatTemp(tVal, tempUnit) : "";
                 var name = custom[d.id] || d.name;
                 newList.push({ id: d.id, name: name, read: rStr, write: wStr, temp: tStr, tempNumber: tVal });
             }

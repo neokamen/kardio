@@ -41,6 +41,7 @@ PlasmoidItem {
     property bool showSeparators:     profileManager.activeConfig.showSeparators
     property bool enableNumberPadding: Boolean(profileManager.activeConfig.enableNumberPadding)
     property string paddedMetrics:     profileManager.activeConfig.paddedMetrics || ""
+    property string smallSuffixMetrics: profileManager.activeConfig.smallSuffixMetrics || ""
     property string netDownMinUnit:    profileManager.activeConfig.netDownMinUnit || "auto"
     property string netMinUnit:        profileManager.activeConfig.netMinUnit || profileManager.activeConfig.netDownMinUnit || "auto"
     property bool swapDynamicUnits:    (profileManager.activeConfig.swapDynamicUnits !== undefined) ? Boolean(profileManager.activeConfig.swapDynamicUnits) : true
@@ -123,9 +124,15 @@ PlasmoidItem {
                 id: _discovery
             }
 
+            SysfsCollector {
+                id: _sysfs
+                updateInterval: metricConfig.updateInterval
+            }
+
             CpuSensors {
                 id: _cpu
                 discovery: _discovery
+                sysfsData: _sysfs.telemetry
                 updateInterval: metricConfig.updateInterval
                 padNumbers: metricConfig.isMetricPadded("cpu/usage", "cpu")
                 popupExpanded: root.expanded
@@ -155,6 +162,7 @@ PlasmoidItem {
             TempSensors {
                 id: _temp
                 discovery: _discovery
+                sysfsData: _sysfs.telemetry
                 updateInterval: metricConfig.updateInterval
                 tempUnit: metricConfig.tempUnit
                 padNumbers: metricConfig.isMetricPadded("temp/system", "temp")
@@ -163,6 +171,7 @@ PlasmoidItem {
             GpuSensors {
                 id: _gpu
                 discovery: _discovery
+                sysfsData: _sysfs.telemetry
                 updateInterval: metricConfig.updateInterval
                 gpuSubMetrics: metricConfig.gpuSubMetrics
                 gpuSelection: metricConfig.gpuSelection
@@ -174,6 +183,7 @@ PlasmoidItem {
             BatterySensors {
                 id: _battery
                 discovery: _discovery
+                sysfsData: _sysfs.telemetry
                 updateInterval: metricConfig.updateInterval
                 batteryDevice: metricConfig.batteryDevice || "auto"
                 padNumbers: metricConfig.isMetricPadded("bat/percentage", "bat")
@@ -195,6 +205,7 @@ PlasmoidItem {
             DiskSensors {
                 id: _disk
                 discovery: _discovery
+                sysfsData: _sysfs.telemetry
                 updateInterval: metricConfig.updateInterval
                 enabled: true
                 tempUnit: metricConfig.tempUnit
@@ -206,6 +217,7 @@ PlasmoidItem {
             FanSensors {
                 id: _fans
                 discovery: _discovery
+                sysfsData: _sysfs.telemetry
                 updateInterval: metricConfig.updateInterval
                 fanUnit: metricConfig.fanUnit
                 fanLabels: metricConfig.fanLabels
@@ -248,6 +260,7 @@ PlasmoidItem {
         property string label: ""
         property string icon: ""
         property string key: ""
+        property bool isIconDisabled: false
     }
 
     component CompactItem: QtObject {
@@ -258,6 +271,7 @@ PlasmoidItem {
         property string key: ""
         property var segments: null
         property bool hideSeparator: false
+        property bool isIconDisabled: false
         property string _groupBaseLabel: ""
         property string _firstSubLabel: ""
         property string _firstSubIcon: ""
@@ -278,7 +292,8 @@ PlasmoidItem {
                     color: rawSeg.color || "transparent",
                     label: rawSeg.label || "",
                     icon: rawSeg.icon || "",
-                    key: rawSeg.key || ""
+                    key: rawSeg.key || "",
+                    isIconDisabled: Boolean(rawSeg.isIconDisabled)
                 });
                 segs.push(segObj);
             }
@@ -291,6 +306,7 @@ PlasmoidItem {
             key: raw.key || "",
             segments: segs,
             hideSeparator: Boolean(raw.hideSeparator),
+            isIconDisabled: Boolean(raw.isIconDisabled),
             _groupBaseLabel: raw._groupBaseLabel || "",
             _firstSubLabel: raw._firstSubLabel || "",
             _firstSubIcon: raw._firstSubIcon || "",
@@ -477,6 +493,12 @@ PlasmoidItem {
                 root._updatePopupGroups();
             }
         }
+        function onSmallSuffixMetricsChanged() {
+            root._updateCompactItems();
+            if (root.expanded) {
+                root._updatePopupGroups();
+            }
+        }
         function onNetDownMinUnitChanged() {
             root._updateCompactItems();
             if (root.expanded) {
@@ -510,6 +532,7 @@ PlasmoidItem {
         separatorStyle: root.separatorStyle
         enableNumberPadding: root.enableNumberPadding
         paddedMetrics: root.paddedMetrics
+        smallSuffixMetrics: root.smallSuffixMetrics
         showSeparators: root.showSeparators
         onToggleExpanded: root.expanded = !root.expanded
 
