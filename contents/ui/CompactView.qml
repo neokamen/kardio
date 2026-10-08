@@ -63,7 +63,7 @@ Item {
     RowLayout {
         id: compactRow
         anchors.centerIn: parent
-        spacing: Math.round(Kirigami.Units.gridUnit * 0.65)
+        spacing: Math.round(Kirigami.Units.smallSpacing * 1.5)
 
         readonly property var metricsModel: compactRoot.metricsModel
         readonly property bool useIcons: compactRoot.useIcons
@@ -264,10 +264,15 @@ Item {
         onLayoutTypeChanged: resetStickyWidths()
         onUseIconsChanged: resetStickyWidths()
         onUseTextChanged: resetStickyWidths()
+        onMetricsModelChanged: resetStickyWidths()
+        onPaddedMetricsChanged: resetStickyWidths()
+        onSmallSuffixMetricsChanged: resetStickyWidths()
+        onEnableNumberPaddingChanged: resetStickyWidths()
 
         function _stickyWidth(key, w) {
             var cur = _stickyWidths[key] || 0;
-            if (w > cur) {
+            // Prevent large stale empty gaps (allow at most 16px growth for jitter)
+            if (w > cur || cur > w + 16) {
                 _stickyWidths[key] = w;
                 cur = w;
             }
@@ -347,7 +352,7 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         width: compactRow.isItemPadded(modelData, segRoot.parentKey)
                             ? compactRow._stickyWidth(
-                                segRoot.parentKey + ":" + (modelData.key !== undefined ? modelData.key : index),
+                                (modelData.id || (segRoot.parentKey + ":" + (modelData.key !== undefined ? modelData.key : index))),
                                 implicitWidth)
                             : implicitWidth
                     }
@@ -453,7 +458,6 @@ Item {
                 Layout.alignment: Qt.AlignVCenter
                 readonly property var parsed: compactRow.splitValueAndSuffix(modelData.value, modelData)
                 readonly property bool hasSuffix: compactRow.isItemSmallSuffix(modelData) && parsed.suffix.length > 0
-                Layout.preferredWidth: compactRow.isItemPadded(modelData) ? compactRow._stickyWidth(modelData.key || ("idx:" + index), implicitWidth) : implicitWidth
 
                 PlasmaComponents.Label {
                     id: mainValLbl
@@ -464,6 +468,9 @@ Item {
                     color: modelData.color || compactRow.baseTextColor
                     horizontalAlignment: Text.AlignRight
                     anchors.verticalCenter: parent.verticalCenter
+                    width: compactRow.isItemPadded(modelData)
+                        ? compactRow._stickyWidth(modelData.id || modelData.key || ("idx:" + index), implicitWidth)
+                        : implicitWidth
                 }
 
                 PlasmaComponents.Label {
@@ -524,7 +531,6 @@ Item {
                         Layout.alignment: Qt.AlignHCenter
                         readonly property var parsed: compactRow.splitValueAndSuffix(modelData.value, modelData)
                         readonly property bool hasSuffix: compactRow.isItemSmallSuffix(modelData) && parsed.suffix.length > 0
-                        Layout.preferredWidth: compactRow.isItemPadded(modelData) ? compactRow._stickyWidth(modelData.key || ("idx:" + index), implicitWidth) : implicitWidth
 
                         PlasmaComponents.Label {
                             id: vertMainLbl
@@ -535,6 +541,9 @@ Item {
                             color: modelData.color || compactRow.baseTextColor
                             horizontalAlignment: Text.AlignHCenter
                             anchors.verticalCenter: parent.verticalCenter
+                            width: compactRow.isItemPadded(modelData)
+                                ? compactRow._stickyWidth(modelData.id || modelData.key || ("idx:" + index), implicitWidth)
+                                : implicitWidth
                         }
 
                         PlasmaComponents.Label {

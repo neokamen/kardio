@@ -96,6 +96,7 @@ KCM.SimpleKCM {
 
                 Flow {
                     Layout.fillWidth: true
+                    width: parent.width
                     spacing: Kirigami.Units.smallSpacing
 
                     // CPU Badge
@@ -228,6 +229,7 @@ KCM.SimpleKCM {
 
                 Flow {
                     Layout.fillWidth: true
+                    width: parent.width
                     spacing: Kirigami.Units.smallSpacing
 
                     Button {
@@ -293,23 +295,30 @@ KCM.SimpleKCM {
             contentItem: ColumnLayout {
                 spacing: Kirigami.Units.mediumSpacing
 
-                RowLayout {
+                ColumnLayout {
                     Layout.fillWidth: true
-                    spacing: Kirigami.Units.mediumSpacing
-                    Label { text: i18n("GPUs Seleccionadas:"); font.weight: Font.DemiBold; Layout.preferredWidth: 150 }
+                    spacing: Kirigami.Units.smallSpacing
 
-                    Repeater {
-                        model: discovery.discoveredGpus
-                        delegate: Button {
-                            required property var modelData
-                            text: modelData.name + " (" + modelData.id + ")"
-                            highlighted: cfg_gpuSelection === "" || cfg_gpuSelection.indexOf(modelData.id) !== -1
-                            onClicked: {
-                                var cur = cfg_gpuSelection ? cfg_gpuSelection.split(",") : [];
-                                var idx = cur.indexOf(modelData.id);
-                                if (idx !== -1) cur.splice(idx, 1);
-                                else cur.push(modelData.id);
-                                cfg_gpuSelection = cur.join(",");
+                    Label { text: i18n("GPUs Seleccionadas:"); font.weight: Font.DemiBold }
+
+                    Flow {
+                        Layout.fillWidth: true
+                        width: parent.width
+                        spacing: Kirigami.Units.smallSpacing
+
+                        Repeater {
+                            model: discovery.discoveredGpus
+                            delegate: Button {
+                                required property var modelData
+                                text: modelData.name + " (" + modelData.id + ")"
+                                highlighted: cfg_gpuSelection === "" || cfg_gpuSelection.indexOf(modelData.id) !== -1
+                                onClicked: {
+                                    var cur = cfg_gpuSelection ? cfg_gpuSelection.split(",") : [];
+                                    var idx = cur.indexOf(modelData.id);
+                                    if (idx !== -1) cur.splice(idx, 1);
+                                    else cur.push(modelData.id);
+                                    cfg_gpuSelection = cur.join(",");
+                                }
                             }
                         }
                     }
@@ -319,6 +328,7 @@ KCM.SimpleKCM {
 
                 Flow {
                     Layout.fillWidth: true
+                    width: parent.width
                     spacing: Kirigami.Units.smallSpacing
 
                     Button {
@@ -388,21 +398,25 @@ KCM.SimpleKCM {
             contentItem: ColumnLayout {
                 spacing: Kirigami.Units.mediumSpacing
 
-                RowLayout {
+                GridLayout {
                     Layout.fillWidth: true
-                    spacing: Kirigami.Units.mediumSpacing
-                    Label { text: i18n("Etiqueta RAM:"); font.weight: Font.DemiBold; Layout.preferredWidth: 150 }
+                    width: parent.width
+                    columns: width > 520 ? 4 : 2
+                    columnSpacing: Kirigami.Units.mediumSpacing
+                    rowSpacing: Kirigami.Units.smallSpacing
+
+                    Label { text: i18n("Etiqueta RAM:"); font.weight: Font.DemiBold }
                     TextField {
                         text: cfg_ramLabel
                         placeholderText: "RAM"
-                        Layout.preferredWidth: 200
+                        Layout.fillWidth: true
                         onTextEdited: cfg_ramLabel = text.trim() || "RAM"
                     }
-                    Label { text: i18n("Etiqueta Swap:"); font.weight: Font.DemiBold; Layout.preferredWidth: 120 }
+                    Label { text: i18n("Etiqueta Swap:"); font.weight: Font.DemiBold }
                     TextField {
                         text: cfg_swapLabel
                         placeholderText: "SWAP"
-                        Layout.preferredWidth: 200
+                        Layout.fillWidth: true
                         onTextEdited: cfg_swapLabel = text.trim() || "SWAP"
                     }
                 }
@@ -411,6 +425,7 @@ KCM.SimpleKCM {
 
                 Flow {
                     Layout.fillWidth: true
+                    width: parent.width
                     spacing: Kirigami.Units.smallSpacing
 
                     Button {
@@ -476,6 +491,7 @@ KCM.SimpleKCM {
 
                 Flow {
                     Layout.fillWidth: true
+                    width: parent.width
                     spacing: Kirigami.Units.smallSpacing
 
                     Button {
@@ -543,6 +559,7 @@ KCM.SimpleKCM {
 
                 Flow {
                     Layout.fillWidth: true
+                    width: parent.width
                     spacing: Kirigami.Units.smallSpacing
 
                     Button {

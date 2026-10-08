@@ -405,6 +405,8 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
             if (groupKey === "ram") {
                 if (showBlockLeadingIcon && hasRamPinned && disabledList.indexOf("ram") === -1 && disabledList.indexOf("memory") === -1) {
                     existingItem.icon = existingItem._groupIcon || "memory-symbolic";
+                } else if (!showBlockLeadingIcon || disabledList.indexOf("ram") !== -1 || disabledList.indexOf("memory") !== -1) {
+                    existingItem.icon = "";
                 }
             }
         } else {

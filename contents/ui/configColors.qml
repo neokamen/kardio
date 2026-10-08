@@ -179,31 +179,45 @@ KCM.SimpleKCM {
                 }
 
                 // Quick Palette Presets
-                RowLayout {
-                    enabled: cfg_useCustomColors
+                ColumnLayout {
+                    Layout.fillWidth: true
                     spacing: Kirigami.Units.smallSpacing
-                    Label { text: i18n("Paletas rápidas:"); opacity: 0.7; Layout.preferredWidth: 120 }
+                    enabled: cfg_useCustomColors
 
-                    Button {
-                        text: "Cyan Cyberpunk"
-                        onClicked: { cfg_fontColor = "#00f0ff"; cfg_labelColor = "#00b8d4"; cfg_iconColor = "#00e5ff"; }
+                    Label {
+                        text: i18n("Paletas rápidas:")
+                        opacity: 0.7
+                        font.weight: Font.DemiBold
                     }
-                    Button {
-                        text: "Neon Purple"
-                        onClicked: { cfg_fontColor = "#e056fd"; cfg_labelColor = "#be2edd"; cfg_iconColor = "#f0932b"; }
-                    }
-                    Button {
-                        text: "Emerald Matrix"
-                        onClicked: { cfg_fontColor = "#2ecc71"; cfg_labelColor = "#27ae60"; cfg_iconColor = "#1abc9c"; }
-                    }
-                    Button {
-                        text: "Restablecer"
-                        onClicked: { cfg_fontColor = ""; cfg_labelColor = ""; cfg_iconColor = ""; }
+
+                    Flow {
+                        Layout.fillWidth: true
+                        width: parent.width
+                        spacing: Kirigami.Units.smallSpacing
+
+                        Button {
+                            text: "Cyan Cyberpunk"
+                            onClicked: { cfg_fontColor = "#00f0ff"; cfg_labelColor = "#00b8d4"; cfg_iconColor = "#00e5ff"; }
+                        }
+                        Button {
+                            text: "Neon Purple"
+                            onClicked: { cfg_fontColor = "#e056fd"; cfg_labelColor = "#be2edd"; cfg_iconColor = "#f0932b"; }
+                        }
+                        Button {
+                            text: "Emerald Matrix"
+                            onClicked: { cfg_fontColor = "#2ecc71"; cfg_labelColor = "#27ae60"; cfg_iconColor = "#1abc9c"; }
+                        }
+                        Button {
+                            text: i18n("Restablecer")
+                            icon.name: "edit-undo"
+                            onClicked: { cfg_fontColor = ""; cfg_labelColor = ""; cfg_iconColor = ""; }
+                        }
                     }
                 }
 
                 GridLayout {
                     columns: 3
+                    Layout.fillWidth: true
                     enabled: cfg_useCustomColors
                     columnSpacing: Kirigami.Units.mediumSpacing
                     rowSpacing: Kirigami.Units.smallSpacing
@@ -306,7 +320,9 @@ KCM.SimpleKCM {
                     }
                 }
 
-                RowLayout {
+                Flow {
+                    Layout.fillWidth: true
+                    width: parent.width
                     enabled: cfg_enableThresholdColors
                     spacing: Kirigami.Units.largeSpacing
 
@@ -364,7 +380,9 @@ KCM.SimpleKCM {
             }
 
             contentItem: GridLayout {
-                columns: 2
+                columns: width > 520 ? 2 : 1
+                Layout.fillWidth: true
+                width: parent.width
                 columnSpacing: Kirigami.Units.largeSpacing
                 rowSpacing: Kirigami.Units.mediumSpacing
 
@@ -441,7 +459,9 @@ KCM.SimpleKCM {
             }
 
             contentItem: GridLayout {
-                columns: 2
+                columns: width > 520 ? 2 : 1
+                Layout.fillWidth: true
+                width: parent.width
                 columnSpacing: Kirigami.Units.largeSpacing
                 rowSpacing: Kirigami.Units.mediumSpacing
 

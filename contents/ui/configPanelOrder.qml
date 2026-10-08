@@ -129,6 +129,30 @@ KCM.SimpleKCM {
         cfg_disabledIcons = list.join(",");
     }
 
+    function setMetricIconActive(id, active) {
+        if (!id) return;
+        var list = cfg_disabledIcons ? cfg_disabledIcons.split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; }) : [];
+        var idx = list.indexOf(id);
+        if (!active && idx === -1) {
+            list.push(id);
+        } else if (active && idx !== -1) {
+            list.splice(idx, 1);
+        }
+        cfg_disabledIcons = list.join(",");
+    }
+
+    readonly property var blockThemes: [
+        { id: "cpu", name: i18n("CPU"), icon: "cpu-symbolic", color: "#3498db" },
+        { id: "gpu", name: i18n("GPU"), icon: "gpu-symbolic", color: "#9b59b6" },
+        { id: "ram", name: i18n("RAM"), icon: "memory-symbolic", color: "#2ecc71" },
+        { id: "disk", name: i18n("Discos"), icon: "storage-symbolic", color: "#e67e22" },
+        { id: "net", name: i18n("Red"), icon: "network-symbolic", color: "#f1c40f" },
+        { id: "fan", name: i18n("Ventiladores"), icon: "fan-symbolic", color: "#00cec9" },
+        { id: "bat", name: i18n("Batería"), icon: "battery-symbolic", color: "#1abc9c" },
+        { id: "temp", name: i18n("Temperatura"), icon: "temperature-symbolic", color: "#e74c3c" },
+        { id: "uptime", name: i18n("Sistema"), icon: "system-symbolic", color: Kirigami.Theme.highlightColor }
+    ]
+
     Connections {
         target: (typeof Plasmoid !== "undefined" && Plasmoid.configuration) ? Plasmoid.configuration : null
         function onPinnedMetricsChanged() {
@@ -640,18 +664,14 @@ KCM.SimpleKCM {
         }
 
         // ═══════════════════════════════════════════════════════════════════
-        // 2. INTERRUPTOR MAESTRO: ICONO DELANTERO TEMÁTICO DE BLOQUE
+        // 2. ICONOS DELANTEROS TEMÁTICOS POR BLOQUE
         // ═══════════════════════════════════════════════════════════════════
         Rectangle {
             Layout.fillWidth: true
             implicitHeight: blockIconCol.implicitHeight + (Kirigami.Units.largeSpacing * 2)
             radius: Kirigami.Units.smallSpacing * 1.5
-            color: panelOrderPage.cfg_showBlockLeadingIcon
-                ? Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.08)
-                : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.04)
-            border.color: panelOrderPage.cfg_showBlockLeadingIcon
-                ? Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.35)
-                : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.15)
+            color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.03)
+            border.color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.15)
             border.width: 1
 
             ColumnLayout {
@@ -660,7 +680,7 @@ KCM.SimpleKCM {
                 anchors.right: parent.right
                 anchors.top: parent.top
                 anchors.margins: Kirigami.Units.largeSpacing
-                spacing: Kirigami.Units.smallSpacing
+                spacing: Kirigami.Units.mediumSpacing
 
                 RowLayout {
                     Layout.fillWidth: true
@@ -677,13 +697,13 @@ KCM.SimpleKCM {
                         spacing: 2
 
                         Kirigami.Heading {
-                            text: i18n("Icono Delantero Temático de Bloque")
+                            text: i18n("Icono Delantero Temático por Bloque")
                             level: 3
                             Layout.fillWidth: true
                         }
 
                         QQC2.Label {
-                            text: i18n("Control maestro para mostrar u ocultar el icono temático frontal al frente de cada bloque (ej. CPU, GPU, Red, RAM, Discos).")
+                            text: i18n("Elige individualmente para cada bloque temático si deseas mostrar u ocultar su icono frontal:")
                             font.pixelSize: Kirigami.Theme.smallFont.pixelSize
                             opacity: 0.75
                             wrapMode: Text.WordWrap
@@ -691,23 +711,92 @@ KCM.SimpleKCM {
                         }
                     }
 
-                    QQC2.Switch {
-                        id: blockLeadingIconSwitch
-                        checked: panelOrderPage.cfg_showBlockLeadingIcon
-                        onToggled: panelOrderPage.cfg_showBlockLeadingIcon = checked
-                        text: checked ? i18n("Activado") : i18n("Desactivado")
+                    RowLayout {
+                        spacing: Kirigami.Units.smallSpacing
+
+                        QQC2.Button {
+                            text: i18n("Activar todos")
+                            icon.name: "checkbox"
+                            onClicked: {
+                                var list = panelOrderPage.cfg_disabledIcons ? panelOrderPage.cfg_disabledIcons.split(",") : [];
+                                var themes = ["cpu", "gpu", "ram", "disk", "net", "fan", "bat", "temp", "uptime"];
+                                list = list.filter(function(x) { return themes.indexOf(x.trim()) === -1; });
+                                panelOrderPage.cfg_disabledIcons = list.join(",");
+                            }
+                        }
+
+                        QQC2.Button {
+                            text: i18n("Ocultar todos")
+                            icon.name: "edit-clear"
+                            onClicked: {
+                                var list = panelOrderPage.cfg_disabledIcons ? panelOrderPage.cfg_disabledIcons.split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; }) : [];
+                                var themes = ["cpu", "gpu", "ram", "disk", "net", "fan", "bat", "temp", "uptime"];
+                                for (var t = 0; t < themes.length; t++) {
+                                    if (list.indexOf(themes[t]) === -1) list.push(themes[t]);
+                                }
+                                panelOrderPage.cfg_disabledIcons = list.join(",");
+                            }
+                        }
                     }
                 }
 
-                QQC2.Label {
-                    text: panelOrderPage.cfg_showBlockLeadingIcon
-                        ? i18n("✓ Cada bloque temático muestra su icono delantero decorativo. Si desactivas un icono individual en la secuencia de abajo con el botón del ojo o en la pestaña Iconos, prevalecerá su personalización.")
-                        : i18n("✗ Todos los bloques agrupados ocultan su icono delantero. Los valores numéricos y flechas de subida/bajada se mostrarán directamente sin icono frontal decorativo.")
-                    font.pixelSize: Kirigami.Theme.smallFont.pixelSize
-                    font.italic: true
-                    color: panelOrderPage.cfg_showBlockLeadingIcon ? Kirigami.Theme.highlightColor : Kirigami.Theme.disabledTextColor
-                    wrapMode: Text.WordWrap
+                GridLayout {
                     Layout.fillWidth: true
+                    columns: width > 760 ? 5 : (width > 480 ? 3 : 2)
+                    columnSpacing: Kirigami.Units.smallSpacing
+                    rowSpacing: Kirigami.Units.smallSpacing
+
+                    Repeater {
+                        model: panelOrderPage.blockThemes
+                        delegate: Rectangle {
+                            id: themeTile
+                            required property var modelData
+                            Layout.fillWidth: true
+                            implicitHeight: 40
+                            radius: 6
+                            readonly property bool isActive: panelOrderPage.isMetricIconActive(themeTile.modelData.id)
+                            color: isActive
+                                ? Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.12)
+                                : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.04)
+                            border.color: isActive
+                                ? Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.45)
+                                : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.15)
+                            border.width: 1
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 10
+                                anchors.rightMargin: 8
+                                spacing: 8
+
+                                Kirigami.Icon {
+                                    source: panelOrderPage.resolveIcon(themeTile.modelData.icon)
+                                    implicitWidth: 18; implicitHeight: 18
+                                    color: themeTile.isActive ? themeTile.modelData.color : Kirigami.Theme.disabledTextColor
+                                    opacity: themeTile.isActive ? 1.0 : 0.4
+                                }
+
+                                QQC2.Label {
+                                    Layout.fillWidth: true
+                                    text: themeTile.modelData.name
+                                    font.weight: themeTile.isActive ? Font.DemiBold : Font.Normal
+                                    opacity: themeTile.isActive ? 1.0 : 0.6
+                                    elide: Text.ElideRight
+                                }
+
+                                QQC2.Switch {
+                                    checked: themeTile.isActive
+                                    onToggled: panelOrderPage.setMetricIconActive(themeTile.modelData.id, checked)
+                                }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: panelOrderPage.setMetricIconActive(themeTile.modelData.id, !themeTile.isActive)
+                            }
+                        }
+                    }
                 }
             }
         }
