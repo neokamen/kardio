@@ -29,6 +29,7 @@ KCM.SimpleKCM {
     property string cfg_diskLabel: "DSK"
     property string cfg_diskLabels: ""
     property string cfg_diskSubMetrics: "read,write"
+    property string cfg_diskTempIcon: "temperature-symbolic"
     property string cfg_fanLabel: "FAN"
     property string cfg_fanLabels: ""
     property int cfg_fanMaxRpm: 2000
@@ -518,6 +519,32 @@ KCM.SimpleKCM {
                         text: i18n("🌡️ Temperatura de Discos")
                         highlighted: hasSub(cfg_diskSubMetrics, "temp")
                         onClicked: cfg_diskSubMetrics = toggleSub(cfg_diskSubMetrics, "temp")
+                    }
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Kirigami.Units.smallSpacing
+                    visible: hasSub(cfg_diskSubMetrics, "temp")
+
+                    Label {
+                        text: i18n("Icono de temperatura:")
+                        font.weight: Font.DemiBold
+                        Layout.preferredWidth: 150
+                    }
+
+                    Button {
+                        text: i18n("Termómetro (🌡️)")
+                        icon.name: "temperature-symbolic"
+                        highlighted: cfg_diskTempIcon === "temperature-symbolic"
+                        onClicked: cfg_diskTempIcon = "temperature-symbolic"
+                    }
+
+                    Button {
+                        text: i18n("Disco Duro (🖴)")
+                        icon.name: "storage-symbolic"
+                        highlighted: cfg_diskTempIcon === "storage-symbolic"
+                        onClicked: cfg_diskTempIcon = "storage-symbolic"
                     }
                 }
             }

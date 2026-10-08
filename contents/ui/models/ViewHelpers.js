@@ -290,6 +290,9 @@ function _resolveSegmentIcon(metric, disabledList) {
     if (metric.group === "swap") {
         return metric.icon || "swap-symbolic";
     }
+    if (metric.group === "disk" && metric.subKey === "temp") {
+        return metric.icon || "temperature-symbolic";
+    }
     if (metric.subKey === "temp" || metric.subKey === "hotspot" || metric.subKey === "vramTemp" || (metric.group === "ram" && metric.subKey === "temp")) {
         return metric.icon || "temperature-symbolic";
     }
@@ -333,7 +336,7 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
     var metricMap = {};
     for (var mIdx = 0; mIdx < metricsList.length; mIdx++) {
         var m = metricsList[mIdx];
-        if (m.status === "ready") {
+        if (m.status === "ready" || m.status === "loading") {
             metricMap[m.id] = m;
         }
     }
@@ -428,9 +431,10 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
             var isItemIconDis = _isIndicatorDisabled(metric, disabledList);
             if (isItemIconDis) {
                 itemIcon = "";
-            } else if (metric.icon === metric.groupIcon && !_isBlockLeadingIconEnabled(metric.group, showBlockLeadingIcon, disabledBlockList)) {
-                // If it's the generic group leading icon and the block theme is disabled, omit it
-                itemIcon = "";
+            } else if (!metric.subKey || metric.subKey === "usage") {
+                if (metric.icon === metric.groupIcon && !_isBlockLeadingIconEnabled(metric.group, showBlockLeadingIcon, disabledBlockList)) {
+                    itemIcon = "";
+                }
             }
             var initialSegIcon = _resolveSegmentIcon(metric, disabledList);
             var groupIcon = metric.groupIcon || "";

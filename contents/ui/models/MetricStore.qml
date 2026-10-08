@@ -109,7 +109,7 @@ Item {
         var defIcon = def.icon ? cfg.resolveIcon(def.icon) : (def.iconOverrideKey ? cfg[def.iconOverrideKey] : cfg.getGroupIcon(group));
         if (defId === "gpu.temp" && cfg && cfg.gpuTempIcon) defIcon = cfg.resolveIcon(cfg.gpuTempIcon);
         if (defId === "cpu.temp" && cfg && cfg.cpuTempIcon) defIcon = cfg.resolveIcon(cfg.cpuTempIcon);
-        if (defId === "disk.temp" && cfg) defIcon = cfg.resolveIcon("temperature-symbolic");
+        if (defId === "disk.temp" && cfg && cfg.diskTempIcon) defIcon = cfg.resolveIcon(cfg.diskTempIcon);
         var rawIcon = overrides.icon !== undefined ? overrides.icon : defIcon;
         var finalIcon = isIconAllowed ? rawIcon : "";
 
@@ -570,32 +570,32 @@ Item {
                         status: "ready"
                     }));
                     var dtVal = (dd.temp && dd.temp.length > 0) ? dd.temp : (!isNaN(dd.tempNumber) && dd.tempNumber > 0 ? Utils.formatTemp(dd.tempNumber, cfg ? cfg.tempUnit : "C") : "");
-                    if (dtVal.length > 0 || !isNaN(dd.tempNumber)) {
-                        var dtId = Defs.buildInstanceId("disk", dd.id, "temp");
-                        var dtIconAllowed = cfg ? cfg.isIconEnabled(dtId, "disk") : true;
+                    var dtId = Defs.buildInstanceId("disk", dd.id, "temp");
+                    var dtIconAllowed = cfg ? cfg.isIconEnabled(dtId, "disk") : true;
+                    var dtIconName = (cfg && cfg.diskTempIcon) ? cfg.diskTempIcon : "temperature-symbolic";
+                    var isDtReady = (dtVal.length > 0 && dtVal !== "..." && dtVal !== "--") || (!isNaN(dd.tempNumber) && dd.tempNumber > 0);
+                    list.push(_createMetric("disk.temp", {
+                        deviceId: dd.id, deviceName: dName,
+                        label: dName, groupLabel: dName,
+                        subLabel: "Temp",
+                        icon: dtIconAllowed ? (cfg ? cfg.resolveIcon(dtIconName) : dtIconName) : "",
+                        value: dd.tempNumber,
+                        displayValue: dtVal || "...",
+                        status: isDtReady ? "ready" : "loading"
+                    }));
+                    if (!hasGenericDiskTemp) {
+                        var genDtAllowed = cfg ? cfg.isIconEnabled("disk/temp", "disk") : true;
                         list.push(_createMetric("disk.temp", {
-                            deviceId: dd.id, deviceName: dName,
-                            label: dName, groupLabel: dName,
-                            subLabel: dName,
-                            icon: dtIconAllowed ? (cfg ? cfg.resolveIcon("temperature-symbolic") : "temperature-symbolic") : "",
+                            id: "disk/temp",
+                            deviceId: "", deviceName: dName,
+                            label: cfg.diskLabel + " Temp", groupLabel: cfg.diskLabel,
+                            subLabel: "Temp",
+                            icon: genDtAllowed ? (cfg ? cfg.resolveIcon(dtIconName) : dtIconName) : "",
                             value: dd.tempNumber,
                             displayValue: dtVal || "...",
-                            status: (!isNaN(dd.tempNumber) && dd.tempNumber > 0) ? "ready" : "loading"
+                            status: isDtReady ? "ready" : "loading"
                         }));
-                        if (!hasGenericDiskTemp) {
-                            var genDtAllowed = cfg ? cfg.isIconEnabled("disk/temp", "disk") : true;
-                            list.push(_createMetric("disk.temp", {
-                                id: "disk/temp",
-                                deviceId: "", deviceName: dName,
-                                label: cfg.diskLabel + " Temp", groupLabel: cfg.diskLabel,
-                                subLabel: "Temp",
-                                icon: genDtAllowed ? (cfg ? cfg.resolveIcon("temperature-symbolic") : "temperature-symbolic") : "",
-                                value: dd.tempNumber,
-                                displayValue: dtVal || "...",
-                                status: (!isNaN(dd.tempNumber) && dd.tempNumber > 0) ? "ready" : "loading"
-                            }));
-                            hasGenericDiskTemp = true;
-                        }
+                        hasGenericDiskTemp = true;
                     }
                 }
             }

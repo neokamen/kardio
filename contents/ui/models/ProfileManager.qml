@@ -81,6 +81,7 @@ QtObject {
         tempIcon:                 "temperature-symbolic",
         gpuTempIcon:              "temperature-symbolic",
         cpuTempIcon:              "temperature-symbolic",
+        diskTempIcon:             "temperature-symbolic",
         showBlockLeadingIcon:     true,
         gpuIcon:                  "gpu-symbolic",
         batteryIcon:              "battery-symbolic",
@@ -204,6 +205,7 @@ QtObject {
         property string tempIcon:                 "temperature-symbolic"
         property string gpuTempIcon:              "temperature-symbolic"
         property string cpuTempIcon:              "temperature-symbolic"
+        property string diskTempIcon:             "temperature-symbolic"
         property bool   showBlockLeadingIcon:     true
         property string gpuIcon:                  "gpu-symbolic"
         property string batteryIcon:              "battery-symbolic"

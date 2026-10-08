@@ -204,6 +204,9 @@
         <entry name="cpuTempIcon" type="String">
             <default>temperature-symbolic</default>
         </entry>
+        <entry name="diskTempIcon" type="String">
+            <default>temperature-symbolic</default>
+        </entry>
         <entry name="showBlockLeadingIcon" type="Bool">
             <default>true</default>
         </entry>

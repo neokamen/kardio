@@ -22,6 +22,7 @@ KCM.SimpleKCM {
     property string cfg_batLabel: "BAT"
     property string cfg_disabledIcons: ""
     property string cfg_disabledBlockIcons: ""
+    property string cfg_diskTempIcon: "temperature-symbolic"
     property bool cfg_showBlockLeadingIcon: true
 
     HardwareDiscovery {
@@ -104,6 +105,9 @@ KCM.SimpleKCM {
             }
             if (Plasmoid.configuration.disabledBlockIcons !== undefined) {
                 cfg_disabledBlockIcons = Plasmoid.configuration.disabledBlockIcons;
+            }
+            if (Plasmoid.configuration.diskTempIcon !== undefined) {
+                cfg_diskTempIcon = Plasmoid.configuration.diskTempIcon;
             }
             if (Plasmoid.configuration.showBlockLeadingIcon !== undefined) {
                 cfg_showBlockLeadingIcon = Plasmoid.configuration.showBlockLeadingIcon;
@@ -203,6 +207,9 @@ KCM.SimpleKCM {
             panelOrderPage.reloadFromConfiguration();
         }
         function onDisabledBlockIconsChanged() {
+            panelOrderPage.reloadFromConfiguration();
+        }
+        function onDiskTempIconChanged() {
             panelOrderPage.reloadFromConfiguration();
         }
         function onShowBlockLeadingIconChanged() {
@@ -325,7 +332,7 @@ KCM.SimpleKCM {
             } else if (subKey === "write") {
                 icon = "network-upload-symbolic";
             } else if (subKey === "temp") {
-                icon = "temperature-symbolic";
+                icon = panelOrderPage.cfg_diskTempIcon || "temperature-symbolic";
             }
             previewVal = subKey === "read" ? "↓ 42MB" : (subKey === "write" ? "↑ 18MB" : (subKey === "usage" ? "38%" : "42°C"));
         } else if (group === "fan") {
@@ -451,8 +458,9 @@ KCM.SimpleKCM {
             var dName = panelOrderPage.getDiskDisplayName(did);
             diskItems.push({ id: "disk:" + did + "/read", label: dName + " Lectura", icon: "network-download-symbolic", group: "disk" });
             diskItems.push({ id: "disk:" + did + "/write", label: dName + " Escritura", icon: "network-upload-symbolic", group: "disk" });
-            diskItems.push({ id: "disk:" + did + "/temp", label: dName + " Temp", icon: "temperature-symbolic", group: "disk" });
+            diskItems.push({ id: "disk:" + did + "/temp", label: dName + " Temp", icon: panelOrderPage.cfg_diskTempIcon || "temperature-symbolic", group: "disk" });
         }
+        diskItems.push({ id: "disk/temp", label: i18n("Discos Temp Global"), icon: panelOrderPage.cfg_diskTempIcon || "temperature-symbolic", group: "disk" });
         cats.push({
             id: "disk",
             title: i18n("Almacenamiento (Discos)"),

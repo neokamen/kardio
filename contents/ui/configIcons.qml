@@ -33,22 +33,36 @@ KCM.SimpleKCM {
     property string cfg_netDownIcon: "network-download-symbolic"
     property string cfg_netUpIcon: "network-upload-symbolic"
     property string cfg_diskIcon: "storage-symbolic"
+    property string cfg_diskTempIcon: "temperature-symbolic"
     property string cfg_fanIcon: "fan-symbolic"
     property string cfg_uptimeIcon: "system-symbolic"
 
     function isIconActive(id) {
         if (!cfg_disabledIcons) return true;
         var list = cfg_disabledIcons.split(",").map(function(s){ return s.trim(); });
-        return list.indexOf(id) === -1;
+        if (list.indexOf(id) !== -1) return false;
+        if (id === "disk/temp") {
+            for (var i = 0; i < list.length; i++) {
+                if (list[i] === "disk/temp" || (list[i].indexOf("disk:") === 0 && list[i].indexOf("/temp") !== -1)) return false;
+            }
+        }
+        return true;
     }
 
     function setIconActive(id, active) {
         var list = cfg_disabledIcons ? cfg_disabledIcons.split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; }) : [];
-        var idx = list.indexOf(id);
-        if (active && idx !== -1) {
-            list.splice(idx, 1);
-        } else if (!active && idx === -1) {
-            list.push(id);
+        if (active) {
+            list = list.filter(function(x) {
+                if (x === id) return false;
+                if (id === "disk/temp" && (x === "disk/temp" || (x.indexOf("disk:") === 0 && x.indexOf("/temp") !== -1))) return false;
+                if (id === "cpu/temp" && (x === "cpu/temp" || (x.indexOf("cpu:") === 0 && x.indexOf("/temp") !== -1))) return false;
+                if (id === "gpu/temp" && (x === "gpu/temp" || (x.indexOf("gpu:") === 0 && x.indexOf("/temp") !== -1))) return false;
+                return true;
+            });
+        } else {
+            if (list.indexOf(id) === -1) {
+                list.push(id);
+            }
         }
         cfg_disabledIcons = list.join(",");
     }
@@ -104,6 +118,10 @@ KCM.SimpleKCM {
     KIconThemes.IconDialog {
         id: diskIconDialog
         onIconNameChanged: if (iconName) cfg_diskIcon = iconName
+    }
+    KIconThemes.IconDialog {
+        id: diskTempIconDialog
+        onIconNameChanged: if (iconName) cfg_diskTempIcon = iconName
     }
     KIconThemes.IconDialog {
         id: fanIconDialog
@@ -500,10 +518,33 @@ KCM.SimpleKCM {
                 onToggled: iconsPage.setIconActive("disk/temp", checked)
             }
             Kirigami.Icon {
-                source: iconsPage.resolveIcon("temperature-symbolic")
+                source: iconsPage.resolveIcon(iconsPage.cfg_diskTempIcon)
                 isMask: true
                 Layout.preferredWidth: 22; Layout.preferredHeight: 22
                 opacity: iconsPage.isIconActive("disk/temp") ? 1.0 : 0.25
+            }
+
+            Button {
+                text: i18n("Termómetro (🌡️)")
+                icon.name: "temperature-symbolic"
+                highlighted: iconsPage.cfg_diskTempIcon === "temperature-symbolic"
+                enabled: iconsPage.isIconActive("disk/temp")
+                onClicked: iconsPage.cfg_diskTempIcon = "temperature-symbolic"
+            }
+
+            Button {
+                text: i18n("Disco Duro (🖴)")
+                icon.name: "storage-symbolic"
+                highlighted: iconsPage.cfg_diskTempIcon === "storage-symbolic"
+                enabled: iconsPage.isIconActive("disk/temp")
+                onClicked: iconsPage.cfg_diskTempIcon = "storage-symbolic"
+            }
+
+            Button {
+                text: i18n("Personalizado...")
+                icon.name: "document-edit"
+                enabled: iconsPage.isIconActive("disk/temp")
+                onClicked: diskTempIconDialog.open()
             }
         }
 

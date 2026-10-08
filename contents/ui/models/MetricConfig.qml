@@ -212,6 +212,7 @@ QtObject {
 
     readonly property string gpuTempIcon: (target && target[propertyPrefix + "gpuTempIcon"]) || "temperature-symbolic"
     readonly property string cpuTempIcon: (target && target[propertyPrefix + "cpuTempIcon"]) || "temperature-symbolic"
+    readonly property string diskTempIcon: (target && target[propertyPrefix + "diskTempIcon"]) || "temperature-symbolic"
 
     function isIconEnabled(id, group) {
         if (!disabledIcons) return true;

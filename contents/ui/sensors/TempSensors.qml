@@ -61,7 +61,7 @@ Item {
     // DDR5 RAM temperature via SPD5118 (discovered from sensor tree or sysfs)
     property string _ramSensorId: ""
 
-    readonly property bool ramTempExists: _ramSensorId.length > 0 || (sysfsData && sysfsData.ram && sysfsData.ram.temps && sysfsData.ram.temps.length > 0)
+    readonly property bool ramTempExists: Boolean((_ramSensorId && _ramSensorId.length > 0) || (sysfsData && sysfsData.ram && sysfsData.ram.temps && sysfsData.ram.temps.length > 0))
 
     readonly property real ramTempNumericValue: {
         if (_ramSensorId.length > 0 && ramSensor.status === Sensors.Sensor.Ready && typeof ramSensor.value === "number" && !isNaN(ramSensor.value) && ramSensor.value > 0) {
