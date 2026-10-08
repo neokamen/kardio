@@ -1,6 +1,7 @@
 import QtQuick
 import org.kde.ksysguard.sensors as Sensors
 import org.kde.kitemmodels as KItemModels
+import org.kde.plasma.plasma5support as P5Support
 import "./MetricDefinitions.js" as MetricDefinitions
 
 Item {
@@ -21,6 +22,31 @@ Item {
     readonly property var discoveredDiskTemps: _diskTemps
     readonly property var discoveredWifiTemps: _wifiTemps
     readonly property string cpuPowerSensor: _cpuPowerSensor
+
+    property var _sysfsDisks: []
+    Loader {
+        active: true
+        sourceComponent: P5Support.DataSource {
+            engine: "executable"
+            connectedSources: []
+            onNewData: function(sourceName, data) {
+                if (data && data["stdout"]) {
+                    var lines = String(data["stdout"]).trim().split("\n");
+                    var found = [];
+                    for (var i = 0; i < lines.length; i++) {
+                        var d = lines[i].trim();
+                        if (d && found.indexOf(d) === -1) found.push(d);
+                    }
+                    root._sysfsDisks = found;
+                    root.rescan();
+                }
+                disconnectSource(sourceName);
+            }
+            Component.onCompleted: {
+                connectSource("sh -c 'for b in /sys/class/block/*; do [ -e \"$b/device\" ] && basename \"$b\"; done'");
+            }
+        }
+    }
 
     // Query cache for O(1) repeated pattern queries
     property var _patternCache: ({})
@@ -138,7 +164,7 @@ Item {
         var cpuPowerId = "";
 
         var pGpu = MetricDefinitions.PATTERNS ? MetricDefinitions.PATTERNS.GPU : /^gpu\/(gpu\d+)\/usage$/;
-        var pDisk = MetricDefinitions.PATTERNS ? MetricDefinitions.PATTERNS.DISK_READ : /^disk\/(nvme\d+(?:c\d+)?n\d+|nvme\d+|sd[a-z]+|vd[a-z]+|xvd[a-z]+|mmcblk\d+)\/read$/;
+        var pDisk = /^disk\/(nvme\d+(?:c\d+)?n\d+|nvme\d+|sd[a-z]+|vd[a-z]+|xvd[a-z]+|mmcblk\d+)\//;
         var pFan = MetricDefinitions.PATTERNS ? MetricDefinitions.PATTERNS.FAN : /^(lmsensors|cpu|gpu)\/.*\/fan\d+$/i;
         var pCore = MetricDefinitions.PATTERNS ? MetricDefinitions.PATTERNS.CPU_CORE : /^cpu\/(cpu\d+)\/usage$/;
         var pNet = MetricDefinitions.PATTERNS ? MetricDefinitions.PATTERNS.NETWORK_IFACE : /^network\/([^/]+)\/download$/;
@@ -224,6 +250,12 @@ Item {
 
         _wifiTemps = Object.keys(wifiTempSet).sort();
         _cpuPowerSensor = cpuPowerId;
+
+        if (_sysfsDisks && _sysfsDisks.length > 0) {
+            for (var sdi = 0; sdi < _sysfsDisks.length; sdi++) {
+                diskMap[_sysfsDisks[sdi]] = true;
+            }
+        }
 
         var dList = Object.keys(diskMap).sort();
         _disks = dList.map(function(id, i) { return { id: id, name: "Disk " + (i + 1) }; });

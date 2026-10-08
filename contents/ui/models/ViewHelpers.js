@@ -251,9 +251,14 @@ function buildPopupGroups(metricsList, orderedKeys) {
 
 function _isIndicatorDisabled(metric, disabledList) {
     if (!disabledList || disabledList.length === 0 || !metric) return false;
-    if (metric.id && disabledList.indexOf(metric.id) !== -1) return true;
+    var id = metric.id || "";
+    if (id && disabledList.indexOf(id) !== -1) return true;
     if (metric.group && disabledList.indexOf(metric.group) !== -1) return true;
     if (metric.subKey && disabledList.indexOf(metric.group + "/" + metric.subKey) !== -1) return true;
+    if (id.indexOf(":") !== -1 && id.indexOf("/") !== -1) {
+        var norm = metric.group + "/" + metric.subKey;
+        if (disabledList.indexOf(norm) !== -1) return true;
+    }
     return false;
 }
 
@@ -262,6 +267,7 @@ function _resolveSegmentLabel(metric, disabledList) {
     if (metric.prefix) return metric.prefix;
     if (metric.group === "swap") return "SWAP";
     if (metric.group === "ram" && metric.subKey === "temp") return "";
+    if (metric.subKey === "temp") return "";
     if (metric.subKey === "hotspot") return "HS";
     if (metric.subKey === "vramTemp") return "VRAM";
     if (metric.subKey === "freq" || metric.subKey === "coreFrequency") return "CLK";
@@ -277,8 +283,8 @@ function _resolveSegmentIcon(metric, disabledList) {
     if (metric.group === "swap") {
         return metric.icon || "swap-symbolic";
     }
-    if (metric.subKey === "hotspot" || metric.subKey === "vramTemp" || (metric.group === "ram" && metric.subKey === "temp")) {
-        return "temperature-symbolic";
+    if (metric.subKey === "temp" || metric.subKey === "hotspot" || metric.subKey === "vramTemp" || (metric.group === "ram" && metric.subKey === "temp")) {
+        return metric.icon || "temperature-symbolic";
     }
     if (metric.subKey === "voltage" || (metric.subKey === "power" && metric.group === "gpu")) {
         return "voltage-symbolic";
@@ -302,9 +308,10 @@ function _getPinnedIndex(pinnedList, metricId) {
     return 999;
 }
 
-function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIcons) {
+function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIcons, showBlockLeadingIcon) {
     if (!metricsList || metricsList.length === 0 || !pinnedList || pinnedList.length === 0) return [];
     if (mergeSameFamily === undefined) mergeSameFamily = true;
+    if (showBlockLeadingIcon === undefined) showBlockLeadingIcon = true;
 
     var disabledList = [];
     if (disabledIcons) {
@@ -364,9 +371,11 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
                 ];
                 existingItem.value = null;
                 existingItem.label = existingItem._groupBaseLabel + ":";
-                // If segment 0 already has its own specific icon (e.g. download arrow in net/down),
-                // clear the parent existingItem.icon to avoid rendering duplicate/repeated icons!
-                if (firstSegIcon) {
+
+                // Retain or configure block leading icon according to showBlockLeadingIcon
+                if (showBlockLeadingIcon && disabledList.indexOf(metric.group) === -1) {
+                    existingItem.icon = existingItem._groupIcon || metric.groupIcon || "";
+                } else {
                     existingItem.icon = "";
                 }
             }
@@ -389,19 +398,23 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
                 return idxA - idxB;
             });
             if (groupKey === "ram") {
-                if (hasRamPinned && disabledList.indexOf("ram") === -1 && disabledList.indexOf("memory") === -1) {
-                    existingItem.icon = "memory-symbolic";
+                if (showBlockLeadingIcon && hasRamPinned && disabledList.indexOf("ram") === -1 && disabledList.indexOf("memory") === -1) {
+                    existingItem.icon = existingItem._groupIcon || "memory-symbolic";
                 }
             }
         } else {
             var baseLabel = metric.groupLabel || metric.deviceName || metric.group.toUpperCase();
             var singleLabel = metric.label;
-            var itemIcon = metric.groupIcon || metric.icon;
+            var itemIcon = metric.icon || metric.groupIcon;
             var isItemIconDis = _isIndicatorDisabled(metric, disabledList);
             if (isItemIconDis) {
                 itemIcon = "";
             }
             var initialSegIcon = _resolveSegmentIcon(metric, disabledList);
+            var groupIcon = metric.groupIcon || "";
+            if (disabledList.indexOf(metric.group) !== -1 || !showBlockLeadingIcon) {
+                groupIcon = "";
+            }
 
             var newItem = {
                 id: metric.id,
@@ -412,6 +425,7 @@ function buildCompactItems(metricsList, pinnedList, mergeSameFamily, disabledIco
                 key: groupKey,
                 segments: null,
                 _groupBaseLabel: baseLabel,
+                _groupIcon: groupIcon,
                 _firstSubLabel: _resolveSegmentLabel(metric, disabledList),
                 _firstSubIcon: initialSegIcon,
                 _firstSubKey: metric.subKey || metric.id,

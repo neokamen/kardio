@@ -12,9 +12,13 @@
         property string tempUnit: "C"
         property string networkUnit: "bytes"
         property string diskLabels: ""
+        property string diskSubMetrics: "read,write"
         property bool padNumbers: false
         property var sysfsData: null
-        onSysfsDataChanged: aggregatePerDisk()
+        onSysfsDataChanged: {
+            refreshDiscovered();
+            aggregatePerDisk();
+        }
 
         readonly property string diskReadValue:  Utils.formatRate(diskReadSensor.status  === Sensors.Sensor.Ready ? diskReadSensor.value  : NaN, networkUnit, root.padNumbers)
         readonly property string diskWriteValue: Utils.formatRate(diskWriteSensor.status === Sensors.Sensor.Ready ? diskWriteSensor.value : NaN, networkUnit, root.padNumbers)
@@ -99,13 +103,27 @@
         // --- Per-disk discovery via HardwareDiscovery ---
 
         function refreshDiscovered() {
-            if (!discovery) return;
-            var disks = discovery.discoveredDisks || [];
+            var disks = (discovery ? discovery.discoveredDisks : []) || [];
             var found = [];
             for (var i = 0; i < disks.length; i++) {
                 var did = disks[i].id;
                 if (_unplugged[did]) continue;
                 found.push({ id: did, name: "DSK " + (found.length + 1) });
+            }
+            if (sysfsData && sysfsData.disks) {
+                for (var sDisk in sysfsData.disks) {
+                    if (sDisk === "hdd" || sDisk === "nvme" || sDisk === "drivetemp") continue;
+                    var already = false;
+                    for (var f = 0; f < found.length; f++) {
+                        if (found[f].id.toLowerCase() === sDisk.toLowerCase()) {
+                            already = true;
+                            break;
+                        }
+                    }
+                    if (!already && !_unplugged[sDisk]) {
+                        found.push({ id: sDisk, name: "DSK " + (found.length + 1) });
+                    }
+                }
             }
             if (JSON.stringify(found) !== JSON.stringify(_discovered)) {
                 _discovered = found;
@@ -281,7 +299,9 @@
                 var tVal = tSensorId ? _tempModelValue(tSensorId) : NaN;
                 if ((isNaN(tVal) || tVal <= 0) && sysfsData && sysfsData.disks) {
                     if (sysfsData.disks[d.id]) tVal = sysfsData.disks[d.id];
+                    else if (sysfsData.disks[d.id.toLowerCase()]) tVal = sysfsData.disks[d.id.toLowerCase()];
                     else if (d.id.indexOf("nvme") === 0 && sysfsData.disks["nvme"]) tVal = sysfsData.disks["nvme"];
+                    else if (d.id.indexOf("sd") === 0 && sysfsData.disks["hdd"]) tVal = sysfsData.disks["hdd"];
                     else if (sysfsData.disks["drivetemp"]) tVal = sysfsData.disks["drivetemp"];
                 }
                 var tStr = (!isNaN(tVal) && tVal > 0) ? Utils.formatTemp(tVal, tempUnit) : "";

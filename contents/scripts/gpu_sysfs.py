@@ -232,7 +232,7 @@ def collect_telemetry():
                         if f_rpm >= 0: cpu["fan"] = f_rpm
                     except Exception: pass
 
-        # Disks (NVMe, SATA drivetemp)
+        # Disks (NVMe, SATA drivetemp via hwmon)
         if any(k in name for k in ["nvme", "drivetemp"]):
             t_f = f"{hw}/temp1_input"
             if os.path.exists(t_f):
@@ -240,7 +240,66 @@ def collect_telemetry():
                     t_val = round(int(open(t_f).read().strip()) / 1000.0, 1)
                     if 0 < t_val < 110:
                         disks[name] = t_val
+                        dev_path = os.path.realpath(f"{hw}/device")
+                        # Match block device name (e.g. nvme0n1, sda)
+                        for blk in glob.glob("/sys/class/block/*"):
+                            try:
+                                if os.path.exists(f"{blk}/device") and os.path.realpath(f"{blk}/device") == dev_path:
+                                    disks[os.path.basename(blk)] = t_val
+                            except Exception: pass
                 except Exception: pass
+
+    # UDisks2 SMART DBus Query for HDDs (e.g. /dev/sda) and all storage drives
+    try:
+        import dbus
+        bus = dbus.SystemBus()
+        u_obj = bus.get_object("org.freedesktop.UDisks2", "/org/freedesktop/UDisks2")
+        u_mgr = dbus.Interface(u_obj, "org.freedesktop.DBus.ObjectManager")
+        u_objs = u_mgr.GetManagedObjects()
+
+        drive_to_dev = {}
+        for path, ifaces in u_objs.items():
+            if "org.freedesktop.UDisks2.Block" in ifaces:
+                blk = ifaces["org.freedesktop.UDisks2.Block"]
+                dr_path = str(blk.get("Drive", ""))
+                is_part = bool(blk.get("HintPartition", False))
+                if dr_path and dr_path != "/" and not is_part:
+                    dev_val = blk.get("Device")
+                    if dev_val:
+                        dev_str = bytes(bytearray(dev_val)).decode("utf-8", "ignore").strip("\x00")
+                        dev_name = os.path.basename(dev_str)
+                        if dev_name:
+                            drive_to_dev[dr_path] = dev_name
+
+        for path, ifaces in u_objs.items():
+            p_str = str(path)
+            t_c = None
+            if "org.freedesktop.UDisks2.Drive.Ata" in ifaces:
+                ata = ifaces["org.freedesktop.UDisks2.Drive.Ata"]
+                if "SmartTemperature" in ata:
+                    k = float(ata["SmartTemperature"])
+                    if k > 200: t_c = round(k - 273.15, 1)
+            if t_c is None and "org.freedesktop.UDisks2.NVMe.Controller" in ifaces:
+                nv = ifaces["org.freedesktop.UDisks2.NVMe.Controller"]
+                if "SmartTemperature" in nv:
+                    k = float(nv["SmartTemperature"])
+                    if k > 200: t_c = round(k - 273.15, 1)
+            if t_c is None and "org.freedesktop.UDisks2.Drive" in ifaces:
+                dr = ifaces["org.freedesktop.UDisks2.Drive"]
+                for k in ["SmartTemperature", "Temperature"]:
+                    if k in dr:
+                        val = float(dr[k])
+                        if val > 200: t_c = round(val - 273.15, 1); break
+                        elif 0 < val < 120: t_c = round(val, 1); break
+
+            if t_c is not None:
+                dev_name = drive_to_dev.get(p_str)
+                if dev_name:
+                    disks[dev_name] = t_c
+                    if dev_name.startswith("sd"):
+                        disks["hdd"] = t_c
+    except Exception:
+        pass
 
         # DDR5 SPD RAM Temp (spd5118)
         if "spd5118" in name:

@@ -107,6 +107,8 @@ Item {
         var clr = overrides.color !== undefined ? overrides.color : _resolveMetricColor(rawVal, threshType, threshKey);
         var isIconAllowed = cfg ? cfg.isIconEnabled(instanceId, group) : true;
         var defIcon = def.icon ? cfg.resolveIcon(def.icon) : (def.iconOverrideKey ? cfg[def.iconOverrideKey] : cfg.getGroupIcon(group));
+        if (defId === "gpu.temp" && cfg && cfg.gpuTempIcon) defIcon = cfg.resolveIcon(cfg.gpuTempIcon);
+        if (defId === "cpu.temp" && cfg && cfg.cpuTempIcon) defIcon = cfg.resolveIcon(cfg.cpuTempIcon);
         var rawIcon = overrides.icon !== undefined ? overrides.icon : defIcon;
         var finalIcon = isIconAllowed ? rawIcon : "";
 
@@ -545,6 +547,7 @@ Item {
         // Disk instances
         if (s.disk && (neededGroups === null || neededGroups["disk"])) {
             var dList = s.disk.diskDataList;
+            var hasGenericDiskTemp = false;
             if (dList && dList.length > 0) {
                 for (var di = 0; di < dList.length; di++) {
                     var dd = dList[di];
@@ -574,6 +577,18 @@ Item {
                             displayValue: dd.temp,
                             status: !isNaN(dd.tempNumber) ? "ready" : "unavailable"
                         }));
+                        if (!hasGenericDiskTemp) {
+                            list.push(_createMetric("disk.temp", {
+                                id: "disk/temp",
+                                deviceId: "", deviceName: dName,
+                                label: cfg.diskLabel + " Temp", groupLabel: cfg.diskLabel,
+                                subLabel: "Temp",
+                                value: dd.tempNumber,
+                                displayValue: dd.temp,
+                                status: !isNaN(dd.tempNumber) ? "ready" : "unavailable"
+                            }));
+                            hasGenericDiskTemp = true;
+                        }
                     }
                 }
             }

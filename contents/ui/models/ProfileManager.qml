@@ -79,6 +79,9 @@ QtObject {
         ramIcon:                  "memory-symbolic",
         swapIcon:                 "swap-symbolic",
         tempIcon:                 "temperature-symbolic",
+        gpuTempIcon:              "temperature-symbolic",
+        cpuTempIcon:              "temperature-symbolic",
+        showBlockLeadingIcon:     true,
         gpuIcon:                  "gpu-symbolic",
         batteryIcon:              "battery-symbolic",
         powerIcon:                "voltage-symbolic",
@@ -198,6 +201,9 @@ QtObject {
         property string ramIcon:                  "memory-symbolic"
         property string swapIcon:                 "swap-symbolic"
         property string tempIcon:                 "temperature-symbolic"
+        property string gpuTempIcon:              "temperature-symbolic"
+        property string cpuTempIcon:              "temperature-symbolic"
+        property bool   showBlockLeadingIcon:     true
         property string gpuIcon:                  "gpu-symbolic"
         property string batteryIcon:              "battery-symbolic"
         property string powerIcon:                "voltage-symbolic"

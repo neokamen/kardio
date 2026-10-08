@@ -198,6 +198,15 @@
         <entry name="netUpIcon" type="String">
             <default>network-upload-symbolic</default>
         </entry>
+        <entry name="gpuTempIcon" type="String">
+            <default>temperature-symbolic</default>
+        </entry>
+        <entry name="cpuTempIcon" type="String">
+            <default>temperature-symbolic</default>
+        </entry>
+        <entry name="showBlockLeadingIcon" type="Bool">
+            <default>true</default>
+        </entry>
         <entry name="disabledIcons" type="String">
             <default></default>
         </entry>

@@ -19,11 +19,14 @@ KCM.SimpleKCM {
     }
 
     property string cfg_disabledIcons: ""
+    property bool   cfg_showBlockLeadingIcon: true
     property string cfg_cpuIcon: "cpu-symbolic"
+    property string cfg_cpuTempIcon: "temperature-symbolic"
     property string cfg_ramIcon: "memory-symbolic"
     property string cfg_swapIcon: "swap-symbolic"
     property string cfg_tempIcon: "temperature-symbolic"
     property string cfg_gpuIcon: "gpu-symbolic"
+    property string cfg_gpuTempIcon: "temperature-symbolic"
     property string cfg_batteryIcon: "battery-symbolic"
     property string cfg_powerIcon: "voltage-symbolic"
     property string cfg_networkIcon: "network-symbolic"
@@ -55,6 +58,10 @@ KCM.SimpleKCM {
         onIconNameChanged: if (iconName) cfg_cpuIcon = iconName
     }
     KIconThemes.IconDialog {
+        id: cpuTempIconDialog
+        onIconNameChanged: if (iconName) cfg_cpuTempIcon = iconName
+    }
+    KIconThemes.IconDialog {
         id: ramIconDialog
         onIconNameChanged: if (iconName) cfg_ramIcon = iconName
     }
@@ -69,6 +76,10 @@ KCM.SimpleKCM {
     KIconThemes.IconDialog {
         id: gpuIconDialog
         onIconNameChanged: if (iconName) cfg_gpuIcon = iconName
+    }
+    KIconThemes.IconDialog {
+        id: gpuTempIconDialog
+        onIconNameChanged: if (iconName) cfg_gpuTempIcon = iconName
     }
     KIconThemes.IconDialog {
         id: batteryIconDialog
@@ -109,8 +120,32 @@ KCM.SimpleKCM {
         Kirigami.InlineMessage {
             Layout.fillWidth: true
             type: Kirigami.MessageType.Information
-            text: i18n("Activa o desactiva iconos individualmente para cada sensor o sub-métrica del panel, o cámbialos por iconos personalizados de tu tema.")
+            text: i18n("Personaliza los iconos de cada bloque temático y sub-métrica del panel, o cámbialos por iconos personalizados de tu tema.")
             visible: true
+        }
+
+        // Configuración Global de Bloques
+        RowLayout {
+            Kirigami.FormData.label: i18n("Icono delantero de bloque:")
+            spacing: Kirigami.Units.smallSpacing
+
+            Switch {
+                id: blockLeadingSwitch
+                checked: iconsPage.cfg_showBlockLeadingIcon
+                onToggled: iconsPage.cfg_showBlockLeadingIcon = checked
+            }
+            Label {
+                text: i18n("Mostrar icono temático delantero en cada bloque (ej. CPU, Red, GPU, RAM, Discos)")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                opacity: blockLeadingSwitch.checked ? 1.0 : 0.6
+            }
+        }
+
+        Kirigami.Separator {
+            Layout.fillWidth: true
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: i18n("Iconos principales de cada bloque")
         }
 
         // 1. CPU
@@ -182,30 +217,7 @@ KCM.SimpleKCM {
             }
         }
 
-        // 4. Temperatura
-        RowLayout {
-            Kirigami.FormData.label: i18n("Temperatura:")
-            spacing: Kirigami.Units.smallSpacing
-
-            Switch {
-                checked: iconsPage.isIconActive("temp")
-                onToggled: iconsPage.setIconActive("temp", checked)
-            }
-            Kirigami.Icon {
-                source: iconsPage.resolveIcon(cfg_tempIcon)
-                isMask: true
-                Layout.preferredWidth: 22; Layout.preferredHeight: 22
-                opacity: iconsPage.isIconActive("temp") ? 1.0 : 0.25
-            }
-            Button {
-                text: i18n("Cambiar...")
-                icon.name: "document-edit"
-                enabled: iconsPage.isIconActive("temp")
-                onClicked: tempIconDialog.open()
-            }
-        }
-
-        // 5. GPU
+        // 4. GPU
         RowLayout {
             Kirigami.FormData.label: i18n("GPU (Gráficos):")
             spacing: Kirigami.Units.smallSpacing
@@ -228,53 +240,7 @@ KCM.SimpleKCM {
             }
         }
 
-        // 6. Batería
-        RowLayout {
-            Kirigami.FormData.label: i18n("Batería:")
-            spacing: Kirigami.Units.smallSpacing
-
-            Switch {
-                checked: iconsPage.isIconActive("bat")
-                onToggled: iconsPage.setIconActive("bat", checked)
-            }
-            Kirigami.Icon {
-                source: iconsPage.resolveIcon(cfg_batteryIcon)
-                isMask: true
-                Layout.preferredWidth: 22; Layout.preferredHeight: 22
-                opacity: iconsPage.isIconActive("bat") ? 1.0 : 0.25
-            }
-            Button {
-                text: i18n("Cambiar...")
-                icon.name: "document-edit"
-                enabled: iconsPage.isIconActive("bat")
-                onClicked: batteryIconDialog.open()
-            }
-        }
-
-        // 7. Potencia / Watts
-        RowLayout {
-            Kirigami.FormData.label: i18n("Potencia (Watts):")
-            spacing: Kirigami.Units.smallSpacing
-
-            Switch {
-                checked: iconsPage.isIconActive("power")
-                onToggled: iconsPage.setIconActive("power", checked)
-            }
-            Kirigami.Icon {
-                source: iconsPage.resolveIcon(cfg_powerIcon)
-                isMask: true
-                Layout.preferredWidth: 22; Layout.preferredHeight: 22
-                opacity: iconsPage.isIconActive("power") ? 1.0 : 0.25
-            }
-            Button {
-                text: i18n("Cambiar...")
-                icon.name: "document-edit"
-                enabled: iconsPage.isIconActive("power")
-                onClicked: powerIconDialog.open()
-            }
-        }
-
-        // 8. Red General
+        // 5. Red General
         RowLayout {
             Kirigami.FormData.label: i18n("Red (General):")
             spacing: Kirigami.Units.smallSpacing
@@ -297,53 +263,7 @@ KCM.SimpleKCM {
             }
         }
 
-        // 9. Red Descarga
-        RowLayout {
-            Kirigami.FormData.label: i18n("Red Descarga (↓):")
-            spacing: Kirigami.Units.smallSpacing
-
-            Switch {
-                checked: iconsPage.isIconActive("net/down")
-                onToggled: iconsPage.setIconActive("net/down", checked)
-            }
-            Kirigami.Icon {
-                source: iconsPage.resolveIcon(cfg_netDownIcon)
-                isMask: true
-                Layout.preferredWidth: 22; Layout.preferredHeight: 22
-                opacity: iconsPage.isIconActive("net/down") ? 1.0 : 0.25
-            }
-            Button {
-                text: i18n("Cambiar...")
-                icon.name: "document-edit"
-                enabled: iconsPage.isIconActive("net/down")
-                onClicked: netDownIconDialog.open()
-            }
-        }
-
-        // 10. Red Subida
-        RowLayout {
-            Kirigami.FormData.label: i18n("Red Subida (↑):")
-            spacing: Kirigami.Units.smallSpacing
-
-            Switch {
-                checked: iconsPage.isIconActive("net/up")
-                onToggled: iconsPage.setIconActive("net/up", checked)
-            }
-            Kirigami.Icon {
-                source: iconsPage.resolveIcon(cfg_netUpIcon)
-                isMask: true
-                Layout.preferredWidth: 22; Layout.preferredHeight: 22
-                opacity: iconsPage.isIconActive("net/up") ? 1.0 : 0.25
-            }
-            Button {
-                text: i18n("Cambiar...")
-                icon.name: "document-edit"
-                enabled: iconsPage.isIconActive("net/up")
-                onClicked: netUpIconDialog.open()
-            }
-        }
-
-        // 11. Discos
+        // 6. Discos
         RowLayout {
             Kirigami.FormData.label: i18n("Discos (Almacenamiento):")
             spacing: Kirigami.Units.smallSpacing
@@ -366,7 +286,7 @@ KCM.SimpleKCM {
             }
         }
 
-        // 12. Ventiladores
+        // 7. Ventiladores
         RowLayout {
             Kirigami.FormData.label: i18n("Ventiladores (Fans):")
             spacing: Kirigami.Units.smallSpacing
@@ -389,7 +309,53 @@ KCM.SimpleKCM {
             }
         }
 
-        // 13. Uptime
+        // 8. Batería
+        RowLayout {
+            Kirigami.FormData.label: i18n("Batería:")
+            spacing: Kirigami.Units.smallSpacing
+
+            Switch {
+                checked: iconsPage.isIconActive("bat")
+                onToggled: iconsPage.setIconActive("bat", checked)
+            }
+            Kirigami.Icon {
+                source: iconsPage.resolveIcon(cfg_batteryIcon)
+                isMask: true
+                Layout.preferredWidth: 22; Layout.preferredHeight: 22
+                opacity: iconsPage.isIconActive("bat") ? 1.0 : 0.25
+            }
+            Button {
+                text: i18n("Cambiar...")
+                icon.name: "document-edit"
+                enabled: iconsPage.isIconActive("bat")
+                onClicked: batteryIconDialog.open()
+            }
+        }
+
+        // 9. Potencia / Watts
+        RowLayout {
+            Kirigami.FormData.label: i18n("Potencia (Watts):")
+            spacing: Kirigami.Units.smallSpacing
+
+            Switch {
+                checked: iconsPage.isIconActive("power")
+                onToggled: iconsPage.setIconActive("power", checked)
+            }
+            Kirigami.Icon {
+                source: iconsPage.resolveIcon(cfg_powerIcon)
+                isMask: true
+                Layout.preferredWidth: 22; Layout.preferredHeight: 22
+                opacity: iconsPage.isIconActive("power") ? 1.0 : 0.25
+            }
+            Button {
+                text: i18n("Cambiar...")
+                icon.name: "document-edit"
+                enabled: iconsPage.isIconActive("power")
+                onClicked: powerIconDialog.open()
+            }
+        }
+
+        // 10. Uptime
         RowLayout {
             Kirigami.FormData.label: i18n("Tiempo Encendido (Uptime):")
             spacing: Kirigami.Units.smallSpacing
@@ -412,17 +378,158 @@ KCM.SimpleKCM {
             }
         }
 
+        Kirigami.Separator {
+            Layout.fillWidth: true
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: i18n("Sub-iconos e indicadores específicos")
+        }
+
+        // 11. GPU Temperatura
+        RowLayout {
+            Kirigami.FormData.label: i18n("GPU Temperatura:")
+            spacing: Kirigami.Units.smallSpacing
+
+            Switch {
+                checked: iconsPage.isIconActive("gpu/temp")
+                onToggled: iconsPage.setIconActive("gpu/temp", checked)
+            }
+            Kirigami.Icon {
+                source: iconsPage.resolveIcon(cfg_gpuTempIcon)
+                isMask: true
+                Layout.preferredWidth: 22; Layout.preferredHeight: 22
+                opacity: iconsPage.isIconActive("gpu/temp") ? 1.0 : 0.25
+            }
+            Button {
+                text: i18n("Cambiar...")
+                icon.name: "document-edit"
+                enabled: iconsPage.isIconActive("gpu/temp")
+                onClicked: gpuTempIconDialog.open()
+            }
+        }
+
+        // 12. CPU Temperatura
+        RowLayout {
+            Kirigami.FormData.label: i18n("CPU Temperatura:")
+            spacing: Kirigami.Units.smallSpacing
+
+            Switch {
+                checked: iconsPage.isIconActive("cpu/temp")
+                onToggled: iconsPage.setIconActive("cpu/temp", checked)
+            }
+            Kirigami.Icon {
+                source: iconsPage.resolveIcon(cfg_cpuTempIcon)
+                isMask: true
+                Layout.preferredWidth: 22; Layout.preferredHeight: 22
+                opacity: iconsPage.isIconActive("cpu/temp") ? 1.0 : 0.25
+            }
+            Button {
+                text: i18n("Cambiar...")
+                icon.name: "document-edit"
+                enabled: iconsPage.isIconActive("cpu/temp")
+                onClicked: cpuTempIconDialog.open()
+            }
+        }
+
+        // 13. Temperatura (Sistema)
+        RowLayout {
+            Kirigami.FormData.label: i18n("Temperatura (Sistema):")
+            spacing: Kirigami.Units.smallSpacing
+
+            Switch {
+                checked: iconsPage.isIconActive("temp")
+                onToggled: iconsPage.setIconActive("temp", checked)
+            }
+            Kirigami.Icon {
+                source: iconsPage.resolveIcon(cfg_tempIcon)
+                isMask: true
+                Layout.preferredWidth: 22; Layout.preferredHeight: 22
+                opacity: iconsPage.isIconActive("temp") ? 1.0 : 0.25
+            }
+            Button {
+                text: i18n("Cambiar...")
+                icon.name: "document-edit"
+                enabled: iconsPage.isIconActive("temp")
+                onClicked: tempIconDialog.open()
+            }
+        }
+
+        // 14. Temperatura de Discos
+        RowLayout {
+            Kirigami.FormData.label: i18n("Discos Temperatura:")
+            spacing: Kirigami.Units.smallSpacing
+
+            Switch {
+                checked: iconsPage.isIconActive("disk/temp")
+                onToggled: iconsPage.setIconActive("disk/temp", checked)
+            }
+            Kirigami.Icon {
+                source: iconsPage.resolveIcon("temperature-symbolic")
+                isMask: true
+                Layout.preferredWidth: 22; Layout.preferredHeight: 22
+                opacity: iconsPage.isIconActive("disk/temp") ? 1.0 : 0.25
+            }
+        }
+
+        // 15. Red Descarga
+        RowLayout {
+            Kirigami.FormData.label: i18n("Red Descarga (↓):")
+            spacing: Kirigami.Units.smallSpacing
+
+            Switch {
+                checked: iconsPage.isIconActive("net/down")
+                onToggled: iconsPage.setIconActive("net/down", checked)
+            }
+            Kirigami.Icon {
+                source: iconsPage.resolveIcon(cfg_netDownIcon)
+                isMask: true
+                Layout.preferredWidth: 22; Layout.preferredHeight: 22
+                opacity: iconsPage.isIconActive("net/down") ? 1.0 : 0.25
+            }
+            Button {
+                text: i18n("Cambiar...")
+                icon.name: "document-edit"
+                enabled: iconsPage.isIconActive("net/down")
+                onClicked: netDownIconDialog.open()
+            }
+        }
+
+        // 16. Red Subida
+        RowLayout {
+            Kirigami.FormData.label: i18n("Red Subida (↑):")
+            spacing: Kirigami.Units.smallSpacing
+
+            Switch {
+                checked: iconsPage.isIconActive("net/up")
+                onToggled: iconsPage.setIconActive("net/up", checked)
+            }
+            Kirigami.Icon {
+                source: iconsPage.resolveIcon(cfg_netUpIcon)
+                isMask: true
+                Layout.preferredWidth: 22; Layout.preferredHeight: 22
+                opacity: iconsPage.isIconActive("net/up") ? 1.0 : 0.25
+            }
+            Button {
+                text: i18n("Cambiar...")
+                icon.name: "document-edit"
+                enabled: iconsPage.isIconActive("net/up")
+                onClicked: netUpIconDialog.open()
+            }
+        }
+
         Button {
             icon.name: "edit-undo"
             text: i18n("Restablecer todos a valores por defecto")
             Kirigami.FormData.label: " "
             onClicked: {
                 cfg_disabledIcons = "";
+                cfg_showBlockLeadingIcon = true;
                 cfg_cpuIcon = "cpu-symbolic";
+                cfg_cpuTempIcon = "temperature-symbolic";
                 cfg_ramIcon = "memory-symbolic";
                 cfg_swapIcon = "swap-symbolic";
                 cfg_tempIcon = "temperature-symbolic";
                 cfg_gpuIcon = "gpu-symbolic";
+                cfg_gpuTempIcon = "temperature-symbolic";
                 cfg_batteryIcon = "battery-symbolic";
                 cfg_powerIcon = "voltage-symbolic";
                 cfg_networkIcon = "network-symbolic";

@@ -202,11 +202,25 @@ QtObject {
         ? String(target[propertyPrefix + "disabledIcons"])
         : ""
 
+    readonly property bool showBlockLeadingIcon: (target && target[propertyPrefix + "showBlockLeadingIcon"] !== undefined)
+        ? Boolean(target[propertyPrefix + "showBlockLeadingIcon"])
+        : true
+
+    readonly property string gpuTempIcon: (target && target[propertyPrefix + "gpuTempIcon"]) || "temperature-symbolic"
+    readonly property string cpuTempIcon: (target && target[propertyPrefix + "cpuTempIcon"]) || "temperature-symbolic"
+
     function isIconEnabled(id, group) {
         if (!disabledIcons) return true;
         var list = disabledIcons.split(",").map(function(s){ return s.trim(); });
         if (id && list.indexOf(id) !== -1) return false;
         if (group && list.indexOf(group) !== -1) return false;
+        if (id && id.indexOf(":") !== -1 && id.indexOf("/") !== -1) {
+            var parts = id.split("/");
+            var g = parts[0].split(":")[0];
+            var norm = g + "/" + parts[1];
+            if (list.indexOf(norm) !== -1) return false;
+        }
+        if (id && (id === "temp" || id.endsWith("/temp")) && list.indexOf("temp") !== -1) return false;
         return true;
     }
 

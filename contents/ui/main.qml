@@ -42,6 +42,7 @@ PlasmoidItem {
     property bool enableNumberPadding: Boolean(profileManager.activeConfig.enableNumberPadding)
     property string paddedMetrics:     profileManager.activeConfig.paddedMetrics || ""
     property string smallSuffixMetrics: profileManager.activeConfig.smallSuffixMetrics || ""
+    property bool showBlockLeadingIcon: (profileManager.activeConfig.showBlockLeadingIcon !== undefined) ? Boolean(profileManager.activeConfig.showBlockLeadingIcon) : true
     property string netDownMinUnit:    profileManager.activeConfig.netDownMinUnit || "auto"
     property string netMinUnit:        profileManager.activeConfig.netMinUnit || profileManager.activeConfig.netDownMinUnit || "auto"
     property bool swapDynamicUnits:    (profileManager.activeConfig.swapDynamicUnits !== undefined) ? Boolean(profileManager.activeConfig.swapDynamicUnits) : true
@@ -211,6 +212,7 @@ PlasmoidItem {
                 tempUnit: metricConfig.tempUnit
                 networkUnit: metricConfig.networkUnit
                 diskLabels: metricConfig.diskLabels
+                diskSubMetrics: metricConfig.diskSubMetrics
                 padNumbers: metricConfig.isMetricPadded("disk/usage", "disk")
             }
 
@@ -315,7 +317,7 @@ PlasmoidItem {
     }
 
     function _updateCompactItems() {
-        var rawItems = ViewHelpers.buildCompactItems(metricStore.metrics, metricConfig.pinnedList, root.mergeFamilyMetrics, metricConfig.disabledIcons);
+        var rawItems = ViewHelpers.buildCompactItems(metricStore.metrics, metricConfig.pinnedList, root.mergeFamilyMetrics, metricConfig.disabledIcons, root.showBlockLeadingIcon);
         if (ViewHelpers.syncCompactValues(root._compactItems, rawItems)) {
             return;
         }
@@ -463,6 +465,10 @@ PlasmoidItem {
         root._updateCompactItems();
     }
 
+    onShowBlockLeadingIconChanged: {
+        root._updateCompactItems();
+    }
+
     Connections {
         target: metricStore
         function onMetricsChanged() {
@@ -482,6 +488,12 @@ PlasmoidItem {
             }
         }
         function onDisabledIconsChanged() {
+            root._updateCompactItems();
+            if (root.expanded) {
+                root._updatePopupGroups();
+            }
+        }
+        function onShowBlockLeadingIconChanged() {
             root._updateCompactItems();
             if (root.expanded) {
                 root._updatePopupGroups();

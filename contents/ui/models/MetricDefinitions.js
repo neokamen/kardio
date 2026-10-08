@@ -244,6 +244,7 @@ var DEFINITIONS = {
         subKey: "temp",
         sensorId: "cpu/all/averageTemperature",
         label: "Temperature",
+        icon: "temperature-symbolic",
         thresholdType: "normal",
         thresholdKey: "temp",
         secondaryIcon: "temperature-normal"
@@ -377,6 +378,7 @@ var DEFINITIONS = {
         subKey: "temp",
         sensorPattern: "gpu/{id}/temperature",
         label: "Temperature",
+        icon: "temperature-symbolic",
         thresholdType: "normal",
         thresholdKey: "gpuTemp",
         secondaryIcon: "temperature-normal"
@@ -387,6 +389,7 @@ var DEFINITIONS = {
         subKey: "hotspot",
         sensorPattern: "gpu/{id}/hotspot",
         label: "Hotspot",
+        icon: "temperature-symbolic",
         thresholdType: "normal",
         thresholdKey: "gpuHotspotTemp",
         secondaryIcon: "temperature-normal"
@@ -397,6 +400,7 @@ var DEFINITIONS = {
         subKey: "vramTemp",
         sensorPattern: "gpu/{id}/vramTemp",
         label: "VRAM Temp",
+        icon: "temperature-symbolic",
         thresholdType: "normal",
         thresholdKey: "gpuVramTemp",
         secondaryIcon: "temperature-normal"
@@ -568,6 +572,7 @@ var DEFINITIONS = {
         subKey: "temp",
         sensorPattern: "disk/{id}/temperature",
         label: "Temperature",
+        icon: "temperature-symbolic",
         thresholdType: "normal",
         thresholdKey: "diskTemp",
         secondaryIcon: "temperature-normal"
