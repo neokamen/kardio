@@ -443,6 +443,27 @@ Item {
                             status: !isNaN(gd.voltageNumber) ? "ready" : "loading"
                         }));
                     }
+                    if (gd.fan) {
+                        list.push(_createMetric("gpu.fan", {
+                            deviceId: gd.id, deviceName: gpuName,
+                            label: gpuName + " Fan", groupLabel: gpuName,
+                            subLabel: "Fan",
+                            icon: cfg.resolveIcon("fan-symbolic"),
+                            value: gd.fanNumber, displayValue: gd.fan,
+                            status: !isNaN(gd.fanNumber) ? "ready" : "loading"
+                        }));
+                        if (gi === 0) {
+                            list.push(_createMetric("gpu.fan", {
+                                id: "gpu/fan",
+                                deviceId: "", deviceName: gpuName,
+                                label: (cfg.gpuLabel || "GPU") + " Fan", groupLabel: (cfg.gpuLabel || "GPU"),
+                                subLabel: "Fan",
+                                icon: cfg.resolveIcon("fan-symbolic"),
+                                value: gd.fanNumber, displayValue: gd.fan,
+                                status: !isNaN(gd.fanNumber) ? "ready" : "loading"
+                            }));
+                        }
+                    }
                 }
             }
         }

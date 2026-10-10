@@ -377,6 +377,11 @@ KCM.SimpleKCM {
                         highlighted: hasSub(cfg_gpuSubMetrics, "voltage")
                         onClicked: cfg_gpuSubMetrics = toggleSub(cfg_gpuSubMetrics, "voltage")
                     }
+                    Button {
+                        text: i18n("🌀 Ventilador (RPM)")
+                        highlighted: hasSub(cfg_gpuSubMetrics, "fan")
+                        onClicked: cfg_gpuSubMetrics = toggleSub(cfg_gpuSubMetrics, "fan")
+                    }
                 }
             }
         }
@@ -525,7 +530,6 @@ KCM.SimpleKCM {
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: Kirigami.Units.smallSpacing
-                    visible: hasSub(cfg_diskSubMetrics, "temp")
 
                     Label {
                         text: i18n("Icono de temperatura:")

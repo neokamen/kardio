@@ -71,7 +71,8 @@ var GROUPS = {
             { key: "freq",     label: "Core Frequency" },
             { key: "memFreq",  label: "Memory Frequency" },
             { key: "power",    label: "Power" },
-            { key: "voltage",  label: "Core Voltage" }
+            { key: "voltage",  label: "Core Voltage" },
+            { key: "fan",      label: "Fan Speed (RPM)" }
         ]
     },
     bat: {
@@ -437,6 +438,17 @@ var DEFINITIONS = {
         label: "Core Voltage",
         icon: "voltage-symbolic",
         thresholdType: "none"
+    },
+    "gpu.fan": {
+        id: "gpu.fan",
+        group: "gpu",
+        subKey: "fan",
+        sensorPattern: "gpu/{id}/fanSpeed",
+        label: "Fan",
+        icon: "fan-symbolic",
+        unit: "RPM",
+        thresholdType: "normal",
+        thresholdKey: "fan"
     },
     "bat.percentage": {
         id: "bat.percentage",

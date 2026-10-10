@@ -281,6 +281,7 @@ function _resolveSegmentLabel(metric, disabledList) {
     if (metric.subKey === "memFreq" || metric.subKey === "memoryFrequency") return "MEM";
     if (metric.subKey === "power" && metric.group === "gpu") return "PWR";
     if (metric.subKey === "voltage") return "VOLT";
+    if (metric.subKey === "fan" && metric.group === "gpu") return "FAN";
     if (metric.group === "fan" || metric.subKey === "core") return metric.subLabel || "";
     return "";
 }
@@ -291,7 +292,10 @@ function _resolveSegmentIcon(metric, disabledList) {
         return metric.icon || "swap-symbolic";
     }
     if (metric.group === "disk" && metric.subKey === "temp") {
-        return metric.icon || "temperature-symbolic";
+        return (metric.icon !== undefined && metric.icon !== "") ? metric.icon : "temperature-symbolic";
+    }
+    if (metric.subKey === "fan" && metric.group === "gpu") {
+        return metric.icon || "fan-symbolic";
     }
     if (metric.subKey === "temp" || metric.subKey === "hotspot" || metric.subKey === "vramTemp" || (metric.group === "ram" && metric.subKey === "temp")) {
         return metric.icon || "temperature-symbolic";

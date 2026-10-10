@@ -358,6 +358,9 @@ KCM.SimpleKCM {
                 icon = "voltage-symbolic";
                 displayName = "GPU Volt";
                 previewVal = "0.92 V";
+            } else if (subKey === "fan") {
+                icon = "fan-symbolic";
+                previewVal = "1850 RPM";
             } else if (subKey === "usage") {
                 previewVal = "28%";
             } else if (subKey === "vram") {
@@ -421,6 +424,7 @@ KCM.SimpleKCM {
             gpuItems.push({ id: "gpu:" + gid + "/memFreq", label: gName + " Reloj VRAM", icon: "gpu-symbolic", group: "gpu" });
             gpuItems.push({ id: "gpu:" + gid + "/power", label: gName + " Watts", icon: "voltage-symbolic", group: "gpu" });
             gpuItems.push({ id: "gpu:" + gid + "/voltage", label: gName + " Voltaje", icon: "voltage-symbolic", group: "gpu" });
+            gpuItems.push({ id: "gpu:" + gid + "/fan", label: gName + " Ventilador (RPM)", icon: "fan-symbolic", group: "gpu" });
         }
         if (gpuItems.length > 0) {
             cats.push({
@@ -849,6 +853,52 @@ KCM.SimpleKCM {
                             }
                         }
                     }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 1
+                    color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.1)
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Kirigami.Units.smallSpacing
+
+                    Kirigami.Icon {
+                        source: panelOrderPage.resolveIcon(panelOrderPage.cfg_diskTempIcon)
+                        implicitWidth: 20; implicitHeight: 20
+                        color: "#e67e22"
+                    }
+
+                    QQC2.Label {
+                        text: i18n("Icono delantero para temperatura de discos:")
+                        font.weight: Font.DemiBold
+                    }
+
+                    QQC2.Button {
+                        text: i18n("Termómetro (🌡️)")
+                        icon.name: "temperature-symbolic"
+                        highlighted: panelOrderPage.cfg_diskTempIcon === "temperature-symbolic"
+                        onClicked: {
+                            panelOrderPage.cfg_diskTempIcon = "temperature-symbolic";
+                            panelOrderPage.rebuildSimLists();
+                            panelOrderPage.rescanCatalog();
+                        }
+                    }
+
+                    QQC2.Button {
+                        text: i18n("Disco Duro (🖴)")
+                        icon.name: "storage-symbolic"
+                        highlighted: panelOrderPage.cfg_diskTempIcon === "storage-symbolic"
+                        onClicked: {
+                            panelOrderPage.cfg_diskTempIcon = "storage-symbolic";
+                            panelOrderPage.rebuildSimLists();
+                            panelOrderPage.rescanCatalog();
+                        }
+                    }
+
+                    Item { Layout.fillWidth: true }
                 }
             }
         }

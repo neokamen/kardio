@@ -38,6 +38,7 @@ Item {
     readonly property real gpuMemFreqNumber: _memFreqNum
     readonly property real gpuPowerNumber: _powerNum
     readonly property real gpuVoltageNumber: _voltageNum
+    readonly property real gpuFanNumber: _fanNum
     readonly property string gpuValue:     _usageStr
     readonly property string gpuRamValue:  _vramStr
     readonly property string gpuTempValue: _tempStr
@@ -47,6 +48,7 @@ Item {
     readonly property string gpuMemFreqValue: _memFreqStr
     readonly property string gpuPowerValue: _powerStr
     readonly property string gpuVoltageValue: _voltageStr
+    readonly property string gpuFanValue: _fanStr
     readonly property string gpuDisplayValue:
         [_usageStr, _vramStr, _tempStr].filter(function(v){return v;}).join(" ")
     readonly property bool hasGpuData:      gpuDisplayValue.length > 0
@@ -55,6 +57,7 @@ Item {
     readonly property bool hasGpuTempData:  _tempStr.length  > 0
     readonly property bool hasGpuHotspotData: _hotspotStr.length > 0
     readonly property bool hasGpuVramTempData: _vramTempStr.length > 0
+    readonly property bool hasGpuFanData: _fanStr.length > 0
 
     // Per-GPU list for multi display: [{ id, name, usage, vram, temp, hotspot, vramTemp, freq, memFreq, power, ... }]
     readonly property var gpuDataList: _dataList
@@ -68,6 +71,7 @@ Item {
     property real _memFreqNum: NaN
     property real _powerNum: NaN
     property real _voltageNum: NaN
+    property real _fanNum: NaN
     property string _usageStr: ""
     property string _vramStr:  ""
     property string _tempStr:  ""
@@ -77,6 +81,7 @@ Item {
     property string _memFreqStr: ""
     property string _powerStr: ""
     property string _voltageStr: ""
+    property string _fanStr: ""
 
     // -------------------------------------------------------------------------
     // Step 1: Discover available GPUs via HardwareDiscovery
@@ -171,6 +176,7 @@ Item {
             var vramTempSensor = (gpuInfo && gpuInfo.vramTempSensor) ? gpuInfo.vramTempSensor : ("gpu/" + g + "/temp3");
             var memFreqSensor = (gpuInfo && gpuInfo.memFreqSensor) ? gpuInfo.memFreqSensor : ("gpu/" + g + "/memoryFrequency");
             var voltageSensor = (gpuInfo && gpuInfo.voltageSensor) ? gpuInfo.voltageSensor : ("gpu/" + g + "/in0");
+            var fanSensor = (gpuInfo && gpuInfo.fanSensor) ? gpuInfo.fanSensor : ("gpu/" + g + "/fanSpeed");
 
             if (m.indexOf("usage") >= 0) ids.push("gpu/" + g + "/usage");
             if (m.indexOf("vram")  >= 0) {
@@ -184,6 +190,7 @@ Item {
             if (m.indexOf("memFreq")  >= 0) ids.push(memFreqSensor);
             if (m.indexOf("power")    >= 0) ids.push("gpu/" + g + "/power");
             if (m.indexOf("voltage")  >= 0) ids.push(voltageSensor);
+            if (m.indexOf("fan")      >= 0) ids.push(fanSensor);
         }
         return ids;
     }
@@ -289,6 +296,7 @@ Item {
         var maxMemFreq = NaN;
         var totalPower = 0;
         var maxVoltage = NaN;
+        var maxFan = NaN;
 
         for (var i = 0; i < ids.length; i++) {
             var g = ids[i];
@@ -302,6 +310,7 @@ Item {
             var showMF = m.indexOf("memFreq") >= 0;
             var showP  = m.indexOf("power") >= 0;
             var showVlt = m.indexOf("voltage") >= 0;
+            var showFan = m.indexOf("fan") >= 0;
 
             // Resolve display name: custom label > default name > fallback
             var gpuInfo = null;
@@ -315,6 +324,7 @@ Item {
             var vramTempSensor = (gpuInfo && gpuInfo.vramTempSensor) ? gpuInfo.vramTempSensor : ("gpu/" + g + "/temp3");
             var memFreqSensor = (gpuInfo && gpuInfo.memFreqSensor) ? gpuInfo.memFreqSensor : ("gpu/" + g + "/memoryFrequency");
             var voltageSensor = (gpuInfo && gpuInfo.voltageSensor) ? gpuInfo.voltageSensor : ("gpu/" + g + "/in0");
+            var fanSensor = (gpuInfo && gpuInfo.fanSensor) ? gpuInfo.fanSensor : ("gpu/" + g + "/fanSpeed");
 
             var uVal   = showU  ? _modelValue("gpu/" + g + "/usage")         : NaN;
             var vuVal  = showV  ? _modelValue("gpu/" + g + "/usedVram")       : NaN;
@@ -326,6 +336,7 @@ Item {
             var mfVal  = showMF ? _modelValue(memFreqSensor)                  : NaN;
             var pVal   = showP  ? _modelValue("gpu/" + g + "/power")          : NaN;
             var vltVal = showVlt ? _modelValue(voltageSensor)                 : NaN;
+            var fanVal = showFan ? _modelValue(fanSensor)                     : NaN;
 
             // Direct Sysfs fallback when ksystemstats returns 0, NaN, or is missing
             var sysInfo = root._sysfsGpuData[g] || {};
@@ -336,6 +347,17 @@ Item {
             if ((isNaN(hsVal) || hsVal <= 0) && sysInfo.hotspot) hsVal = sysInfo.hotspot;
             if ((isNaN(vt2Val) || vt2Val <= 0) && sysInfo.vramTemp) vt2Val = sysInfo.vramTemp;
             if ((isNaN(tVal) || tVal <= 0) && sysInfo.temp) tVal = sysInfo.temp;
+            if ((isNaN(fanVal) || fanVal <= 0) && sysInfo.fan) fanVal = sysInfo.fan;
+            if ((isNaN(fanVal) || fanVal <= 0) && root._sysfsGpuData) {
+                if (root._sysfsGpuData.cpu && root._sysfsGpuData.cpu.fan) {
+                    fanVal = root._sysfsGpuData.cpu.fan;
+                } else if (root._sysfsGpuData.fans) {
+                    var fanKeys = Object.keys(root._sysfsGpuData.fans);
+                    if (fanKeys.length > 0 && root._sysfsGpuData.fans[fanKeys[0]] > 0) {
+                        fanVal = root._sysfsGpuData.fans[fanKeys[0]];
+                    }
+                }
+            }
 
             var uStr = !isNaN(uVal) ? (padNumbers ? Math.round(uVal).toString().padStart(3) + "%" : Math.round(uVal).toString() + "%") : "";
             var vStr = "";
@@ -357,10 +379,11 @@ Item {
             }
             var pStr = (!isNaN(pVal) && pVal > 0) ? pVal.toFixed(1) + "W" : "";
             var vltStr = (!isNaN(vltVal) && vltVal > 0) ? ((vltVal > 50 ? (vltVal / 1000).toFixed(2) : vltVal.toFixed(2)) + " V") : "";
+            var fanStr = (!isNaN(fanVal) && fanVal > 0) ? Math.round(fanVal) + " RPM" : "";
 
             newList.push({ id: g, name: name,
                            usage: uStr, vram: vStr, temp: tStr, hotspot: hsStr, vramTemp: vt2Str,
-                           freq: fStr, memFreq: mfStr, power: pStr, voltage: vltStr,
+                           freq: fStr, memFreq: mfStr, power: pStr, voltage: vltStr, fan: fanStr,
                            usageNumber: !isNaN(uVal) ? uVal : NaN,
                            tempNumber:  (!isNaN(tVal) && tVal > 0) ? tVal : NaN,
                            hotspotNumber: (!isNaN(hsVal) && hsVal > 0) ? hsVal : NaN,
@@ -368,7 +391,8 @@ Item {
                            freqNumber:  (!isNaN(fVal) && fVal > 0) ? fVal : NaN,
                            memFreqNumber: (!isNaN(mfVal) && mfVal > 0) ? mfVal : NaN,
                            powerNumber: (!isNaN(pVal) && pVal > 0) ? pVal : NaN,
-                           voltageNumber: (!isNaN(vltVal) && vltVal > 0) ? vltVal : NaN });
+                           voltageNumber: (!isNaN(vltVal) && vltVal > 0) ? vltVal : NaN,
+                           fanNumber: (!isNaN(fanVal) && fanVal > 0) ? fanVal : NaN });
 
             if (!isNaN(uVal)) { totalUsage += uVal; usageCount++; }
             if (!isNaN(vuVal) && !isNaN(vtVal) && vtVal > 0 && vuVal >= 0) {
@@ -383,6 +407,7 @@ Item {
             if (!isNaN(mfVal) && mfVal > 0 && (isNaN(maxMemFreq) || mfVal > maxMemFreq)) maxMemFreq = mfVal;
             if (!isNaN(pVal) && pVal > 0) totalPower += pVal;
             if (!isNaN(vltVal) && vltVal > 0 && (isNaN(maxVoltage) || vltVal > maxVoltage)) maxVoltage = vltVal;
+            if (!isNaN(fanVal) && fanVal > 0 && (isNaN(maxFan) || fanVal > maxFan)) maxFan = fanVal;
         }
 
         _dataList = newList;
@@ -407,6 +432,8 @@ Item {
         _powerStr = totalPower > 0 ? totalPower.toFixed(1) + "W" : "";
         _voltageNum = !isNaN(maxVoltage) ? maxVoltage : NaN;
         _voltageStr = !isNaN(maxVoltage) ? ((maxVoltage > 50 ? (maxVoltage / 1000).toFixed(2) : maxVoltage.toFixed(2)) + " V") : "";
+        _fanNum = !isNaN(maxFan) ? maxFan : NaN;
+        _fanStr = !isNaN(maxFan) ? Math.round(maxFan) + " RPM" : "";
     }
 
     // Re-aggregate when sub-metrics, labels, selection, or unit change

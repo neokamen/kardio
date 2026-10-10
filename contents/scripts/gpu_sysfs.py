@@ -66,6 +66,14 @@ def collect_telemetry():
                         data["fan"] = fan_val
                         break
                 except Exception: pass
+            if "fan" not in data:
+                for pwm_f in glob.glob(os.path.join(hw, "pwm*")):
+                    try:
+                        pwm_val = int(open(pwm_f).read().strip())
+                        if 0 <= pwm_val <= 255:
+                            data["fan"] = round((pwm_val / 255.0) * 100)
+                            break
+                    except Exception: pass
 
         # AMD DPM clocks
         if sclk <= 0 and os.path.exists(os.path.join(dev, "pp_dpm_sclk")):
@@ -108,6 +116,10 @@ def collect_telemetry():
                         if mclk <= 0:
                             uclk = struct.unpack_from("<H", buf, 68)[0]
                             if uclk > 0: mclk = uclk
+                        if "fan" not in data and len(buf) >= 114:
+                            fan_pwm = struct.unpack_from("<H", buf, 112)[0]
+                            if 0 < fan_pwm < 65535:
+                                data["fan"] = fan_pwm
                     elif fmt_rev == 1:  # dGPUs: RDNA1 / RDNA2 / RDNA3
                         thot = struct.unpack_from("<H", buf, 6)[0] / 100.0
                         tmem = struct.unpack_from("<H", buf, 8)[0] / 100.0
@@ -121,6 +133,11 @@ def collect_telemetry():
                         if mclk <= 0 and len(buf) >= 30:
                             uclk = struct.unpack_from("<H", buf, 28)[0]
                             if uclk > 0: mclk = uclk
+                        fan_offset = 68 if cnt_rev == 0 else 72
+                        if "fan" not in data and len(buf) >= fan_offset + 2:
+                            g_fan = struct.unpack_from("<H", buf, fan_offset)[0]
+                            if 0 < g_fan < 65535:
+                                data["fan"] = g_fan
             except Exception: pass
 
         # Intel frequency
@@ -142,7 +159,7 @@ def collect_telemetry():
     if shutil.which("nvidia-smi"):
         try:
             res = subprocess.run(
-                ["nvidia-smi", "--query-gpu=index,clocks.gr,clocks.mem,power.draw,temperature.gpu", "--format=csv,noheader,nounits"],
+                ["nvidia-smi", "--query-gpu=index,clocks.gr,clocks.mem,power.draw,temperature.gpu,fan.speed", "--format=csv,noheader,nounits"],
                 capture_output=True, text=True, timeout=1.0
             )
             if res.returncode == 0:
@@ -161,6 +178,11 @@ def collect_telemetry():
                             except: pass
                         if "temp" not in gpus[n_idx]:
                             try: gpus[n_idx]["temp"] = round(float(parts[4]), 1)
+                            except: pass
+                        if len(parts) >= 6 and "fan" not in gpus[n_idx]:
+                            try:
+                                f_spd = int("".join(c for c in parts[5] if c.isdigit()))
+                                if f_spd >= 0: gpus[n_idx]["fan"] = f_spd
                             except: pass
         except Exception: pass
 
@@ -351,6 +373,13 @@ def collect_telemetry():
                 try: bdata["voltage"] = round(int(binfo["voltage_now"]) / 1000000.0, 2)
                 except Exception: pass
             batteries[bid] = bdata
+
+    # Fallback fan for GPUs sharing cooling with CPU/chassis
+    sys_fan = cpu.get("fan") or (next(iter(fans.values())) if fans else None)
+    if sys_fan:
+        for g_data in gpus.values():
+            if "fan" not in g_data:
+                g_data["fan"] = sys_fan
 
     # Assemble combined output
     # Populate root with gpu0, gpu1... for backward-compatibility

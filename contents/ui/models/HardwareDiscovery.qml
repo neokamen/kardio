@@ -154,6 +154,7 @@ Item {
         var gpuVramTempMap = {};
         var gpuMemFreqMap = {};
         var gpuVoltageMap = {};
+        var gpuFanMap = {};
         var diskMap = {};
         var fanSet = {};
         var coreMap = {};
@@ -198,8 +199,10 @@ Item {
                     gpuMemFreqMap[gid] = sid;
                 } else if (sid === "gpu/" + gid + "/in0" || /vddgfx|voltage/i.test(name)) {
                     gpuVoltageMap[gid] = sid;
+                } else if (sid === "gpu/" + gid + "/fanSpeed" || sid === "gpu/" + gid + "/fan" || /fan/i.test(sid) || /fan/i.test(name)) {
+                    gpuFanMap[gid] = sid;
                 }
-            } else if ((m = sid.match(/^lmsensors\/(?:amdgpu|nouveau|nvidia)[^/]*\/(temp\d+|junction|hotspot|mem|in\d+)/i))) {
+            } else if ((m = sid.match(/^lmsensors\/(?:amdgpu|nouveau|nvidia)[^/]*\/(temp\d+|junction|hotspot|mem|in\d+|fan\d+)/i))) {
                 var subType = m[1].toLowerCase();
                 var targetGpuId = "gpu0";
                 if ((subType === "temp2" || /hotspot|junction/i.test(name) || /hotspot|junction/i.test(sid)) && !gpuHotspotMap[targetGpuId]) {
@@ -208,6 +211,8 @@ Item {
                     gpuVramTempMap[targetGpuId] = sid;
                 } else if ((subType === "in0" || /vddgfx/i.test(name)) && !gpuVoltageMap[targetGpuId]) {
                     gpuVoltageMap[targetGpuId] = sid;
+                } else if (/fan/i.test(subType) && !gpuFanMap[targetGpuId]) {
+                    gpuFanMap[targetGpuId] = sid;
                 }
             } else if ((m = sid.match(pDisk))) {
                 diskMap[m[1]] = true;
@@ -244,7 +249,8 @@ Item {
                 hotspotSensor: gpuHotspotMap[id] || ("gpu/" + id + "/temp2"),
                 vramTempSensor: gpuVramTempMap[id] || ("gpu/" + id + "/temp3"),
                 memFreqSensor: gpuMemFreqMap[id] || ("gpu/" + id + "/memoryFrequency"),
-                voltageSensor: gpuVoltageMap[id] || ("gpu/" + id + "/in0")
+                voltageSensor: gpuVoltageMap[id] || ("gpu/" + id + "/in0"),
+                fanSensor: gpuFanMap[id] || ("gpu/" + id + "/fanSpeed")
             };
         });
 

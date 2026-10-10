@@ -279,6 +279,11 @@ QtObject {
         onGpuSelectionChanged:  root._saveActiveConfigKey("gpuSelection", gpuSelection)
         onDiskLabelsChanged:    root._saveActiveConfigKey("diskLabels", diskLabels)
         onFanLabelsChanged:     root._saveActiveConfigKey("fanLabels", fanLabels)
+        onDiskTempIconChanged:  root._saveActiveConfigKey("diskTempIcon", diskTempIcon)
+        onGpuTempIconChanged:   root._saveActiveConfigKey("gpuTempIcon", gpuTempIcon)
+        onCpuTempIconChanged:   root._saveActiveConfigKey("cpuTempIcon", cpuTempIcon)
+        onShowBlockLeadingIconChanged: root._saveActiveConfigKey("showBlockLeadingIcon", showBlockLeadingIcon)
+        onDisabledBlockIconsChanged:   root._saveActiveConfigKey("disabledBlockIcons", disabledBlockIcons)
     }
 
     function _saveActiveConfigKey(key, value) {
@@ -482,7 +487,7 @@ QtObject {
         var data = profile.data;
         var defs = _defaults;
         for (var key in defs) {
-            var val = (data[key] !== undefined) ? data[key] : defs[key];
+            var val = (data[key] !== undefined) ? data[key] : ((Plasmoid.configuration[key] !== undefined) ? Plasmoid.configuration[key] : defs[key]);
             if (Plasmoid.configuration[key] !== undefined) {
                 Plasmoid.configuration[key] = val;
             }
